@@ -1,0 +1,16 @@
+# Local database only. The server process is not wired to it yet.
+# Values come from the environment or .env. Nothing here is a real host.
+services:
+  database:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-grandpa_shop}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+      POSTGRES_DB: ${POSTGRES_DB:-grandpa_shop}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - grandpa_shop_pg:/var/lib/postgresql
+
+volumes:
+  grandpa_shop_pg:
