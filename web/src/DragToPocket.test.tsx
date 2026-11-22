@@ -489,6 +489,42 @@ describe("moving a filed copy", () => {
     });
   });
 
+  it("outlines the filled pocket under the pointer", async () => {
+    const user = await fileTwoDarkMagicians();
+    await user.click(slot("Close catalogue"));
+    const occupied = slot("Page 1, slot 2: Dark Magician");
+
+    dragCopy(slot("Page 1, slot 1: Dark Magician"), occupied);
+
+    expect(occupied.classList.contains("slot--aimed")).toBe(true);
+  });
+
+  it("does not outline a filled pocket away from the pointer", async () => {
+    const user = await fileTwoDarkMagicians();
+    await user.click(slot("Page 1, slot 3, empty"));
+    await user.click(printing(/SDY-006/));
+    await user.click(slot("Close catalogue"));
+
+    dragCopy(
+      slot("Page 1, slot 1: Dark Magician"),
+      slot("Page 1, slot 2: Dark Magician"),
+    );
+
+    expect(
+      slot("Page 1, slot 3: Dark Magician").classList.contains("slot--aimed"),
+    ).toBe(false);
+  });
+
+  it("never outlines the pocket the copy is dragged from", async () => {
+    const user = await fileTwoDarkMagicians();
+    await user.click(slot("Close catalogue"));
+    const source = slot("Page 1, slot 1: Dark Magician");
+
+    dragCopy(source, source);
+
+    expect(source.classList.contains("slot--aimed")).toBe(false);
+  });
+
   it("clears a catalogue target that a swap moves away", async () => {
     const user = await fileTwoDarkMagicians();
     const occupied = slot("Page 1, slot 2: Dark Magician");

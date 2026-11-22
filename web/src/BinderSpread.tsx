@@ -193,7 +193,8 @@ function PageSide({
             dropTarget?.page === page && dropTarget.position === position;
           const aimed =
             isTarget(aim, address) ||
-            ((movingCopy || aim?.kind === "holding") && !copy);
+            ((movingCopy || aim?.kind === "holding") && !copy) ||
+            (dropping && copy !== null);
           const className = [
             copy ? "slot slot--filled" : "slot slot--empty",
             aimed && "slot--aimed",
