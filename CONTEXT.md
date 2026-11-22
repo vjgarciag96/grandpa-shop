@@ -28,9 +28,17 @@ A physical binder of pages.
 
 One side of a binder sheet. Pages in a binder have an order.
 
+## Spread
+
+Two facing pages of a binder, seen together: pages 1 and 2, then 3 and 4. Turning the binder moves one spread.
+
 ## Slot
 
 One pocket on a page. A slot holds one copy, or it is empty.
+
+## Catalogue
+
+Every card and printing that exists, as reference data from outside the collection. The catalogue is read-only. A copy is made by picking a printing from it.
 
 ## Set
 

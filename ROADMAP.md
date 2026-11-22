@@ -18,11 +18,13 @@ Show the copies the server stored, on a plain web page, using the design tokens.
 
 Done when the page shows the copy from milestone 1, including an empty collection. Not started.
 
-## 3. Turn a binder page
+## 3. Fill and turn a binder spread
 
-Browse one binder as a spread, with the page-turn from [design/guidelines.md](design/guidelines.md), including reduced motion.
+Browse one binder of 20 pages as a spread, fill a slot by searching the catalogue and picking a printing, see and edit the copy in a slot, and turn spreads with the page-turn from [design/guidelines.md](design/guidelines.md), including reduced motion. The server serves the catalogue from YGOPRODeck. Copies stay in the page's memory until milestone 1 saves them.
 
-Done when a gesture moves to the next spread and a reduced-motion setting cuts instead. Not started.
+Built ahead of milestones 1 and 2, because Víctor wants to see the binder before persistence. Framed in [#1](https://github.com/vjgarciag96/grandpa-shop/issues/1). Owners: design, backend, web.
+
+Done when a slot filled from the catalogue shows its card, its detail shows the printing and condition, a gesture moves to the next spread, and a reduced-motion setting cuts instead. In progress.
 
 ## 4. Show the collection on the phone
 
