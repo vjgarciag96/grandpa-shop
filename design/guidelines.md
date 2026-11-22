@@ -4,6 +4,8 @@ Grandpa Shop presents a physical binder on a desk. The cover and spine are flat 
 
 ## Colour
 
+Spell Card teal anchors the primary actions, with parchment surfaces and muted antique gold for secondary controls.
+
 | Token | Use |
 | --- | --- |
 | `primary`, `onPrimary` | A filled action and its label. |
