@@ -29,9 +29,15 @@ export async function openCatalogueResult(
   await user.click(await screen.findByRole("button", { name: result }));
 }
 
-/** Opens Pot of Greed in the catalogue over a binder whose page 1, slot 1 holds Dark Magician SDY-006 in Lightly Played. */
-export async function openPotOfGreedOverDarkMagician(width = 1200) {
-  saveBinderWith({ 0: savedPlayedSdyDarkMagician });
+/**
+ * Opens Pot of Greed in the catalogue over a binder whose page 1, slot 1 holds Dark Magician SDY-006 in Lightly Played,
+ * plus any `alsoFiled` copies keyed by slot index from 0.
+ */
+export async function openPotOfGreedOverDarkMagician(
+  width = 1200,
+  alsoFiled: Record<number, unknown> = {},
+) {
+  saveBinderWith({ 0: savedPlayedSdyDarkMagician, ...alsoFiled });
   const app = openApp(width);
   await openCatalogueResult(app.user, "pot", /Pot of Greed/);
   return app;

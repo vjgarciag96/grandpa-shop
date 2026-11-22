@@ -1,5 +1,5 @@
-import { fireEvent, screen, within } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { act, fireEvent, screen, within } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   openApp,
   openCatalogueResult,
@@ -22,6 +22,7 @@ import {
   releaseSecondary,
 } from "./test/drag";
 import { prefersReducedMotion } from "./test/media";
+import { PAGE_FLIP_MS } from "./tokens";
 
 const slot = (name: string) => screen.getByRole("button", { name });
 const printing = (code: RegExp) => screen.getByRole("button", { name: code });
@@ -46,6 +47,7 @@ const labelOf = (name: string) =>
     .getAttribute("aria-label");
 
 afterEach(() => {
+  vi.useRealTimers();
   pointerIsOver(null);
 });
 
@@ -260,6 +262,24 @@ describe("dragging a printing onto a slot", () => {
 
     expect([labelOf("Page 1, slot 1"), catalogueAnnouncement()]).toEqual([
       "Page 1, slot 1: Dark Magician",
+      "",
+    ]);
+  });
+
+  it("drops nothing on a pocket the spread turned under a still pointer", async () => {
+    await openPotOfGreedOverDarkMagician(1200, { 18: savedDarkMagician });
+    pointerIsOver(slot("Page 1, slot 1: Dark Magician"));
+    press(printing(/LOB-EN119/));
+    moveTo(400, 300);
+    vi.useFakeTimers();
+    fireEvent.keyDown(document, { key: "ArrowRight" });
+    act(() => vi.advanceTimersByTime(PAGE_FLIP_MS));
+    pointerIsOver(slot("Page 3, slot 1: Dark Magician"));
+
+    release(printing(/LOB-EN119/), 400, 300);
+
+    expect([labelOf("Page 3, slot 1"), catalogueAnnouncement()]).toEqual([
+      "Page 3, slot 1: Dark Magician",
       "",
     ]);
   });
