@@ -9,6 +9,7 @@ import {
   savedDarkMagician,
 } from "./test/binder";
 import { darkMagician, fakeCatalogue } from "./test/fakeCatalogue";
+import { viewportWidth } from "./test/media";
 
 function openApp() {
   const view = render(<App catalogue={fakeCatalogue().catalogue} />);
@@ -54,6 +55,27 @@ function moveCopyWithMouse(source: HTMLElement, destination: HTMLElement) {
     clientY: 300,
   });
   fireEvent.click(source, { detail: 1 });
+}
+
+/** Drags a catalogue printing with the mouse and drops it on a pocket; the pocket under the pointer is stubbed. */
+function dragPrintingWithMouse(row: HTMLElement, destination: HTMLElement) {
+  document.elementFromPoint = () => destination;
+  fireEvent.pointerDown(row, {
+    pointerType: "mouse",
+    pointerId: 1,
+    isPrimary: true,
+    button: 0,
+    clientX: 900,
+    clientY: 300,
+  });
+  fireEvent.pointerMove(window, {
+    pointerId: 1,
+    clientX: 400,
+    clientY: 300,
+    buttons: 1,
+  });
+  fireEvent.pointerUp(window, { pointerId: 1, clientX: 400, clientY: 300 });
+  fireEvent.click(row, { detail: 1 });
 }
 
 afterEach(() => {
@@ -175,6 +197,38 @@ describe("the binder across reloads", () => {
     const saved = JSON.parse(localStorage.getItem(SAVED_BINDER_KEY) ?? "null");
     expect(saved.slots).toHaveLength(360);
     expect(saved.slots.slice(2)).toEqual(slots.slice(2));
+  });
+
+  it("keeps a replaced copy gone when the app is opened again", async () => {
+    saveBinderWith({
+      0: {
+        ...savedDarkMagician,
+        printing: darkMagician.printings[1],
+        condition: "Lightly Played",
+      },
+    });
+    viewportWidth(1200);
+    const first = openApp();
+    await first.user.click(screen.getByRole("button", { name: "Add cards" }));
+    await first.user.type(
+      screen.getByRole("searchbox", { name: "Search cards and sets" }),
+      "pot",
+    );
+    await first.user.click(
+      await screen.findByRole("button", { name: /Pot of Greed/ }),
+    );
+    dragPrintingWithMouse(
+      screen.getByRole("button", { name: /LOB-EN119/ }),
+      slot("Page 1, slot 1: Dark Magician"),
+    );
+    first.close();
+
+    const second = openApp();
+
+    expect([
+      screen.queryAllByRole("button", { name: /: Dark Magician$/ }),
+      await detailOf(second.user, slot("Page 1, slot 1: Pot of Greed")),
+    ]).toEqual([[], { printing: "LOB-EN119", condition: "Near Mint" }]);
   });
 
   it("starts with an empty binder when the saved binder is unreadable", () => {
