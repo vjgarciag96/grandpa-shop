@@ -79,6 +79,14 @@ export function CardPicker({
     }
   }, [chosen]);
 
+  function updateQuery(value: string) {
+    if (value.trim() !== trimmed) {
+      setAnswer(null);
+      if (results.current) results.current.scrollTop = 0;
+    }
+    setQuery(value);
+  }
+
   const action = replacing ? "Replace card" : "Add to pocket";
 
   return (
@@ -100,7 +108,7 @@ export function CardPicker({
       ) : (
         <>
           <div className="picker__controls">
-            <label className="picker__field">
+            <div className="picker__field">
               <SearchIcon />
               <input
                 ref={searchInput}
@@ -109,16 +117,22 @@ export function CardPicker({
                 autoComplete="off"
                 placeholder="Card name or set code"
                 value={query}
-                onChange={(event) => {
-                  const value = event.target.value;
-                  if (value.trim() !== trimmed) {
-                    setAnswer(null);
-                    if (results.current) results.current.scrollTop = 0;
-                  }
-                  setQuery(value);
-                }}
+                onChange={(event) => updateQuery(event.target.value)}
               />
-            </label>
+              {query && (
+                <button
+                  type="button"
+                  className="control control--icon"
+                  aria-label="Clear search"
+                  onClick={() => {
+                    updateQuery("");
+                    searchInput.current?.focus();
+                  }}
+                >
+                  <span className="close-icon" aria-hidden="true" />
+                </button>
+              )}
+            </div>
             {replacing && (
               <p className="picker__context">Replacing {replacing}</p>
             )}
@@ -196,7 +210,11 @@ function Results({
     return (
       <div className="picker__message">
         <strong role="alert">The card catalogue did not answer.</strong>
-        <button type="button" className="picker__secondary" onClick={onRetry}>
+        <button
+          type="button"
+          className="control control--tonal"
+          onClick={onRetry}
+        >
           Try again
         </button>
       </div>
@@ -241,9 +259,7 @@ function Results({
                     {printingCount === 1 ? "printing" : "printings"}
                   </span>
                 </span>
-                <span className="picker__chevron" aria-hidden="true">
-                  ›
-                </span>
+                <span className="chevron" aria-hidden="true" />
               </button>
             </li>
           );
@@ -283,7 +299,7 @@ function PrintingList({
       <div className="picker__controls picker__controls--printings">
         <button
           type="button"
-          className="picker__back"
+          className="control control--text picker__back"
           onClick={onBack}
           autoFocus
         >
@@ -337,7 +353,7 @@ function PrintingList({
         </p>
         <button
           type="button"
-          className="picker__confirm"
+          className="control control--filled picker__confirm"
           disabled={!selected}
           onClick={() => selected && onPick(selected)}
         >

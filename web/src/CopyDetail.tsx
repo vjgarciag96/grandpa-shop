@@ -24,19 +24,21 @@ export function CopyDetail({
 }: Props) {
   const { card, printing } = copy;
   return (
-    <Dialog title={title} onClose={onClose}>
+    <Dialog title={title} className="copy-dialog" onClose={onClose}>
       <div className="detail">
         <img
           className="detail__image"
           src={catalogue.imageUrl(card.passcode)}
           alt={card.name}
         />
-        <div>
+        <div className="detail__identity">
           <h3>{card.name}</h3>
           <p className="detail__type">{card.type}</p>
           {card.monster && (
             <p className="detail__stats">{statsLine(card.monster)}</p>
           )}
+        </div>
+        <div className="detail__content">
           <ul className="detail__printing" aria-label="Printing">
             <li className="detail__code">{printing.setCode}</li>
             <li className="detail__rarity">
@@ -46,7 +48,7 @@ export function CopyDetail({
             <li>{printing.setName}</li>
           </ul>
           <label className="detail__condition">
-            Condition
+            <span>Condition</span>
             <select
               value={copy.condition}
               onChange={(event) => onCondition(event.target.value as Condition)}
@@ -57,14 +59,22 @@ export function CopyDetail({
             </select>
           </label>
           <p className="detail__text">{card.text}</p>
-          <div className="detail__actions">
-            <button type="button" onClick={onReplace}>
-              Replace
-            </button>
-            <button type="button" onClick={onRemove}>
-              Remove from slot
-            </button>
-          </div>
+        </div>
+        <div className="detail__actions">
+          <button
+            type="button"
+            className="control control--tonal"
+            onClick={onReplace}
+          >
+            Replace
+          </button>
+          <button
+            type="button"
+            className="control control--danger"
+            onClick={onRemove}
+          >
+            Remove from slot
+          </button>
         </div>
       </div>
     </Dialog>
