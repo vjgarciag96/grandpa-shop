@@ -284,6 +284,42 @@ describe("dragging a printing onto a slot", () => {
     ]);
   });
 
+  it("highlights no pocket after the spread turns away and back under a still pointer", async () => {
+    await openPotOfGreedOverDarkMagician();
+    pointerIsOver(slot("Page 1, slot 1: Dark Magician"));
+    press(printing(/LOB-EN119/));
+    moveTo(400, 300);
+    vi.useFakeTimers();
+
+    fireEvent.keyDown(document, { key: "ArrowRight" });
+    act(() => vi.advanceTimersByTime(PAGE_FLIP_MS));
+    fireEvent.keyDown(document, { key: "ArrowLeft" });
+    act(() => vi.advanceTimersByTime(PAGE_FLIP_MS));
+
+    expect(
+      slot("Page 1, slot 1: Dark Magician").classList.contains("slot--aimed"),
+    ).toBe(false);
+  });
+
+  it("drops nothing when released after the spread turns away and back under a still pointer", async () => {
+    await openPotOfGreedOverDarkMagician();
+    pointerIsOver(slot("Page 1, slot 1: Dark Magician"));
+    press(printing(/LOB-EN119/));
+    moveTo(400, 300);
+    vi.useFakeTimers();
+    fireEvent.keyDown(document, { key: "ArrowRight" });
+    act(() => vi.advanceTimersByTime(PAGE_FLIP_MS));
+    fireEvent.keyDown(document, { key: "ArrowLeft" });
+    act(() => vi.advanceTimersByTime(PAGE_FLIP_MS));
+
+    release(printing(/LOB-EN119/), 400, 300);
+
+    expect([labelOf("Page 1, slot 1"), catalogueAnnouncement()]).toEqual([
+      "Page 1, slot 1: Dark Magician",
+      "",
+    ]);
+  });
+
   it("keeps a filled slot when a printing is released away from the binder", async () => {
     await openPotOfGreedOverDarkMagician();
     const row = printing(/LOB-EN119/);
