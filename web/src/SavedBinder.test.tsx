@@ -123,30 +123,46 @@ describe("the binder across reloads", () => {
     expect(slot("Page 1, slot 1, empty")).toBeTruthy();
   });
 
-  it("starts with an empty binder when a saved card's text is not text", () => {
-    saveBinderStartingWith({
-      ...savedDarkMagician,
-      card: { ...darkMagician, text: { en: "The ultimate wizard" } },
-    });
+  it.each([
+    ["card passcode", { passcode: "46986414" }],
+    ["card name", { name: { en: "Dark Magician" } }],
+    ["card kind", { kind: 1 }],
+    ["card type", { type: { en: "Normal Monster" } }],
+    ["card text", { text: { en: "The ultimate wizard" } }],
+    ["card printings", { printings: "LOB-EN005" }],
+    ["monster stats", { monster: "DARK" }],
+    ["monster ATK", { monster: { ...darkMagician.monster, atk: { v: 2500 } } }],
+  ])(
+    "starts with an empty binder when a saved copy's %s has the wrong type",
+    (_field, cardChange) => {
+      saveBinderStartingWith({
+        ...savedDarkMagician,
+        card: { ...darkMagician, ...cardChange },
+      });
 
-    openApp();
+      openApp();
 
-    expect(slot("Page 1, slot 1, empty")).toBeTruthy();
-  });
+      expect(slot("Page 1, slot 1, empty")).toBeTruthy();
+    },
+  );
 
-  it("starts with an empty binder when a saved monster stat is not text or a number", () => {
-    saveBinderStartingWith({
-      ...savedDarkMagician,
-      card: {
-        ...darkMagician,
-        monster: { ...darkMagician.monster, atk: { value: 2500 } },
-      },
-    });
+  it.each([
+    ["set code", { setCode: 5 }],
+    ["set name", { setName: { en: "Legend of Blue Eyes" } }],
+    ["rarity", { rarity: null }],
+  ])(
+    "starts with an empty binder when a saved printing's %s has the wrong type",
+    (_field, printingChange) => {
+      saveBinderStartingWith({
+        ...savedDarkMagician,
+        printing: { ...darkMagician.printings[0], ...printingChange },
+      });
 
-    openApp();
+      openApp();
 
-    expect(slot("Page 1, slot 1, empty")).toBeTruthy();
-  });
+      expect(slot("Page 1, slot 1, empty")).toBeTruthy();
+    },
+  );
 
   it("still places cards when the browser refuses storage", async () => {
     vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
