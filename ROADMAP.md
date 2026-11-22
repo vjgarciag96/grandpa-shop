@@ -6,7 +6,7 @@ Live sync is blocked. [0009](docs/decisions/0009-realtime-transport.md) and [001
 
 ## 1. Persist one copy
 
-Frame the types for Card, Printing, Copy, Binder, Page, Slot, and Collection, and store one copy in PostgreSQL.
+Store one copy in PostgreSQL, using the Card, Printing, Copy, Binder, Page, and Slot that milestone 3 models first, and frame the Collection type.
 
 Also frame, before any private route exists: how a request authenticates, and which tool runs schema migrations. Neither is decided.
 
@@ -18,11 +18,13 @@ Show the copies the server stored, on a plain web page, using the design tokens.
 
 Done when the page shows the copy from milestone 1, including an empty collection. Not started.
 
-## 3. Turn a binder page
+## 3. Fill and turn a binder spread
 
-Browse one binder as a spread, with the page-turn from [design/guidelines.md](design/guidelines.md), including reduced motion.
+Browse one binder of 20 sheets (40 pages of nine slots, 360 slots) spread by spread, fill a slot by searching the catalogue and picking a printing, see and edit the copy in a slot, and turn spreads with the page-turn from [design/guidelines.md](design/guidelines.md), including reduced motion. The server serves the catalogue from YGOPRODeck. Copies stay in the page's memory until milestone 1 saves them.
 
-Done when a gesture moves to the next spread and a reduced-motion setting cuts instead. Not started.
+Built ahead of milestones 1 and 2, because Víctor wants to see the binder before persistence. Framed in [#1](https://github.com/vjgarciag96/grandpa-shop/issues/1). Owners: design, backend, web.
+
+Done when a slot filled from the catalogue shows its card; its detail shows the printing and condition, the condition can be changed, and the copy can be removed; a gesture moves to the next spread and a reduced-motion setting cuts instead; and there is no turn before the first spread or after the last. The full checks are in [#1](https://github.com/vjgarciag96/grandpa-shop/issues/1). In progress.
 
 ## 4. Show the collection on the phone
 
