@@ -18,14 +18,16 @@ import org.junit.jupiter.api.Test
 import java.nio.file.Path
 
 class CatalogueSetsRouteTest {
-    private fun withSetsCatalogue(block: suspend ApplicationTestBuilder.() -> Unit) =
-        testApplication {
-            val fixture = checkNotNull(javaClass.getResource("/sets.json")).readText()
-            val catalogue = CardCatalogue.fromYgoprodeckJson(fixture)
-            val noImages = CardImages(Path.of("unused"), catalogue) { error("sets never fetch an image") }
-            application { catalogueModule(catalogue, noImages) }
-            block()
-        }
+    private fun withSetsCatalogue(
+        setName: String = "Legendary 5D&apos;s Decks",
+        block: suspend ApplicationTestBuilder.() -> Unit,
+    ) = testApplication {
+        val fixture = checkNotNull(javaClass.getResource("/sets.json")).readText()
+        val catalogue = CardCatalogue.fromYgoprodeckJson(fixture.replace("Legendary 5D&apos;s Decks", setName))
+        val noImages = CardImages(Path.of("unused"), catalogue) { error("sets never fetch an image") }
+        application { catalogueModule(catalogue, noImages) }
+        block()
+    }
 
     private suspend fun HttpClient.sets(query: String): JsonArray =
         Json
@@ -197,6 +199,22 @@ class CatalogueSetsRouteTest {
             val names = client.sets("q=5d's").names()
 
             assertEquals(listOf("Legendary 5D's Decks"), names)
+        }
+
+    @Test
+    fun decodes_decimal_entities_above_the_basic_multilingual_plane() =
+        withSetsCatalogue("Legendary 5D&#39;s Decks &#128512;") {
+            val names = client.sets("q=5d").names()
+
+            assertEquals(listOf("Legendary 5D's Decks 😀"), names)
+        }
+
+    @Test
+    fun keeps_unrepresentable_decimal_entities_as_text() =
+        withSetsCatalogue("Legendary 5D&#99999999999;s Decks &#55296; &#1114112;") {
+            val names = client.sets("q=5d").names()
+
+            assertEquals(listOf("Legendary 5D&#99999999999;s Decks &#55296; &#1114112;"), names)
         }
 
     @Test
