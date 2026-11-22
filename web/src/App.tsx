@@ -9,9 +9,9 @@ import { chooseSlot, choosePrinting, type Aim } from "./aim";
 import { BinderSpread } from "./BinderSpread";
 import { CataloguePanel, type Announcement } from "./CataloguePanel";
 import { CopyDetail } from "./CopyDetail";
+import { loadBinder, saveBinder } from "./savedBinder";
 import {
   changeCondition,
-  emptyBinder,
   place,
   remove,
   slotAt,
@@ -27,7 +27,7 @@ import { useDragToPocket } from "./useDragToPocket";
 import { useSpreadTurns } from "./useSpreadTurns";
 
 export default function App({ catalogue }: { catalogue: Catalogue }) {
-  const [binder, setBinder] = useState(emptyBinder);
+  const [binder, setBinder] = useState(loadBinder);
   const [detail, setDetail] = useState<SlotAddress | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
   const [aim, setAim] = useState<Aim | null>(null);
@@ -54,6 +54,8 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
     reducedMotion || stacked,
   );
   const { left, right } = spreadPages(spread);
+
+  useEffect(() => saveBinder(binder), [binder]);
 
   useEffect(() => {
     if (detail) return;
@@ -137,9 +139,7 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
             <span className="desk__mark" aria-hidden="true" />
             <div>
               <h1>Grandpa Shop</h1>
-              <p>
-                Cards you place stay until the page reloads. Saving comes later.
-              </p>
+              <p>Cards you place are kept in this browser for now.</p>
             </div>
           </div>
           <div className="desk__actions">
