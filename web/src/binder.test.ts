@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+  changeCondition,
   emptyBinder,
   pageSlots,
   place,
+  remove,
   spreadPages,
   type Copy,
 } from "./binder";
@@ -61,5 +63,50 @@ describe("place", () => {
     place(before, { page: 1, position: 0 }, darkMagicianCopy);
 
     expect(pageSlots(before, 1)[0]).toBeNull();
+  });
+});
+
+describe("remove", () => {
+  it("empties the slot", () => {
+    const filled = place(
+      emptyBinder(),
+      { page: 2, position: 4 },
+      darkMagicianCopy,
+    );
+
+    const binder = remove(filled, { page: 2, position: 4 });
+
+    expect(pageSlots(binder, 2)[4]).toBeNull();
+  });
+});
+
+describe("changeCondition", () => {
+  it("keeps the copy's printing and changes only its condition", () => {
+    const filled = place(
+      emptyBinder(),
+      { page: 2, position: 4 },
+      darkMagicianCopy,
+    );
+
+    const binder = changeCondition(
+      filled,
+      { page: 2, position: 4 },
+      "Heavily Played",
+    );
+
+    expect(pageSlots(binder, 2)[4]).toEqual({
+      ...darkMagicianCopy,
+      condition: "Heavily Played",
+    });
+  });
+
+  it("leaves an empty slot empty", () => {
+    const binder = changeCondition(
+      emptyBinder(),
+      { page: 2, position: 4 },
+      "Damaged",
+    );
+
+    expect(pageSlots(binder, 2)[4]).toBeNull();
   });
 });

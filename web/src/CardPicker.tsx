@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Dialog } from "./Dialog";
 import {
   MIN_QUERY_LENGTH,
   type Card,
@@ -42,62 +43,35 @@ export function CardPicker({ catalogue, title, onPick, onClose }: Props) {
     return () => request.abort();
   }, [catalogue, trimmed]);
 
-  useEffect(() => {
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-    document.addEventListener("keydown", closeOnEscape);
-    return () => document.removeEventListener("keydown", closeOnEscape);
-  }, [onClose]);
-
   return (
-    <div className="dialog-backdrop" onClick={onClose}>
-      <div
-        className="dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-label={title}
-        onClick={(event) => event.stopPropagation()}
-      >
-        <header className="dialog__head">
-          <h2>{title}</h2>
-          <button
-            type="button"
-            className="dialog__close"
-            aria-label="Close"
-            onClick={onClose}
-          >
-            ×
-          </button>
-        </header>
-        {chosen ? (
-          <PrintingList
-            card={chosen}
-            catalogue={catalogue}
-            onBack={() => setChosen(null)}
-            onPick={(printing) => onPick(chosen, printing)}
+    <Dialog title={title} onClose={onClose}>
+      {chosen ? (
+        <PrintingList
+          card={chosen}
+          catalogue={catalogue}
+          onBack={() => setChosen(null)}
+          onPick={(printing) => onPick(chosen, printing)}
+        />
+      ) : (
+        <>
+          <input
+            className="picker__search"
+            type="search"
+            aria-label="Search cards"
+            placeholder="Card name or set code, like LOB-EN001"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            autoFocus
           />
-        ) : (
-          <>
-            <input
-              className="picker__search"
-              type="search"
-              aria-label="Search cards"
-              placeholder="Card name or set code, like LOB-EN001"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              autoFocus
-            />
-            <Results
-              search={searchFor(trimmed, answer)}
-              query={trimmed}
-              catalogue={catalogue}
-              onChoose={setChosen}
-            />
-          </>
-        )}
-      </div>
-    </div>
+          <Results
+            search={searchFor(trimmed, answer)}
+            query={trimmed}
+            catalogue={catalogue}
+            onChoose={setChosen}
+          />
+        </>
+      )}
+    </Dialog>
   );
 }
 
