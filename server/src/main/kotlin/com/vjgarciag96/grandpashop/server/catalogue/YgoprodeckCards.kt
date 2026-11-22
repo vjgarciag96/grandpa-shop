@@ -13,7 +13,7 @@ internal object YgoprodeckCards {
 
     private fun Source.toCard(): Card? {
         val kind = kind()
-        val printings = cardSets.map { Printing(it.setCode, it.setName, it.setRarity) }.distinct()
+        val printings = cardSets.map { Printing(it.setCode, decodeEntities(it.setName), it.setRarity) }.distinct()
         return if (kind == null || printings.isEmpty()) {
             null
         } else {
@@ -28,6 +28,20 @@ internal object YgoprodeckCards {
             )
         }
     }
+
+    // A few set names arrive with HTML entities, such as "Legendary 5D&apos;s Decks".
+    private val entity = Regex("&(amp|apos|quot|lt|gt|#\\d+);")
+    private val namedEntities = mapOf("amp" to "&", "apos" to "'", "quot" to "\"", "lt" to "<", "gt" to ">")
+
+    private fun decodeEntities(text: String): String =
+        entity.replace(text) { match ->
+            val name = match.groupValues[1]
+            namedEntities[name] ?: name
+                .drop(1)
+                .toInt()
+                .toChar()
+                .toString()
+        }
 
     private fun Source.kind(): CardKind? =
         when {

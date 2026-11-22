@@ -1,0 +1,279 @@
+{
+  "data": [
+    {
+      "id": 58932615,
+      "name": "Elemental HERO Burstinatrix",
+      "type": "Normal Monster",
+      "desc": "A card.",
+      "race": "Warrior",
+      "card_sets": [
+        {
+          "set_code": "TLM-EN002",
+          "set_name": "The Lost Millennium",
+          "set_rarity": "Common"
+        }
+      ],
+      "attribute": "LIGHT",
+      "level": 4,
+      "atk": 1000,
+      "def": 1000
+    },
+    {
+      "id": 21844576,
+      "name": "Elemental HERO Avian",
+      "type": "Normal Monster",
+      "desc": "A card.",
+      "race": "Warrior",
+      "card_sets": [
+        {
+          "set_code": "LCGX-EN001",
+          "set_name": "Legendary Collection 2: The Duel Academy Years Mega Pack",
+          "set_rarity": "Common"
+        },
+        {
+          "set_code": "TLM-EN001",
+          "set_name": "The Lost Millennium",
+          "set_rarity": "Common"
+        }
+      ],
+      "attribute": "LIGHT",
+      "level": 4,
+      "atk": 1000,
+      "def": 1000
+    },
+    {
+      "id": 83104731,
+      "name": "Ancient Gear Golem",
+      "type": "Effect Monster",
+      "desc": "A card.",
+      "race": "Warrior",
+      "card_sets": [
+        {
+          "set_code": "TLM-EN006",
+          "set_name": "The Lost Millennium",
+          "set_rarity": "Ultra Rare"
+        },
+        {
+          "set_code": "TLM-EN006",
+          "set_name": "The Lost Millennium",
+          "set_rarity": "Ultimate Rare"
+        }
+      ],
+      "attribute": "LIGHT",
+      "level": 4,
+      "atk": 1000,
+      "def": 1000
+    },
+    {
+      "id": 28649820,
+      "name": "Invader of Darkness",
+      "type": "Effect Monster",
+      "desc": "A card.",
+      "race": "Warrior",
+      "card_sets": [
+        {
+          "set_code": "TLM-ENSE1",
+          "set_name": "The Lost Millennium: Special Edition",
+          "set_rarity": "Ultra Rare"
+        }
+      ],
+      "attribute": "LIGHT",
+      "level": 4,
+      "atk": 1000,
+      "def": 1000
+    },
+    {
+      "id": 29654737,
+      "name": "Amazoness Chain Master",
+      "type": "Effect Monster",
+      "desc": "A card.",
+      "race": "Warrior",
+      "card_sets": [
+        {
+          "set_code": "SP1-EN002",
+          "set_name": "The Lost Millennium Sneak Peek Participation Card",
+          "set_rarity": "Ultra Rare"
+        }
+      ],
+      "attribute": "LIGHT",
+      "level": 4,
+      "atk": 1000,
+      "def": 1000
+    },
+    {
+      "id": 75270120,
+      "name": "Lost Sanctuary Guardian",
+      "type": "Effect Monster",
+      "desc": "A card.",
+      "race": "Warrior",
+      "card_sets": [
+        {
+          "set_code": "SDLS-EN001",
+          "set_name": "Lost Sanctuary Structure Deck",
+          "set_rarity": "Common"
+        }
+      ],
+      "attribute": "LIGHT",
+      "level": 4,
+      "atk": 1000,
+      "def": 1000
+    },
+    {
+      "id": 1000001,
+      "name": "Arena Fighter",
+      "type": "Normal Monster",
+      "desc": "A card.",
+      "race": "Warrior",
+      "card_sets": [
+        {
+          "set_code": "SBLS-EN001",
+          "set_name": "Speed Duel: Arena of Lost Souls",
+          "set_rarity": "Common"
+        }
+      ],
+      "attribute": "LIGHT",
+      "level": 4,
+      "atk": 1000,
+      "def": 1000
+    },
+    {
+      "id": 1000002,
+      "name": "Starter Warrior",
+      "type": "Normal Monster",
+      "desc": "A card.",
+      "race": "Warrior",
+      "card_sets": [
+        {
+          "set_code": "STAX-EN002",
+          "set_name": "2-Player Starter Set",
+          "set_rarity": "Common"
+        },
+        {
+          "set_code": "STAS-EN001",
+          "set_name": "2-Player Starter Set",
+          "set_rarity": "Common"
+        },
+        {
+          "set_code": "STAS-EN003",
+          "set_name": "2-Player Starter Set",
+          "set_rarity": "Common"
+        }
+      ],
+      "attribute": "LIGHT",
+      "level": 4,
+      "atk": 1000,
+      "def": 1000
+    },
+    {
+      "id": 1000003,
+      "name": "Deluxe Dragon",
+      "type": "Normal Monster",
+      "desc": "A card.",
+      "race": "Warrior",
+      "card_sets": [
+        {
+          "set_code": "SD2-EN001",
+          "set_name": "Structure Deck: Deluxe Edition",
+          "set_rarity": "Common"
+        },
+        {
+          "set_code": "SD1-EN001",
+          "set_name": "Structure Deck: Deluxe Edition",
+          "set_rarity": "Common"
+        }
+      ],
+      "attribute": "LIGHT",
+      "level": 4,
+      "atk": 1000,
+      "def": 1000
+    },
+    {
+      "id": 1000004,
+      "name": "Ancient Token",
+      "type": "Token",
+      "desc": "A card.",
+      "race": "Warrior",
+      "card_sets": [
+        {
+          "set_code": "TLM-ENTKN",
+          "set_name": "The Lost Millennium",
+          "set_rarity": "Common"
+        }
+      ]
+    },
+    {
+      "id": 1000005,
+      "name": "Star Knight",
+      "type": "Normal Monster",
+      "desc": "A card.",
+      "race": "Warrior",
+      "attribute": "LIGHT",
+      "level": 4,
+      "atk": 1000,
+      "def": 1000,
+      "card_sets": [
+        {
+          "set_code": "LOST-EN001",
+          "set_name": "Sneak Preview Tournament",
+          "set_rarity": "Common"
+        }
+      ]
+    },
+    {
+      "id": 1000006,
+      "name": "Ghost Card",
+      "type": "Normal Monster",
+      "desc": "A card.",
+      "race": "Warrior",
+      "attribute": "LIGHT",
+      "level": 4,
+      "atk": 1000,
+      "def": 1000,
+      "card_sets": [
+        {
+          "set_code": "GHL-EN001",
+          "set_name": "The Ghostlost Pack",
+          "set_rarity": "Common"
+        },
+        {
+          "set_code": "GHL-EN002",
+          "set_name": "The Ghostlost Pack",
+          "set_rarity": "Common"
+        },
+        {
+          "set_code": "GHL-EN003",
+          "set_name": "The Ghostlost Pack",
+          "set_rarity": "Common"
+        },
+        {
+          "set_code": "GHL-EN004",
+          "set_name": "The Ghostlost Pack",
+          "set_rarity": "Common"
+        },
+        {
+          "set_code": "GHL-EN005",
+          "set_name": "The Ghostlost Pack",
+          "set_rarity": "Common"
+        }
+      ]
+    },
+    {
+      "id": 1000007,
+      "name": "Stardust Dragon",
+      "type": "Synchro Monster",
+      "desc": "A card.",
+      "race": "Dragon",
+      "attribute": "WIND",
+      "level": 8,
+      "atk": 2500,
+      "def": 2000,
+      "card_sets": [
+        {
+          "set_code": "LC5D-EN031",
+          "set_name": "Legendary 5D&apos;s Decks",
+          "set_rarity": "Secret Rare"
+        }
+      ]
+    }
+  ]
+}
