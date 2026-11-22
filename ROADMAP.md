@@ -43,3 +43,11 @@ Done when those two decisions are accepted, and an edit made on one running clie
 Package the web app so it installs and opens like a desktop window.
 
 Done when the installed window shows the collection list from milestone 2. Not started. The packaging tool is not chosen. See [0006](docs/decisions/0006-desktop-is-the-installed-web-app.md).
+
+## 7. File cards from a catalogue panel
+
+Replace the one-slot picker with a catalogue panel beside the binder. Search by card name or open a set, which lists its printings in set-code order, then place a printing in a slot by tapping or by dragging it there. A filled slot refuses a drop. Copies stay in the page's memory, as in milestone 3.
+
+Built on milestone 3, because filling a binder from a set card by card is too slow. Framed in [#11](https://github.com/vjgarciag96/grandpa-shop/issues/11). Owners: design, web, backend.
+
+Done when typing "lost" lists The Lost Millennium, opening it lists all 85 of its printings in set-code order from TLM-EN001, and a printing dragged onto an empty slot, or picked up and placed with the keyboard, fills it. The panel and the full spread fit side by side on a desktop, and the panel is a bottom sheet on a phone. The full checks are in [#11](https://github.com/vjgarciag96/grandpa-shop/issues/11) and its design comment. In progress.

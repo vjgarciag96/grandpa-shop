@@ -44,6 +44,8 @@ The cards and printings known to an outside source, as reference data apart from
 
 A Yu-Gi-Oh product a printing comes from: a core set, a structure deck, a tin, or another product.
 
+A set is known by its exact name. Most of its printings' set codes start with the same letters before the hyphen, such as TLM in TLM-EN001; a code with no hyphen is its own prefix. The most common of these is the set's prefix, the first in set-code order on a tie. It is not unique: a core set, its sneak peek, and its special edition can share one, and a few sets mix prefixes.
+
 ## Rarity
 
 How scarce a printing is marked: Common, Rare, Super Rare, Ultra Rare, Secret Rare, and the other printed rarities. The full list is not closed here. The slice that stores a rarity names the ones it accepts.
