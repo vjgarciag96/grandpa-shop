@@ -30,3 +30,9 @@ export function applyTokens(root: HTMLElement) {
 
 /** The viewport width below which a spread's pages stack. CSS media queries cannot read a custom property. */
 export const STACK_BELOW_PX = tokens.layout.stackBelowPx;
+
+/** How long a page-turn plays. Timers need it as a number, not as a custom property. */
+export const PAGE_FLIP_MS = tokens.motion.pageFlipMs;
+
+/** How far a horizontal swipe on the spread travels before it turns the binder. */
+export const SWIPE_THRESHOLD_PX = tokens.motion.swipeThresholdPx;

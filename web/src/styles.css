@@ -39,11 +39,30 @@ body {
 .spread {
   display: grid;
   grid-template-columns: 1fr var(--spine) 1fr;
+  perspective: calc(var(--space-slot) * 300);
+  touch-action: pan-y;
+}
+
+.page-side {
+  grid-row: 1;
+}
+
+.page-side--left {
+  grid-column: 1;
+}
+
+.page-side--right {
+  grid-column: 3;
 }
 
 .spread--stacked {
   grid-template-columns: 1fr;
   gap: var(--board-padding);
+}
+
+.spread--stacked .page-side {
+  grid-column: 1;
+  grid-row: auto;
 }
 
 .spread--stacked .spine,
@@ -325,4 +344,95 @@ body {
 
 .dialog .detail__actions button {
   padding: var(--space-slot) calc(var(--space-slot) * 1.5);
+}
+
+.binder__turns {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--space-slot) * 2);
+  margin-bottom: var(--board-padding);
+  color: var(--color-page);
+}
+
+.binder__turns button {
+  font: inherit;
+  font-size: calc(var(--space-slot) * 3);
+  line-height: 1;
+  color: var(--color-page);
+  background: none;
+  border: var(--empty-slot-stroke) solid var(--color-page);
+  border-radius: var(--radius-card);
+  padding: 0 calc(var(--space-slot) * 1.5) calc(var(--space-slot) / 2);
+  cursor: pointer;
+}
+
+.binder__turns button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.binder__turns button:focus-visible {
+  outline: calc(var(--empty-slot-stroke) * 2) solid var(--color-page);
+  outline-offset: calc(var(--empty-slot-stroke) * 2);
+}
+
+.binder__turns span {
+  min-width: calc(var(--space-slot) * 13);
+  text-align: center;
+}
+
+/* The sheet lifts from the gutter: a forward turn swings the right page over the spine to the left. */
+.page-turn {
+  grid-row: 1;
+  position: relative;
+  z-index: 1;
+  transform-style: preserve-3d;
+  animation: var(--page-flip) var(--easing) both;
+}
+
+.page-turn--forward {
+  grid-column: 3;
+  transform-origin: calc(var(--spine) / -2) 50%;
+  animation-name: page-turn-forward;
+}
+
+.page-turn--back {
+  grid-column: 1;
+  transform-origin: calc(100% + var(--spine) / 2) 50%;
+  animation-name: page-turn-back;
+}
+
+.page-turn__face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+}
+
+.page-turn__face:first-child {
+  position: relative;
+}
+
+.page-turn__face--back {
+  transform: rotateY(180deg);
+}
+
+.page-turn .page-side {
+  height: 100%;
+}
+
+.page-turn .page-side--cover {
+  background: var(--color-binder-board);
+}
+
+@keyframes page-turn-forward {
+  to {
+    transform: rotateY(-180deg);
+  }
+}
+
+@keyframes page-turn-back {
+  to {
+    transform: rotateY(180deg);
+  }
 }
