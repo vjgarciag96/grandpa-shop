@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it } from "vitest";
 import App from "./App";
 import {
+  SAVED_BINDER_KEY,
   detailOf,
   saveBinderWith,
   savedDarkMagician,
@@ -60,6 +61,30 @@ function release(row: Element, x: number, y: number) {
   fireEvent.pointerUp(window, { pointerId: 1, clientX: x, clientY: y });
   fireEvent.click(row, { detail: 1 });
 }
+
+/** Opens Pot of Greed in the catalogue over a binder whose page 1, slot 1 holds Dark Magician SDY-006 in Lightly Played. */
+function openPotOfGreedOverDarkMagician(width = 1200) {
+  saveBinderWith({
+    0: {
+      ...savedDarkMagician,
+      printing: darkMagician.printings[1],
+      condition: "Lightly Played",
+    },
+  });
+  return openResultsAt(width, "pot", /Pot of Greed/);
+}
+
+const catalogueAnnouncement = () =>
+  document.querySelector(".catalogue__announcement")?.textContent?.trim();
+
+const savedSlots = () =>
+  JSON.parse(localStorage.getItem(SAVED_BINDER_KEY) ?? "null")?.slots;
+
+/** The label of the pocket whose name starts with `name`, filled or empty. */
+const labelOf = (name: string) =>
+  screen
+    .getByRole("button", { name: new RegExp(`^${name}[:,]`) })
+    .getAttribute("aria-label");
 
 afterEach(() => {
   pointerIsOver(null);
@@ -149,23 +174,8 @@ describe("dragging a printing onto a slot", () => {
     ]).toEqual(["/images/46986414.jpg", "420px", "310px"]);
   });
 
-  it("leaves a filled slot as it was", async () => {
-    const user = await openDarkMagicianAt(1200);
-    await user.click(slot("Page 1, slot 1, empty"));
-    await user.click(printing(/LOB-EN005/));
-    await user.click(
-      screen.getByRole("button", { name: /Pot of Greed|Back to results/ }),
-    );
-    await user.clear(
-      screen.getByRole("searchbox", { name: "Search cards and sets" }),
-    );
-    await user.type(
-      screen.getByRole("searchbox", { name: "Search cards and sets" }),
-      "pot",
-    );
-    await user.click(
-      await screen.findByRole("button", { name: /Pot of Greed/ }),
-    );
+  it("files a Near Mint copy of the printing dropped on a filled slot", async () => {
+    const user = await openPotOfGreedOverDarkMagician();
     const row = printing(/LOB-EN119/);
     pointerIsOver(slot("Page 1, slot 1: Dark Magician"));
 
@@ -173,7 +183,60 @@ describe("dragging a printing onto a slot", () => {
     moveTo(400, 300);
     release(row, 400, 300);
 
-    expect(slot("Page 1, slot 1: Dark Magician")).toBeTruthy();
+    expect(await detailOf(user, slot("Page 1, slot 1: Pot of Greed"))).toEqual({
+      printing: "LOB-EN119",
+      condition: "Near Mint",
+    });
+  });
+
+  it("says which copy a dropped printing replaced", async () => {
+    await openPotOfGreedOverDarkMagician();
+    const row = printing(/LOB-EN119/);
+    pointerIsOver(slot("Page 1, slot 1: Dark Magician"));
+
+    press(row);
+    moveTo(400, 300);
+    release(row, 400, 300);
+
+    expect(catalogueAnnouncement()).toBe(
+      "Placed LOB-EN119 in page 1, slot 1, replacing SDY-006.",
+    );
+  });
+
+  it("takes the replaced copy out of every pocket of the binder", async () => {
+    await openPotOfGreedOverDarkMagician();
+    const row = printing(/LOB-EN119/);
+    pointerIsOver(slot("Page 1, slot 1: Dark Magician"));
+
+    press(row);
+    moveTo(400, 300);
+    release(row, 400, 300);
+
+    expect(savedSlots()).toEqual([savedPotOfGreed, ...Array(359).fill(null)]);
+  });
+
+  it("outlines the filled slot under the pointer", async () => {
+    await openPotOfGreedOverDarkMagician();
+    pointerIsOver(slot("Page 1, slot 1: Dark Magician"));
+
+    press(printing(/LOB-EN119/));
+    moveTo(400, 300);
+
+    expect(
+      slot("Page 1, slot 1: Dark Magician").classList.contains("slot--aimed"),
+    ).toBe(true);
+  });
+
+  it("does not outline a filled slot away from the pointer", async () => {
+    await openPotOfGreedOverDarkMagician();
+    pointerIsOver(slot("Page 1, slot 2, empty"));
+
+    press(printing(/LOB-EN119/));
+    moveTo(400, 300);
+
+    expect(
+      slot("Page 1, slot 1: Dark Magician").classList.contains("slot--aimed"),
+    ).toBe(false);
   });
 
   it("drops nothing when released away from the binder", async () => {
@@ -680,12 +743,6 @@ describe("moving a filed copy", () => {
     expect(slot("Page 1, slot 1: Dark Magician")).toBeTruthy();
   });
 });
-
-/** The label of the pocket whose name starts with `name`, filled or empty. */
-const labelOf = (name: string) =>
-  screen
-    .getByRole("button", { name: new RegExp(`^${name}[:,]`) })
-    .getAttribute("aria-label");
 
 /** Dark Magician is still in page 1, slot 1, Pot of Greed in slot 2, and the binder said nothing. */
 function expectNothingSwapped() {

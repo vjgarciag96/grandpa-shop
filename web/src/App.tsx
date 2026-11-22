@@ -111,7 +111,13 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
     addCards.current?.focus();
   };
 
-  const placeAt = (address: SlotAddress, card: Card, printing: Printing) => {
+  /** Files a Near Mint copy; `replaced`, when given, names the copy a drag displaced. */
+  const placeAt = (
+    address: SlotAddress,
+    card: Card,
+    printing: Printing,
+    replaced: Copy | null = null,
+  ) => {
     setBinderState((current) => ({
       ...current,
       binder: place(current.binder, address, {
@@ -121,7 +127,12 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
       }),
       aim: null,
     }));
-    announce(`Placed ${printing.setCode} in ${slotNameInSentence(address)}.`);
+    const placed = `Placed ${printing.setCode} in ${slotNameInSentence(address)}`;
+    announce(
+      replaced
+        ? `${placed}, replacing ${replaced.printing.setCode}.`
+        : `${placed}.`,
+    );
   };
 
   const canDragPrinting = panelOpen && beside && detail === null;
@@ -160,7 +171,12 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
     allowedDrags,
     (address, origin) =>
       origin.kind === "printing"
-        ? placeAt(address, origin.card, origin.printing)
+        ? placeAt(
+            address,
+            origin.card,
+            origin.printing,
+            slotAt(binder, address),
+          )
         : moveAt(address, origin.from, origin.copy),
   );
   const origin = drag?.origin;

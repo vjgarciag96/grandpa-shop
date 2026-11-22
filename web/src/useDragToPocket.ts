@@ -163,13 +163,13 @@ function mayDrag(origin: DragOrigin, allowed: Allowed): boolean {
   return origin.kind === "copy" ? allowed.canMoveCopy : allowed.canDragPrinting;
 }
 
-/** The pocket a drag would drop into: a copy takes any pocket but its own, a printing only an empty one. */
+/** The pocket a drag would drop into: a printing takes any pocket, a copy any pocket but its own. */
 function dropAddress(
   origin: DragOrigin,
   hit: DropSlot | null,
 ): SlotAddress | null {
   if (!hit) return null;
-  if (origin.kind === "printing") return hit.filled ? null : hit.address;
+  if (origin.kind === "printing") return hit.address;
   return sameSlot(hit.address, origin.from) ? null : hit.address;
 }
 
