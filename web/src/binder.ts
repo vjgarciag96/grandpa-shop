@@ -62,22 +62,35 @@ export function remove(binder: Binder, address: SlotAddress): Binder {
   return { slots };
 }
 
-/** Moves `copy` from `from` to `to`. A copy already in `to` takes `from`. Same binder back if `from` no longer holds `copy` or `from` is `to`. */
+/** What moving a copy did: nothing, a move into an empty slot, or a swap with the copy that was there. */
+export type CopyMove =
+  | { readonly kind: "refused" }
+  | { readonly kind: "moved"; readonly binder: Binder }
+  | {
+      readonly kind: "swapped";
+      readonly binder: Binder;
+      readonly displaced: Copy;
+    };
+
+/** Moves `copy` from `from` to `to`. A copy already in `to` takes `from`. Refused if `from` no longer holds `copy` or `from` is `to`. */
 export function moveCopy(
   binder: Binder,
   from: SlotAddress,
   to: SlotAddress,
   copy: Copy,
-): Binder {
+): CopyMove {
   const source = indexOf(from);
   const destination = indexOf(to);
   if (binder.slots[source] !== copy || source === destination) {
-    return binder;
+    return { kind: "refused" };
   }
+  const displaced = binder.slots[destination];
   const slots = [...binder.slots];
-  slots[source] = binder.slots[destination];
+  slots[source] = displaced;
   slots[destination] = copy;
-  return { slots };
+  return displaced
+    ? { kind: "swapped", binder: { slots }, displaced }
+    : { kind: "moved", binder: { slots } };
 }
 
 export function changeCondition(

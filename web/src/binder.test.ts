@@ -145,86 +145,70 @@ describe("moveCopy", () => {
     condition: "Near Mint",
   };
 
-  it("puts the same printing and condition in the destination", () => {
+  it("moves a copy with its printing and condition into an empty slot and empties its source", () => {
     const filled = place(emptyBinder(), { page: 2, position: 4 }, playedCopy);
 
-    const binder = moveCopy(
+    const move = moveCopy(
       filled,
       { page: 2, position: 4 },
       { page: 3, position: 1 },
       playedCopy,
     );
 
-    expect(pageSlots(binder, 3)[1]).toEqual({
-      card: darkMagician,
-      printing: {
-        setCode: "SDY-006",
-        setName: "Starter Deck: Yugi",
-        rarity: "Common",
-      },
-      condition: "Lightly Played",
+    expect(move).toEqual({
+      kind: "moved",
+      binder: place(emptyBinder(), { page: 3, position: 1 }, playedCopy),
     });
-  });
-
-  it("empties the source slot", () => {
-    const filled = place(emptyBinder(), { page: 2, position: 4 }, playedCopy);
-
-    const binder = moveCopy(
-      filled,
-      { page: 2, position: 4 },
-      { page: 3, position: 1 },
-      playedCopy,
-    );
-
-    expect(pageSlots(binder, 2)[4]).toBeNull();
   });
 
   it("refuses a copy that is no longer in the source slot", () => {
     const filled = place(emptyBinder(), { page: 2, position: 4 }, playedCopy);
 
-    const binder = moveCopy(
+    const move = moveCopy(
       filled,
       { page: 2, position: 4 },
       { page: 3, position: 1 },
       { ...playedCopy, condition: "Damaged" },
     );
 
-    expect([pageSlots(binder, 2)[4], pageSlots(binder, 3)[1]]).toEqual([
-      playedCopy,
-      null,
-    ]);
+    expect(move).toEqual({ kind: "refused" });
   });
 
-  it("swaps with the copy in a filled destination", () => {
+  it("swaps with the copy in a filled destination and names it", () => {
     const filled = place(
       place(emptyBinder(), { page: 2, position: 4 }, playedCopy),
       { page: 3, position: 1 },
       potOfGreedCopy,
     );
 
-    const binder = moveCopy(
+    const move = moveCopy(
       filled,
       { page: 2, position: 4 },
       { page: 3, position: 1 },
       playedCopy,
     );
 
-    expect([pageSlots(binder, 2)[4], pageSlots(binder, 3)[1]]).toEqual([
-      potOfGreedCopy,
-      playedCopy,
-    ]);
+    expect(move).toEqual({
+      kind: "swapped",
+      binder: place(
+        place(emptyBinder(), { page: 2, position: 4 }, potOfGreedCopy),
+        { page: 3, position: 1 },
+        playedCopy,
+      ),
+      displaced: potOfGreedCopy,
+    });
   });
 
-  it("returns the same binder when dropped on its own slot", () => {
+  it("refuses a drop on the copy's own slot", () => {
     const filled = place(emptyBinder(), { page: 2, position: 4 }, playedCopy);
 
-    const binder = moveCopy(
+    const move = moveCopy(
       filled,
       { page: 2, position: 4 },
       { page: 2, position: 4 },
       playedCopy,
     );
 
-    expect(binder).toBe(filled);
+    expect(move).toEqual({ kind: "refused" });
   });
 });
