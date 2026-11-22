@@ -79,7 +79,7 @@ describe("turning the binder", () => {
     );
 
     await user.type(
-      screen.getByRole("searchbox", { name: "Search cards" }),
+      screen.getByRole("searchbox", { name: "Search cards and sets" }),
       "{ArrowRight}",
     );
 
@@ -157,7 +157,7 @@ describe("turning the binder", () => {
       screen.getByRole("button", { name: "Page 3, slot 9, empty" }),
     );
     await user.type(
-      screen.getByRole("searchbox", { name: "Search cards" }),
+      screen.getByRole("searchbox", { name: "Search cards and sets" }),
       "pot",
     );
     await user.click(

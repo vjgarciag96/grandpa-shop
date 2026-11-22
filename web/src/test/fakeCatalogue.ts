@@ -1,4 +1,4 @@
-import type { Card, Catalogue } from "../catalogue";
+import type { Card, CardSet, Catalogue, SetPrinting } from "../catalogue";
 
 export const darkMagician: Card = {
   passcode: 46986414,
@@ -45,7 +45,23 @@ export const potOfGreed: Card = {
 /** A catalogue that answers from a fixed list and records every query it is asked. */
 export function fakeCatalogue(cards: Card[] = [darkMagician, potOfGreed]) {
   const queries: string[] = [];
+  const sets = setsOf(cards);
   const catalogue: Catalogue = {
+    async searchSets(query) {
+      const needle = query.toLowerCase();
+      return [...sets.values()]
+        .map(({ set }) => set)
+        .filter(
+          (set) =>
+            set.name.toLowerCase().includes(needle) ||
+            set.prefix.toLowerCase().startsWith(needle),
+        );
+    },
+    async setPrintings(name) {
+      const found = sets.get(name);
+      if (!found) throw new Error(`No set named ${name}`);
+      return [...found.printings];
+    },
     async search(query) {
       queries.push(query);
       const needle = query.toLowerCase();
@@ -62,7 +78,30 @@ export function fakeCatalogue(cards: Card[] = [darkMagician, potOfGreed]) {
   return { catalogue, queries };
 }
 
+/** Groups the cards' printings by set, in set-code order, as the server does. */
+function setsOf(cards: Card[]) {
+  const sets = new Map<string, { set: CardSet; printings: SetPrinting[] }>();
+  const printings = cards
+    .flatMap((card) => card.printings.map((printing) => ({ card, printing })))
+    .sort((a, b) => a.printing.setCode.localeCompare(b.printing.setCode));
+  for (const entry of printings) {
+    const name = entry.printing.setName;
+    const inSet = [...(sets.get(name)?.printings ?? []), entry];
+    sets.set(name, {
+      set: {
+        name,
+        prefix: entry.printing.setCode.split("-")[0],
+        printings: inSet.length,
+      },
+      printings: inSet,
+    });
+  }
+  return sets;
+}
+
 export const failingCatalogue: Catalogue = {
   search: () => Promise.reject(new Error("the server is down")),
+  searchSets: () => Promise.reject(new Error("the server is down")),
+  setPrintings: () => Promise.reject(new Error("the server is down")),
   imageUrl: (passcode) => `/images/${passcode}.jpg`,
 };

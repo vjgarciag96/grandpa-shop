@@ -883,7 +883,7 @@ html:has(.dialog-backdrop) {
 }
 
 .catalogue__card-label > span,
-.catalogue__set,
+.catalogue__printing-detail,
 .catalogue__rarity {
   color: var(--color-on-surface-variant);
   font-size: var(--type-body-small);
@@ -994,4 +994,20 @@ html:has(.dialog-backdrop) {
   object-fit: cover;
   pointer-events: none;
   transform: translate(-50%, -50%);
+}
+
+.catalogue__group {
+  margin: calc(var(--space-slot) * 1.5) 0 var(--space-slot);
+  color: var(--color-on-surface-variant);
+  font-size: var(--type-body-small);
+  font-weight: 600;
+}
+
+.catalogue__card--set {
+  grid-template-columns: minmax(0, 1fr) auto;
+  min-height: var(--target-size);
+}
+
+.catalogue__card-summary--set {
+  grid-template-columns: minmax(0, 1fr);
 }

@@ -15,7 +15,7 @@ async function appWithFirstSlotFilled(
     screen.getByRole("button", { name: "Page 1, slot 1, empty" }),
   );
   await user.type(
-    screen.getByRole("searchbox", { name: "Search cards" }),
+    screen.getByRole("searchbox", { name: "Search cards and sets" }),
     query,
   );
   await user.click(await screen.findByRole("button", { name: cardName }));
@@ -157,9 +157,11 @@ describe("a copy's detail", () => {
     );
     await user.click(screen.getByRole("button", { name: "Replace" }));
     await user.click(screen.getByRole("button", { name: "Back to results" }));
-    await user.clear(screen.getByRole("searchbox", { name: "Search cards" }));
+    await user.clear(
+      screen.getByRole("searchbox", { name: "Search cards and sets" }),
+    );
     await user.type(
-      screen.getByRole("searchbox", { name: "Search cards" }),
+      screen.getByRole("searchbox", { name: "Search cards and sets" }),
       "pot",
     );
     await user.click(

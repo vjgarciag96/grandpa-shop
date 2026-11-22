@@ -13,19 +13,21 @@ function pointerIsOver(element: Element | null) {
   document.elementFromPoint = () => element;
 }
 
-async function openDarkMagicianAt(width: number) {
+async function openResultsAt(width: number, query: string, result: RegExp) {
   viewportWidth(width);
   render(<App catalogue={fakeCatalogue().catalogue} />);
   const user = userEvent.setup();
   await user.click(screen.getByRole("button", { name: "Add cards" }));
   await user.type(
-    screen.getByRole("searchbox", { name: "Search cards" }),
-    "dark",
+    screen.getByRole("searchbox", { name: "Search cards and sets" }),
+    query,
   );
-  await user.click(
-    await screen.findByRole("button", { name: /Dark Magician/ }),
-  );
+  await user.click(await screen.findByRole("button", { name: result }));
   return user;
+}
+
+function openDarkMagicianAt(width: number) {
+  return openResultsAt(width, "dark", /Dark Magician/);
 }
 
 function press(row: Element) {
@@ -65,6 +67,18 @@ describe("dragging a printing onto a slot", () => {
     release(row, 400, 300);
 
     expect(slot("Page 1, slot 2: Dark Magician")).toBeTruthy();
+  });
+
+  it("files a printing dragged directly from a set", async () => {
+    await openResultsAt(1200, "legend", /Legend of Blue Eyes White Dragon/);
+    const row = await screen.findByRole("button", { name: /LOB-EN119/ });
+    pointerIsOver(slot("Page 1, slot 2, empty"));
+
+    press(row);
+    moveTo(400, 300);
+    release(row, 400, 300);
+
+    expect(slot("Page 1, slot 2: Pot of Greed")).toBeTruthy();
   });
 
   it("places the dragged printing, not another of the card", async () => {
@@ -131,9 +145,11 @@ describe("dragging a printing onto a slot", () => {
     await user.click(
       screen.getByRole("button", { name: /Pot of Greed|Back to results/ }),
     );
-    await user.clear(screen.getByRole("searchbox", { name: "Search cards" }));
+    await user.clear(
+      screen.getByRole("searchbox", { name: "Search cards and sets" }),
+    );
     await user.type(
-      screen.getByRole("searchbox", { name: "Search cards" }),
+      screen.getByRole("searchbox", { name: "Search cards and sets" }),
       "pot",
     );
     await user.click(
