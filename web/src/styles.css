@@ -115,9 +115,8 @@ body {
   content: "";
   position: absolute;
   inset: calc(50% - var(--empty-slot-stroke)) 0 auto;
-  height: calc(var(--empty-slot-stroke) * 2);
+  border-top: calc(var(--empty-slot-stroke) * 2) solid currentColor;
   border-radius: var(--empty-slot-stroke);
-  background-color: currentColor;
   transform: rotate(45deg);
 }
 
@@ -617,9 +616,8 @@ html:has(.dialog-backdrop) {
   top: 100%;
   left: 100%;
   width: calc(var(--space-slot) * 0.85);
-  height: calc(var(--empty-slot-stroke) * 2);
+  border-top: calc(var(--empty-slot-stroke) * 2) solid currentColor;
   border-radius: var(--empty-slot-stroke);
-  background: currentColor;
   content: "";
   transform: rotate(45deg);
   transform-origin: left center;
