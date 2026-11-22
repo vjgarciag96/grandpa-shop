@@ -2,26 +2,17 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
+import {
+  SAVED_BINDER_KEY,
+  detailOf,
+  saveBinderWith,
+  savedDarkMagician,
+} from "./test/binder";
 import { darkMagician, fakeCatalogue } from "./test/fakeCatalogue";
-
-const SAVED_BINDER_KEY = "grandpa-shop.dev-binder.v1";
 
 function openApp() {
   const view = render(<App catalogue={fakeCatalogue().catalogue} />);
   return { user: userEvent.setup(), close: view.unmount };
-}
-
-const savedDarkMagician = {
-  card: darkMagician,
-  printing: darkMagician.printings[0],
-  condition: "Near Mint",
-};
-
-/** A saved binder of 360 slots with the given copy in the first slot. */
-function saveBinderStartingWith(copy: unknown) {
-  const slots: unknown[] = Array(360).fill(null);
-  slots[0] = copy;
-  localStorage.setItem(SAVED_BINDER_KEY, JSON.stringify({ slots }));
 }
 
 const slot = (name: string) => screen.getByRole("button", { name });
@@ -63,25 +54,6 @@ function moveCopyWithMouse(source: HTMLElement, destination: HTMLElement) {
     clientY: 300,
   });
   fireEvent.click(source, { detail: 1 });
-}
-
-/** Opens a pocket's detail, reads its printing and condition, and closes it again. */
-async function detailOf(
-  user: ReturnType<typeof userEvent.setup>,
-  pocket: string,
-) {
-  await user.click(slot(pocket));
-  const dialog = within(screen.getByRole("dialog"));
-  const shown = {
-    printing: within(
-      dialog.getByRole("list", { name: "Printing" }),
-    ).getAllByRole("listitem")[0].textContent,
-    condition: dialog.getByRole<HTMLSelectElement>("combobox", {
-      name: "Condition",
-    }).value,
-  };
-  await user.click(dialog.getByRole("button", { name: "Close" }));
-  return shown;
 }
 
 afterEach(() => {
@@ -134,9 +106,8 @@ describe("the binder across reloads", () => {
   });
 
   it("keeps a moved copy in its new pocket when the app is opened again", async () => {
-    saveBinderStartingWith({
-      ...savedDarkMagician,
-      condition: "Lightly Played",
+    saveBinderWith({
+      0: { ...savedDarkMagician, condition: "Lightly Played" },
     });
     const first = openApp();
     moveCopyWithMouse(
@@ -161,14 +132,14 @@ describe("the binder across reloads", () => {
   });
 
   it("keeps swapped copies in their new pockets when the app is opened again", async () => {
-    const slots: unknown[] = Array(360).fill(null);
-    slots[0] = {
-      ...savedDarkMagician,
-      printing: darkMagician.printings[1],
-      condition: "Lightly Played",
-    };
-    slots[1] = savedDarkMagician;
-    localStorage.setItem(SAVED_BINDER_KEY, JSON.stringify({ slots }));
+    saveBinderWith({
+      0: {
+        ...savedDarkMagician,
+        printing: darkMagician.printings[1],
+        condition: "Lightly Played",
+      },
+      1: savedDarkMagician,
+    });
     const first = openApp();
     moveCopyWithMouse(
       slot("Page 1, slot 1: Dark Magician"),
@@ -179,8 +150,8 @@ describe("the binder across reloads", () => {
     const second = openApp();
 
     expect([
-      await detailOf(second.user, "Page 1, slot 1: Dark Magician"),
-      await detailOf(second.user, "Page 1, slot 2: Dark Magician"),
+      await detailOf(second.user, slot("Page 1, slot 1: Dark Magician")),
+      await detailOf(second.user, slot("Page 1, slot 2: Dark Magician")),
     ]).toEqual([
       { printing: "LOB-EN005", condition: "Near Mint" },
       { printing: "SDY-006", condition: "Lightly Played" },
@@ -188,11 +159,11 @@ describe("the binder across reloads", () => {
   });
 
   it("leaves the other 358 pockets as they were after a swap", () => {
-    const slots: unknown[] = Array(360).fill(null);
-    slots[0] = savedDarkMagician;
-    slots[1] = { ...savedDarkMagician, condition: "Damaged" };
-    slots[200] = { ...savedDarkMagician, condition: "Heavily Played" };
-    localStorage.setItem(SAVED_BINDER_KEY, JSON.stringify({ slots }));
+    const slots = saveBinderWith({
+      0: savedDarkMagician,
+      1: { ...savedDarkMagician, condition: "Damaged" },
+      200: { ...savedDarkMagician, condition: "Heavily Played" },
+    });
     const first = openApp();
 
     moveCopyWithMouse(
@@ -215,7 +186,7 @@ describe("the binder across reloads", () => {
   });
 
   it("restores a saved binder of 360 slots", () => {
-    saveBinderStartingWith(savedDarkMagician);
+    saveBinderWith({ 0: savedDarkMagician });
 
     openApp();
 
@@ -234,7 +205,7 @@ describe("the binder across reloads", () => {
   });
 
   it("starts with an empty binder when a saved copy has an unknown condition", () => {
-    saveBinderStartingWith({ ...savedDarkMagician, condition: "Mint" });
+    saveBinderWith({ 0: { ...savedDarkMagician, condition: "Mint" } });
 
     openApp();
 
@@ -253,9 +224,8 @@ describe("the binder across reloads", () => {
   ])(
     "starts with an empty binder when a saved copy's %s has the wrong type",
     (_field, cardChange) => {
-      saveBinderStartingWith({
-        ...savedDarkMagician,
-        card: { ...darkMagician, ...cardChange },
+      saveBinderWith({
+        0: { ...savedDarkMagician, card: { ...darkMagician, ...cardChange } },
       });
 
       openApp();
@@ -271,9 +241,11 @@ describe("the binder across reloads", () => {
   ])(
     "starts with an empty binder when a saved printing's %s has the wrong type",
     (_field, printingChange) => {
-      saveBinderStartingWith({
-        ...savedDarkMagician,
-        printing: { ...darkMagician.printings[0], ...printingChange },
+      saveBinderWith({
+        0: {
+          ...savedDarkMagician,
+          printing: { ...darkMagician.printings[0], ...printingChange },
+        },
       });
 
       openApp();
