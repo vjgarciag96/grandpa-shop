@@ -28,27 +28,34 @@ it("opens a set by name with all of its printings in set-code order", async () =
 
   await user.click(await setResult());
 
-  expect(
-    (
-      await within(
-        await screen.findByRole("list", { name: "Printings" }),
-      ).findAllByRole("button")
-    ).map((row) => row.textContent),
-  ).toEqual(["LOB-EN005Ultra RareDark Magician", "LOB-EN119RarePot of Greed"]);
+  const printings = within(
+    await screen.findByRole("list", { name: "Printings" }),
+  );
+  expect(printings.getAllByRole("button")).toEqual([
+    printings.getByRole("button", {
+      name: /LOB-EN005.*Ultra Rare.*Dark Magician/,
+    }),
+    printings.getByRole("button", { name: /LOB-EN119.*Rare.*Pot of Greed/ }),
+  ]);
 });
 
-it("places a printing opened directly from a set", async () => {
-  const user = await searchForSet();
-  await user.click(await setResult());
-  await user.click(await screen.findByRole("button", { name: /LOB-EN119/ }));
-
+it("places the selected printing from a set when the card has other printings", async () => {
+  const user = await searchForSet(fakeCatalogue().catalogue, "starter deck");
+  await user.click(
+    await screen.findByRole("button", { name: /Starter Deck: Yugi/ }),
+  );
+  await user.click(await screen.findByRole("button", { name: /SDY-006/ }));
   await user.click(
     screen.getByRole("button", { name: "Page 1, slot 1, empty" }),
   );
 
-  expect(
-    screen.getByRole("button", { name: "Page 1, slot 1: Pot of Greed" }),
-  ).toBeTruthy();
+  await user.click(
+    screen.getByRole("button", { name: "Page 1, slot 1: Dark Magician" }),
+  );
+
+  const printing = within(screen.getByRole("list", { name: "Printing" }));
+  expect(printing.getByText("SDY-006")).toBeTruthy();
+  expect(printing.getByText("Common")).toBeTruthy();
 });
 
 it("returns focus to the set result when going back", async () => {

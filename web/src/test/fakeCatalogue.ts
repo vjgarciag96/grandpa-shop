@@ -60,7 +60,7 @@ export function fakeCatalogue(cards: Card[] = [darkMagician, potOfGreed]) {
     async setPrintings(name) {
       const found = sets.get(name);
       if (!found) throw new Error(`No set named ${name}`);
-      return found.printings;
+      return [...found.printings];
     },
     async search(query) {
       queries.push(query);
