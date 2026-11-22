@@ -24,7 +24,7 @@ export function CopyDetail({
 }: Props) {
   const { card, printing } = copy;
   return (
-    <Dialog title={title} className="copy-dialog" onClose={onClose}>
+    <Dialog title={title} onClose={onClose}>
       <div className="detail">
         <img
           className="detail__image"
