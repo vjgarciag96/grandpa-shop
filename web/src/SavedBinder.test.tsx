@@ -1,25 +1,20 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import App from "./App";
+import { openApp, openPotOfGreedOverDarkMagician } from "./test/app";
 import {
   SAVED_BINDER_KEY,
   detailOf,
   saveBinderWith,
   savedDarkMagician,
+  savedPlayedSdyDarkMagician,
 } from "./test/binder";
-import { darkMagician, fakeCatalogue } from "./test/fakeCatalogue";
-import { viewportWidth } from "./test/media";
-
-function openApp() {
-  const view = render(<App catalogue={fakeCatalogue().catalogue} />);
-  return { user: userEvent.setup(), close: view.unmount };
-}
+import { dragPrintingWithMouse, moveCopyWithMouse } from "./test/drag";
+import { darkMagician } from "./test/fakeCatalogue";
 
 const slot = (name: string) => screen.getByRole("button", { name });
 
 async function placeDarkMagicianInFirstSlot(
-  user: ReturnType<typeof userEvent.setup>,
+  user: ReturnType<typeof openApp>["user"],
 ) {
   await user.click(slot("Page 1, slot 1, empty"));
   await user.type(
@@ -30,52 +25,6 @@ async function placeDarkMagicianInFirstSlot(
     await screen.findByRole("button", { name: /Dark Magician/ }),
   );
   await user.click(screen.getByRole("button", { name: /LOB-EN005/ }));
-}
-
-/** Drags a filed copy with the mouse and drops it on a pocket; jsdom does no layout, so the pocket under the pointer is stubbed. */
-function moveCopyWithMouse(source: HTMLElement, destination: HTMLElement) {
-  document.elementFromPoint = () => destination;
-  fireEvent.pointerDown(source, {
-    pointerType: "mouse",
-    pointerId: 1,
-    isPrimary: true,
-    button: 0,
-    clientX: 700,
-    clientY: 300,
-  });
-  fireEvent.pointerMove(window, {
-    pointerId: 1,
-    clientX: 400,
-    clientY: 300,
-    buttons: 1,
-  });
-  fireEvent.pointerUp(destination, {
-    pointerId: 1,
-    clientX: 400,
-    clientY: 300,
-  });
-  fireEvent.click(source, { detail: 1 });
-}
-
-/** Drags a catalogue printing with the mouse and drops it on a pocket; the pocket under the pointer is stubbed. */
-function dragPrintingWithMouse(row: HTMLElement, destination: HTMLElement) {
-  document.elementFromPoint = () => destination;
-  fireEvent.pointerDown(row, {
-    pointerType: "mouse",
-    pointerId: 1,
-    isPrimary: true,
-    button: 0,
-    clientX: 900,
-    clientY: 300,
-  });
-  fireEvent.pointerMove(window, {
-    pointerId: 1,
-    clientX: 400,
-    clientY: 300,
-    buttons: 1,
-  });
-  fireEvent.pointerUp(window, { pointerId: 1, clientX: 400, clientY: 300 });
-  fireEvent.click(row, { detail: 1 });
 }
 
 afterEach(() => {
@@ -155,11 +104,7 @@ describe("the binder across reloads", () => {
 
   it("keeps swapped copies in their new pockets when the app is opened again", async () => {
     saveBinderWith({
-      0: {
-        ...savedDarkMagician,
-        printing: darkMagician.printings[1],
-        condition: "Lightly Played",
-      },
+      0: savedPlayedSdyDarkMagician,
       1: savedDarkMagician,
     });
     const first = openApp();
@@ -200,23 +145,7 @@ describe("the binder across reloads", () => {
   });
 
   it("keeps a replaced copy gone when the app is opened again", async () => {
-    saveBinderWith({
-      0: {
-        ...savedDarkMagician,
-        printing: darkMagician.printings[1],
-        condition: "Lightly Played",
-      },
-    });
-    viewportWidth(1200);
-    const first = openApp();
-    await first.user.click(screen.getByRole("button", { name: "Add cards" }));
-    await first.user.type(
-      screen.getByRole("searchbox", { name: "Search cards and sets" }),
-      "pot",
-    );
-    await first.user.click(
-      await screen.findByRole("button", { name: /Pot of Greed/ }),
-    );
+    const first = await openPotOfGreedOverDarkMagician();
     dragPrintingWithMouse(
       screen.getByRole("button", { name: /LOB-EN119/ }),
       slot("Page 1, slot 1: Dark Magician"),

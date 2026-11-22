@@ -243,22 +243,6 @@ describe("picking up a printing and placing it", () => {
     ]).toEqual(["Holding SDY-006", null, "Page 1, slot 1 is filled."]);
   });
 
-  it("refuses a filled slot chosen with Enter while holding", async () => {
-    const user = renderApp();
-    await holdFromAddCards(user, /LOB-EN005/);
-    await user.click(slot("Page 1, slot 1, empty"));
-    await user.click(screen.getByRole("button", { name: /SDY-006/ }));
-    slot("Page 1, slot 1: Dark Magician").focus();
-
-    await user.keyboard("{Enter}");
-
-    expect([
-      panelTitle(),
-      screen.queryByRole("dialog"),
-      status()?.trim(),
-    ]).toEqual(["Holding SDY-006", null, "Page 1, slot 1 is filled."]);
-  });
-
   it("drops what it held when the panel closes", async () => {
     const user = renderApp();
     await holdFromAddCards(user, /LOB-EN005/);

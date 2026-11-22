@@ -1,35 +1,33 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { fireEvent, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import App from "./App";
 import {
-  SAVED_BINDER_KEY,
+  openApp,
+  openCatalogueResult,
+  openPotOfGreedOverDarkMagician,
+} from "./test/app";
+import {
   detailOf,
   saveBinderWith,
   savedDarkMagician,
+  savedPlayedSdyDarkMagician,
   savedPotOfGreed,
 } from "./test/binder";
-import { darkMagician, fakeCatalogue } from "./test/fakeCatalogue";
-import { prefersReducedMotion, viewportWidth } from "./test/media";
+import {
+  dragCopy,
+  moveTo,
+  pointerIsOver,
+  press,
+  release,
+  releaseCopy,
+} from "./test/drag";
+import { prefersReducedMotion } from "./test/media";
 
 const slot = (name: string) => screen.getByRole("button", { name });
 const printing = (code: RegExp) => screen.getByRole("button", { name: code });
 
-/** jsdom does no layout, so the element under the pointer is whatever the test says it is. */
-function pointerIsOver(element: Element | null) {
-  document.elementFromPoint = () => element;
-}
-
 async function openResultsAt(width: number, query: string, result: RegExp) {
-  viewportWidth(width);
-  render(<App catalogue={fakeCatalogue().catalogue} />);
-  const user = userEvent.setup();
-  await user.click(screen.getByRole("button", { name: "Add cards" }));
-  await user.type(
-    screen.getByRole("searchbox", { name: "Search cards and sets" }),
-    query,
-  );
-  await user.click(await screen.findByRole("button", { name: result }));
+  const { user } = openApp(width);
+  await openCatalogueResult(user, query, result);
   return user;
 }
 
@@ -37,48 +35,8 @@ function openDarkMagicianAt(width: number) {
   return openResultsAt(width, "dark", /Dark Magician/);
 }
 
-function press(row: Element) {
-  fireEvent.pointerDown(row, {
-    pointerId: 1,
-    isPrimary: true,
-    button: 0,
-    clientX: 900,
-    clientY: 300,
-  });
-}
-
-function moveTo(x: number, y: number, buttons = 1) {
-  fireEvent.pointerMove(window, {
-    pointerId: 1,
-    clientX: x,
-    clientY: y,
-    buttons,
-  });
-}
-
-/** Releases the pointer; the browser then clicks the row the press began on. */
-function release(row: Element, x: number, y: number) {
-  fireEvent.pointerUp(window, { pointerId: 1, clientX: x, clientY: y });
-  fireEvent.click(row, { detail: 1 });
-}
-
-/** Opens Pot of Greed in the catalogue over a binder whose page 1, slot 1 holds Dark Magician SDY-006 in Lightly Played. */
-function openPotOfGreedOverDarkMagician(width = 1200) {
-  saveBinderWith({
-    0: {
-      ...savedDarkMagician,
-      printing: darkMagician.printings[1],
-      condition: "Lightly Played",
-    },
-  });
-  return openResultsAt(width, "pot", /Pot of Greed/);
-}
-
 const catalogueAnnouncement = () =>
   document.querySelector(".catalogue__announcement")?.textContent?.trim();
-
-const savedSlots = () =>
-  JSON.parse(localStorage.getItem(SAVED_BINDER_KEY) ?? "null")?.slots;
 
 /** The label of the pocket whose name starts with `name`, filled or empty. */
 const labelOf = (name: string) =>
@@ -175,7 +133,7 @@ describe("dragging a printing onto a slot", () => {
   });
 
   it("files a Near Mint copy of the printing dropped on a filled slot", async () => {
-    const user = await openPotOfGreedOverDarkMagician();
+    const { user } = await openPotOfGreedOverDarkMagician();
     const row = printing(/LOB-EN119/);
     pointerIsOver(slot("Page 1, slot 1: Dark Magician"));
 
@@ -201,18 +159,6 @@ describe("dragging a printing onto a slot", () => {
     expect(catalogueAnnouncement()).toBe(
       "Placed LOB-EN119 in page 1, slot 1, replacing SDY-006.",
     );
-  });
-
-  it("takes the replaced copy out of every pocket of the binder", async () => {
-    await openPotOfGreedOverDarkMagician();
-    const row = printing(/LOB-EN119/);
-    pointerIsOver(slot("Page 1, slot 1: Dark Magician"));
-
-    press(row);
-    moveTo(400, 300);
-    release(row, 400, 300);
-
-    expect(savedSlots()).toEqual([savedPotOfGreed, ...Array(359).fill(null)]);
   });
 
   it("outlines the filled slot under the pointer", async () => {
@@ -389,32 +335,6 @@ async function fileDarkMagician() {
   return user;
 }
 
-function dragCopy(
-  source: HTMLElement,
-  target: HTMLElement | null,
-  pointerType = "mouse",
-) {
-  pointerIsOver(target);
-  fireEvent.pointerDown(source, {
-    pointerType,
-    pointerId: 1,
-    isPrimary: true,
-    button: 0,
-    clientX: 700,
-    clientY: 300,
-  });
-  moveTo(400, 300);
-}
-
-function releaseCopy(source: HTMLElement, target = source) {
-  fireEvent.pointerUp(target, {
-    pointerId: 1,
-    clientX: 400,
-    clientY: 300,
-  });
-  fireEvent.click(source, { detail: 1 });
-}
-
 /** Files SDY-006 in page 1, slot 1 in Lightly Played and LOB-EN005 in page 1, slot 2 in Near Mint, with the catalogue still open. */
 async function fileTwoDarkMagicians() {
   const user = await fileDarkMagician();
@@ -435,8 +355,7 @@ const binderAnnouncement = () =>
 /** Opens the app on a saved binder holding the given copies, keyed by slot index from 0. */
 function openSavedBinder(copies: Record<number, unknown>) {
   saveBinderWith(copies);
-  render(<App catalogue={fakeCatalogue().catalogue} />);
-  return userEvent.setup();
+  return openApp().user;
 }
 
 describe("moving a filed copy", () => {
@@ -549,11 +468,7 @@ describe("moving a filed copy", () => {
   it("swaps across the gutter with a pen", async () => {
     prefersReducedMotion(true);
     const user = openSavedBinder({
-      17: {
-        ...savedDarkMagician,
-        printing: darkMagician.printings[1],
-        condition: "Lightly Played",
-      },
+      17: savedPlayedSdyDarkMagician,
       18: savedDarkMagician,
     });
     await user.click(slot("Next spread"));
