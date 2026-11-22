@@ -51,3 +51,7 @@ Replace the one-slot picker with a catalogue panel beside the binder. Search by 
 Built on milestone 3, because filling a binder from a set card by card is too slow. Framed in [#11](https://github.com/vjgarciag96/grandpa-shop/issues/11). Owners: design, web, backend.
 
 Done when typing "lost" lists The Lost Millennium, opening it lists all 85 of its printings in set-code order from TLM-EN001, and a printing dragged onto an empty slot, or picked up and placed with the keyboard, fills it. The panel and the full spread fit side by side on a desktop, and the panel is a bottom sheet on a phone. The full checks are in [#11](https://github.com/vjgarciag96/grandpa-shop/issues/11) and its design comment. In progress.
+
+## 8. Move a copy within a binder spread
+
+Drag a filed copy with a mouse or pen to an empty pocket on either visible page. The original pocket becomes empty, and the copy keeps its printing and condition. Owner: web.

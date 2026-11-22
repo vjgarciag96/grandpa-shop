@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it } from "vitest";
 import App from "./App";
 import { fakeCatalogue } from "./test/fakeCatalogue";
-import { viewportWidth } from "./test/media";
+import { prefersReducedMotion, viewportWidth } from "./test/media";
 
 const slot = (name: string) => screen.getByRole("button", { name });
 const printing = (code: RegExp) => screen.getByRole("button", { name: code });
@@ -40,8 +40,13 @@ function press(row: Element) {
   });
 }
 
-function moveTo(x: number, y: number) {
-  fireEvent.pointerMove(window, { pointerId: 1, clientX: x, clientY: y });
+function moveTo(x: number, y: number, buttons = 1) {
+  fireEvent.pointerMove(window, {
+    pointerId: 1,
+    clientX: x,
+    clientY: y,
+    buttons,
+  });
 }
 
 /** Releases the pointer; the browser then clicks the row the press began on. */
@@ -259,5 +264,266 @@ describe("dragging a printing onto a slot", () => {
     fireEvent.pointerUp(window, { pointerId: 1, clientX: 400, clientY: 300 });
 
     expect(slot("Page 1, slot 2, empty")).toBeTruthy();
+  });
+});
+
+async function fileDarkMagician() {
+  const user = await openDarkMagicianAt(1200);
+  await user.click(slot("Page 1, slot 1, empty"));
+  await user.click(printing(/SDY-006/));
+  return user;
+}
+
+function dragCopy(source: HTMLElement, target: HTMLElement | null) {
+  pointerIsOver(target);
+  fireEvent.pointerDown(source, {
+    pointerType: "mouse",
+    pointerId: 1,
+    isPrimary: true,
+    button: 0,
+    clientX: 700,
+    clientY: 300,
+  });
+  moveTo(400, 300);
+}
+
+function releaseCopy(source: HTMLElement, target = source) {
+  fireEvent.pointerUp(target, {
+    pointerId: 1,
+    clientX: 400,
+    clientY: 300,
+  });
+  fireEvent.click(source, { detail: 1 });
+}
+
+describe("moving a filed copy", () => {
+  it("opens the copy on the first mouse click after a touch swipe without a click", async () => {
+    const user = await fileDarkMagician();
+    await user.click(slot("Close catalogue"));
+    const source = slot("Page 1, slot 1: Dark Magician");
+    fireEvent.pointerDown(source, {
+      pointerId: 2,
+      pointerType: "touch",
+      isPrimary: true,
+      clientX: 400,
+      clientY: 300,
+    });
+    fireEvent.pointerUp(source, {
+      pointerId: 2,
+      pointerType: "touch",
+      isPrimary: true,
+      clientX: 550,
+      clientY: 300,
+    });
+
+    await user.click(source);
+
+    expect(screen.getByRole("dialog", { name: "Page 1, slot 1" })).toBeTruthy();
+  });
+
+  it("does not drag a copy pressed and moved by touch", async () => {
+    const user = await fileDarkMagician();
+    await user.click(slot("Close catalogue"));
+    const source = slot("Page 1, slot 1: Dark Magician");
+    const target = slot("Page 1, slot 2, empty");
+    pointerIsOver(target);
+
+    // A vertical press-and-move, so the binder does not take it as a page swipe.
+    fireEvent.pointerDown(source, {
+      pointerId: 1,
+      pointerType: "touch",
+      isPrimary: true,
+      button: 0,
+      clientX: 400,
+      clientY: 0,
+    });
+    moveTo(400, 300);
+    const ghost = document.querySelector(".drag-ghost");
+    releaseCopy(source, target);
+
+    expect(ghost).toBeNull();
+    expect([
+      source.getAttribute("aria-label"),
+      target.getAttribute("aria-label"),
+    ]).toEqual(["Page 1, slot 1: Dark Magician", "Page 1, slot 2, empty"]);
+  });
+
+  it("moves the printing and edited condition into an empty pocket", async () => {
+    const user = await fileDarkMagician();
+    const source = slot("Page 1, slot 1: Dark Magician");
+    await user.click(source);
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: "Condition" }),
+      "Lightly Played",
+    );
+    await user.click(slot("Close"));
+    await user.click(slot("Close catalogue"));
+    const target = slot("Page 1, slot 3, empty");
+
+    dragCopy(source, target);
+    releaseCopy(source, target);
+
+    expect(source.getAttribute("aria-label")).toBe("Page 1, slot 1, empty");
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(screen.getByRole("status").textContent?.trim()).toBe(
+      "Moved SDY-006 to page 1, slot 3.",
+    );
+    await user.click(slot("Page 1, slot 3: Dark Magician"));
+    expect(
+      within(screen.getByRole("list", { name: "Printing" })).getByText(
+        "SDY-006",
+      ),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole<HTMLSelectElement>("combobox", { name: "Condition" })
+        .value,
+    ).toBe("Lightly Played");
+  });
+
+  it("leaves both copies in place on a filled destination", async () => {
+    const user = await fileDarkMagician();
+    await user.click(slot("Page 1, slot 2, empty"));
+    await user.click(printing(/LOB-EN005/));
+    const source = slot("Page 1, slot 1: Dark Magician");
+    const occupied = slot("Page 1, slot 2: Dark Magician");
+
+    dragCopy(source, occupied);
+    releaseCopy(source, occupied);
+
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(source.getAttribute("aria-label")).toBe(
+      "Page 1, slot 1: Dark Magician",
+    );
+    await user.click(occupied);
+    expect(
+      within(screen.getByRole("list", { name: "Printing" })).getByText(
+        "LOB-EN005",
+      ),
+    ).toBeTruthy();
+  });
+
+  it("keeps a catalogue target when Escape cancels an active drag", async () => {
+    const user = await fileDarkMagician();
+    const target = slot("Page 1, slot 2, empty");
+    await user.click(target);
+    const source = slot("Page 1, slot 1: Dark Magician");
+
+    dragCopy(source, target);
+    fireEvent.keyDown(target, { key: "Escape" });
+    releaseCopy(source, target);
+
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(target.getAttribute("aria-label")).toBe("Page 1, slot 2, empty");
+    await user.click(printing(/LOB-EN005/));
+    expect(slot("Page 1, slot 2: Dark Magician")).toBeTruthy();
+  });
+
+  it("preserves the catalogue target through Escape repeats until a new press", async () => {
+    const user = await fileDarkMagician();
+    const target = slot("Page 1, slot 2, empty");
+    await user.click(target);
+    dragCopy(slot("Page 1, slot 1: Dark Magician"), target);
+    const panel = within(
+      screen.getByRole("complementary", { name: "Catalogue" }),
+    );
+
+    fireEvent.keyDown(target, { key: "Escape" });
+    fireEvent.keyDown(target, { key: "Escape", repeat: true });
+    fireEvent.pointerUp(target, { pointerId: 1 });
+    fireEvent.keyDown(target, { key: "Escape", repeat: true });
+
+    expect(panel.getByRole("heading", { level: 2 }).textContent).toBe(
+      "Adding to page 1, slot 2",
+    );
+
+    fireEvent.keyUp(target, { key: "Escape" });
+    fireEvent.keyDown(target, { key: "Escape" });
+
+    expect(panel.getByRole("heading", { level: 2 }).textContent).toBe(
+      "Add cards",
+    );
+  });
+
+  it("cancels a drag when only the secondary button remains held", async () => {
+    await fileDarkMagician();
+    const source = slot("Page 1, slot 1: Dark Magician");
+    const target = slot("Page 1, slot 2, empty");
+    dragCopy(source, target);
+
+    moveTo(410, 300, 2);
+    releaseCopy(source, target);
+
+    expect(document.querySelector(".drag-ghost")).toBeNull();
+    expect([
+      source.getAttribute("aria-label"),
+      target.getAttribute("aria-label"),
+    ]).toEqual(["Page 1, slot 1: Dark Magician", "Page 1, slot 2, empty"]);
+  });
+
+  it("does not drop a copy on a secondary button release", async () => {
+    await fileDarkMagician();
+    const source = slot("Page 1, slot 1: Dark Magician");
+    const target = slot("Page 1, slot 2, empty");
+    dragCopy(source, target);
+
+    fireEvent.pointerUp(target, { pointerId: 1, button: 2 });
+
+    expect(target.getAttribute("aria-label")).toBe("Page 1, slot 2, empty");
+    expect(source.getAttribute("aria-label")).toBe(
+      "Page 1, slot 1: Dark Magician",
+    );
+  });
+
+  it("clears a catalogue target when the moved copy fills it", async () => {
+    const user = await fileDarkMagician();
+    const target = slot("Page 1, slot 2, empty");
+    await user.click(target);
+    const source = slot("Page 1, slot 1: Dark Magician");
+    const otherPrinting = printing(/LOB-EN005/);
+
+    dragCopy(source, target);
+    releaseCopy(source, target);
+    await user.click(otherPrinting);
+
+    expect(otherPrinting.getAttribute("aria-pressed")).toBe("true");
+    expect(source.getAttribute("aria-label")).toBe("Page 1, slot 1, empty");
+  });
+
+  it("does not drop a copy after another copy's detail opens mid-drag", async () => {
+    const user = await fileDarkMagician();
+    await user.click(slot("Page 1, slot 3, empty"));
+    await user.click(printing(/LOB-EN005/));
+    await user.click(slot("Close catalogue"));
+    const source = slot("Page 1, slot 1: Dark Magician");
+    const target = slot("Page 1, slot 2, empty");
+    dragCopy(source, target);
+
+    fireEvent.click(slot("Page 1, slot 3: Dark Magician"), { detail: 0 });
+    expect(document.querySelector(".drag-ghost")).toBeNull();
+    fireEvent.pointerUp(target, { pointerId: 1, clientX: 400, clientY: 300 });
+
+    expect([
+      source.getAttribute("aria-label"),
+      target.getAttribute("aria-label"),
+    ]).toEqual(["Page 1, slot 1: Dark Magician", "Page 1, slot 2, empty"]);
+  });
+
+  it("cancels a drag when reduced motion immediately cuts to a new spread", async () => {
+    const user = await fileDarkMagician();
+    prefersReducedMotion(true);
+    const source = slot("Page 1, slot 1: Dark Magician");
+    const target = slot("Page 1, slot 2, empty");
+    dragCopy(source, target);
+    expect(target.classList.contains("slot--drop")).toBe(true);
+
+    fireEvent.keyDown(document, { key: "ArrowRight" });
+    expect(document.querySelector(".drag-ghost")).toBeNull();
+    const nextSpread = slot("Page 2, slot 1, empty");
+    pointerIsOver(nextSpread);
+    fireEvent.pointerUp(nextSpread, { pointerId: 1 });
+
+    expect(nextSpread.getAttribute("aria-label")).toBe("Page 2, slot 1, empty");
+    await user.click(slot("Previous spread"));
+    expect(slot("Page 1, slot 1: Dark Magician")).toBeTruthy();
   });
 });

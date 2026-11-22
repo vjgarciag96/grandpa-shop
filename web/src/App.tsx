@@ -2,39 +2,57 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
-import { chooseSlot, choosePrinting, type Aim } from "./aim";
+import { chooseSlot, choosePrinting, isTarget, type Aim } from "./aim";
 import { BinderSpread } from "./BinderSpread";
-import { CataloguePanel, type Announcement } from "./CataloguePanel";
+import { CataloguePanel } from "./CataloguePanel";
 import { CopyDetail } from "./CopyDetail";
 import { loadBinder, saveBinder } from "./savedBinder";
 import {
   changeCondition,
+  moveCopy,
   place,
   remove,
   slotAt,
   slotNameInSentence,
   slotName,
   spreadPages,
+  type Binder,
+  type Copy,
   type SlotAddress,
 } from "./binder";
 import type { Card, Catalogue, Printing } from "./catalogue";
+import {
+  announced,
+  silence,
+  silenced,
+  type Announcement,
+} from "./announcement";
+import { LiveRegion } from "./LiveRegion";
 import { PANEL_BESIDE_FROM_PX, STACK_BELOW_PX } from "./tokens";
 import { useMediaQuery } from "./useMediaQuery";
 import { useDragToPocket } from "./useDragToPocket";
 import { useSpreadTurns } from "./useSpreadTurns";
 
+type BinderState = {
+  binder: Binder;
+  aim: Aim | null;
+  moveAnnouncement: Announcement;
+};
+
 export default function App({ catalogue }: { catalogue: Catalogue }) {
-  const [binder, setBinder] = useState(loadBinder);
+  const [{ binder, aim, moveAnnouncement }, setBinderState] =
+    useState<BinderState>(() => ({
+      binder: loadBinder(),
+      aim: null,
+      moveAnnouncement: silence,
+    }));
   const [detail, setDetail] = useState<SlotAddress | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
-  const [aim, setAim] = useState<Aim | null>(null);
-  const [announcement, setAnnouncement] = useState<Announcement>({
-    text: "",
-    count: 0,
-  });
+  const [announcement, setAnnouncement] = useState<Announcement>(silence);
   const [panelFocus, setPanelFocus] = useState(0);
   const closeDetail = useCallback(() => setDetail(null), []);
   const opener = useRef<HTMLButtonElement>(null);
@@ -57,12 +75,17 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
 
   useEffect(() => saveBinder(binder), [binder]);
 
+  const setAim = useCallback(
+    (aim: Aim | null) => setBinderState((current) => ({ ...current, aim })),
+    [],
+  );
+
   useEffect(() => {
     if (detail) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setAim(null);
-        setAnnouncement((current) => ({ ...current, text: "" }));
+        setAnnouncement(silenced);
       }
       if (isTextField(event.target)) return;
       if (event.key === "ArrowRight") go("forward");
@@ -70,10 +93,10 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [detail, go]);
+  }, [detail, go, setAim]);
 
   const announce = (text: string) =>
-    setAnnouncement((current) => ({ text, count: current.count + 1 }));
+    setAnnouncement((current) => announced(current, text));
 
   const openPanel = (nextAim: Aim | null) => {
     setPanelOpen(true);
@@ -84,24 +107,60 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
   const closePanel = () => {
     setPanelOpen(false);
     setAim(null);
-    setAnnouncement((current) => ({ ...current, text: "" }));
+    setAnnouncement(silenced);
     addCards.current?.focus();
   };
 
   const placeAt = (address: SlotAddress, card: Card, printing: Printing) => {
-    setBinder((current) =>
-      place(current, address, { card, printing, condition: "Near Mint" }),
-    );
-    setAim(null);
+    setBinderState((current) => ({
+      ...current,
+      binder: place(current.binder, address, {
+        card,
+        printing,
+        condition: "Near Mint",
+      }),
+      aim: null,
+    }));
     announce(`Placed ${printing.setCode} in ${slotNameInSentence(address)}.`);
   };
 
-  const canDrag = panelOpen && beside && detail === null;
-  const { drag, start: startDrag } = useDragToPocket(canDrag, placeAt);
-  // While a printing is dragged, the binder and the panel show it as held.
-  const shownAim: Aim | null = drag
-    ? { kind: "holding", card: drag.card, printing: drag.printing }
-    : aim;
+  const canDragPrinting = panelOpen && beside && detail === null;
+  const canMoveCopy = turn === null && detail === null;
+
+  const moveAt = (to: SlotAddress, from: SlotAddress, copy: Copy) => {
+    const visible = (page: number) => page === left || page === right;
+    if (!canMoveCopy || !visible(from.page) || !visible(to.page)) return;
+
+    setBinderState((current) => {
+      const binder = moveCopy(current.binder, from, to, copy);
+      if (binder === current.binder) return current;
+      return {
+        binder,
+        aim: isTarget(current.aim, to) ? null : current.aim,
+        moveAnnouncement: announced(
+          current.moveAnnouncement,
+          `Moved ${copy.printing.setCode} to ${slotNameInSentence(to)}.`,
+        ),
+      };
+    });
+  };
+
+  const allowedDrags = useMemo(
+    () => ({ canDragPrinting, canMoveCopy, spread }),
+    [canDragPrinting, canMoveCopy, spread],
+  );
+  const { drag, start: startDrag } = useDragToPocket(
+    allowedDrags,
+    (address, origin) =>
+      origin.kind === "printing"
+        ? placeAt(address, origin.card, origin.printing)
+        : moveAt(address, origin.from, origin.copy),
+  );
+  const origin = drag?.origin;
+  const shownAim: Aim | null =
+    origin?.kind === "printing"
+      ? { kind: "holding", card: origin.card, printing: origin.printing }
+      : aim;
 
   const onSlot = (address: SlotAddress, button: HTMLButtonElement) => {
     const choice = chooseSlot(aim, slotAt(binder, address) !== null);
@@ -185,8 +244,12 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
               turn={turn}
               aim={shownAim}
               dropTarget={drag?.over ?? null}
+              movingCopy={origin?.kind === "copy"}
               catalogue={catalogue}
               onSlot={onSlot}
+              onCopyPress={(from, copy, event) =>
+                startDrag({ kind: "copy", from, copy }, event)
+              }
               onSwipe={go}
             />
           </div>
@@ -203,15 +266,27 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
           beside={beside}
           inert={detail !== null}
           focusRequest={panelFocus}
-          onPrintingPress={canDrag ? startDrag : undefined}
+          onPrintingPress={
+            canDragPrinting
+              ? (card, printing, event) =>
+                  startDrag({ kind: "printing", card, printing }, event)
+              : undefined
+          }
           onChoose={onPrinting}
           onClose={closePanel}
         />
       )}
-      {drag && (
+      <LiveRegion
+        className="binder__announcement"
+        announcement={moveAnnouncement}
+      />
+      {drag && origin && (
         <img
           className="drag-ghost"
-          src={catalogue.imageUrl(drag.card.passcode)}
+          src={catalogue.imageUrl(
+            (origin.kind === "printing" ? origin.card : origin.copy.card)
+              .passcode,
+          )}
           alt=""
           style={{ left: drag.x, top: drag.y }}
         />
@@ -223,7 +298,10 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
           catalogue={catalogue}
           onClose={closeDetail}
           onCondition={(condition) =>
-            setBinder((current) => changeCondition(current, detail, condition))
+            setBinderState((current) => ({
+              ...current,
+              binder: changeCondition(current.binder, detail, condition),
+            }))
           }
           onReplace={() => {
             opener.current = null;
@@ -231,7 +309,10 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
             openPanel({ kind: "target", address: detail });
           }}
           onRemove={() => {
-            setBinder((current) => remove(current, detail));
+            setBinderState((current) => ({
+              ...current,
+              binder: remove(current.binder, detail),
+            }));
             closeDetail();
           }}
         />

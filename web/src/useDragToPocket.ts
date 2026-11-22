@@ -1,21 +1,23 @@
 import { useLayoutEffect, useRef, useState, type PointerEvent } from "react";
-import type { SlotAddress } from "./binder";
+import type { Copy, SlotAddress } from "./binder";
 import { emptySlotAt } from "./pocketHitTest";
 import type { Card, Printing } from "./catalogue";
 import { DRAG_START_PX } from "./tokens";
 
-/** A printing being dragged: where the pointer is, and the empty slot under it, if any. */
+export type DragOrigin =
+  | { kind: "printing"; card: Card; printing: Printing }
+  | { kind: "copy"; from: SlotAddress; copy: Copy };
+
 type Drag = {
-  readonly card: Card;
-  readonly printing: Printing;
+  readonly origin: DragOrigin;
   readonly x: number;
   readonly y: number;
   readonly over: SlotAddress | null;
 };
 
 type Press = {
-  card: Card;
-  printing: Printing;
+  origin: DragOrigin;
+  spread: number;
   pointerId: number;
   startX: number;
   startY: number;
@@ -24,15 +26,17 @@ type Press = {
 };
 
 /**
- * Drags a printing from the catalogue panel onto an empty slot. A press becomes a drag once it moves
- * `motion.dragStartPx`; a shorter press stays a tap. Slots are found by their `data-empty-slot` attribute.
+ * A press becomes a drag once it moves `motion.dragStartPx`; a shorter press stays a tap.
+ * Slots are found by their `data-empty-slot` attribute.
+ * Pass a memoized `allowed`: each new object rechecks the active press and rebinds the listeners.
  */
 export function useDragToPocket(
-  enabled: boolean,
-  onDrop: (address: SlotAddress, card: Card, printing: Printing) => void,
+  allowed: Allowed,
+  onDrop: (address: SlotAddress, origin: DragOrigin) => void,
 ) {
   const [drag, setDrag] = useState<Drag | null>(null);
   const press = useRef<Press | null>(null);
+  const escapeCanceledCopyDrag = useRef(false);
   const drop = useRef(onDrop);
 
   useLayoutEffect(() => {
@@ -46,7 +50,14 @@ export function useDragToPocket(
         setDrag(null);
       }
     };
-    if (!enabled) cancel();
+    const active = press.current;
+    if (
+      active &&
+      (!mayDrag(active.origin, allowed) ||
+        (active.origin.kind === "copy" && active.spread !== allowed.spread))
+    ) {
+      cancel();
+    }
 
     const end = () => {
       press.current = null;
@@ -56,6 +67,10 @@ export function useDragToPocket(
       const current = press.current;
       if (!current || current.pointerId !== event.pointerId) return;
       if (current.phase === "canceled") return;
+      if (current.origin.kind === "copy" && (event.buttons & 1) === 0) {
+        cancel();
+        return;
+      }
       const moved = Math.hypot(
         event.clientX - current.startX,
         event.clientY - current.startY,
@@ -63,8 +78,7 @@ export function useDragToPocket(
       if (current.phase === "pressed" && moved < DRAG_START_PX) return;
       current.phase = "dragging";
       setDrag({
-        card: current.card,
-        printing: current.printing,
+        origin: current.origin,
         x: event.clientX,
         y: event.clientY,
         over: emptySlotAt(event.clientX, event.clientY),
@@ -74,9 +88,12 @@ export function useDragToPocket(
       const current = press.current;
       if (!current || current.pointerId !== event.pointerId) return;
       if (current.phase !== "pressed") swallowSourceClick(current.source);
-      if (current.phase === "dragging") {
+      if (
+        current.phase === "dragging" &&
+        (current.origin.kind === "printing" || event.button === 0)
+      ) {
         const over = emptySlotAt(event.clientX, event.clientY);
-        if (over) drop.current(over, current.card, current.printing);
+        if (over) drop.current(over, current.origin);
       }
       end();
     };
@@ -84,40 +101,63 @@ export function useDragToPocket(
       if (press.current?.pointerId === event.pointerId) end();
     };
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && press.current?.phase === "dragging") {
+      if (event.key !== "Escape") return;
+      // Escape repeats still belong to the same press after the pointer is released.
+      if (!event.repeat) escapeCanceledCopyDrag.current = false;
+      if (press.current?.phase === "dragging") {
+        if (press.current.origin.kind === "copy") {
+          escapeCanceledCopyDrag.current = true;
+        }
         cancel();
       }
+      if (escapeCanceledCopyDrag.current) event.stopPropagation();
     };
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
     window.addEventListener("pointercancel", onCancel);
-    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keydown", onKeyDown, true);
     return () => {
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
       window.removeEventListener("pointercancel", onCancel);
-      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keydown", onKeyDown, true);
     };
-  }, [enabled]);
+  }, [allowed]);
 
-  const start = (card: Card, printing: Printing, event: PointerEvent) => {
-    if (!enabled || event.button !== 0 || !event.isPrimary) return;
-    if (press.current && press.current.pointerId !== event.pointerId) return;
+  const start = (origin: DragOrigin, event: PointerEvent): boolean => {
+    if (event.button !== 0 || !event.isPrimary) return false;
+    if (press.current && press.current.pointerId !== event.pointerId)
+      return false;
+    if (!mayDrag(origin, allowed)) return false;
+    if (origin.kind === "copy" && !["mouse", "pen"].includes(event.pointerType))
+      return false;
     press.current = {
-      card,
-      printing,
+      origin,
+      spread: allowed.spread,
       pointerId: event.pointerId,
       startX: event.clientX,
       startY: event.clientY,
       phase: "pressed",
       source: event.currentTarget,
     };
+    return true;
   };
 
   return { drag, start };
 }
 
-// A release can produce a click on the source row, even after Escape.
+type Allowed = {
+  readonly canDragPrinting: boolean;
+  readonly canMoveCopy: boolean;
+  readonly spread: number;
+};
+
+/** Whether this kind of origin may be dragged now. */
+function mayDrag(origin: DragOrigin, allowed: Allowed): boolean {
+  return origin.kind === "copy" ? allowed.canMoveCopy : allowed.canDragPrinting;
+}
+
+// A release can produce a click on the drag source, even after Escape.
 function swallowSourceClick(source: Element) {
   const cleanup = () => window.removeEventListener("click", swallow, true);
   const swallow = (event: MouseEvent) => {

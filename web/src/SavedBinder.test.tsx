@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
@@ -40,8 +40,34 @@ async function placeDarkMagicianInFirstSlot(
   await user.click(screen.getByRole("button", { name: /LOB-EN005/ }));
 }
 
+/** Drags a filed copy with the mouse and drops it on a pocket; jsdom does no layout, so the pocket under the pointer is stubbed. */
+function moveCopyWithMouse(source: HTMLElement, destination: HTMLElement) {
+  document.elementFromPoint = () => destination;
+  fireEvent.pointerDown(source, {
+    pointerType: "mouse",
+    pointerId: 1,
+    isPrimary: true,
+    button: 0,
+    clientX: 700,
+    clientY: 300,
+  });
+  fireEvent.pointerMove(window, {
+    pointerId: 1,
+    clientX: 400,
+    clientY: 300,
+    buttons: 1,
+  });
+  fireEvent.pointerUp(destination, {
+    pointerId: 1,
+    clientX: 400,
+    clientY: 300,
+  });
+  fireEvent.click(source, { detail: 1 });
+}
+
 afterEach(() => {
   vi.restoreAllMocks();
+  document.elementFromPoint = () => null;
 });
 
 describe("the binder across reloads", () => {
@@ -86,6 +112,33 @@ describe("the binder across reloads", () => {
     openApp();
 
     expect(slot("Page 1, slot 1, empty")).toBeTruthy();
+  });
+
+  it("keeps a moved copy in its new pocket when the app is opened again", async () => {
+    saveBinderStartingWith({
+      ...savedDarkMagician,
+      condition: "Lightly Played",
+    });
+    const first = openApp();
+    moveCopyWithMouse(
+      slot("Page 1, slot 1: Dark Magician"),
+      slot("Page 1, slot 3, empty"),
+    );
+    first.close();
+
+    const second = openApp();
+    await second.user.click(slot("Page 1, slot 3: Dark Magician"));
+
+    expect(slot("Page 1, slot 1, empty")).toBeTruthy();
+    expect(
+      within(screen.getByRole("list", { name: "Printing" })).getByText(
+        "LOB-EN005",
+      ),
+    ).toBeTruthy();
+    expect(
+      (screen.getByRole("combobox", { name: "Condition" }) as HTMLSelectElement)
+        .value,
+    ).toBe("Lightly Played");
   });
 
   it("starts with an empty binder when the saved binder is unreadable", () => {

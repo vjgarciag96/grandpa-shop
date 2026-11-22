@@ -5,6 +5,7 @@ import {
   slotName,
   spreadPages,
   type Binder,
+  type Copy,
   type SlotAddress,
 } from "./binder";
 import { emptySlotTarget } from "./pocketHitTest";
@@ -13,6 +14,11 @@ import { SWIPE_THRESHOLD_PX } from "./tokens";
 import type { Turn } from "./useSpreadTurns";
 
 type OpenSlot = (address: SlotAddress, button: HTMLButtonElement) => void;
+type PressCopy = (
+  from: SlotAddress,
+  copy: Copy,
+  event: PointerEvent,
+) => boolean;
 
 type Props = {
   binder: Binder;
@@ -20,10 +26,12 @@ type Props = {
   stacked: boolean;
   turn: Turn | null;
   aim: Aim | null;
-  /** The empty slot a dragged printing would drop into. */
+  /** The empty slot the drag would drop into. */
   dropTarget: SlotAddress | null;
+  movingCopy: boolean;
   catalogue: Catalogue;
   onSlot: OpenSlot;
+  onCopyPress: PressCopy;
   onSwipe: (direction: Turn["direction"]) => void;
 };
 
@@ -34,8 +42,10 @@ export function BinderSpread({
   turn,
   aim,
   dropTarget,
+  movingCopy,
   catalogue,
   onSlot,
+  onCopyPress,
   onSwipe,
 }: Props) {
   const arriving = spreadPages(spread);
@@ -48,8 +58,10 @@ export function BinderSpread({
     binder,
     aim,
     dropTarget,
+    movingCopy,
     catalogue,
     onSlot,
+    onCopyPress,
     inert: turn !== null,
   };
   const stopTracking = (event: PointerEvent) => {
@@ -60,9 +72,13 @@ export function BinderSpread({
     <div
       className={stacked ? "spread spread--stacked" : "spread"}
       data-testid="spread"
+      onPointerDownCapture={(event) => {
+        if (event.button === 0 && event.isPrimary !== false) {
+          suppressPointerClick.current = false;
+        }
+      }}
       onPointerDown={(event) => {
         if (event.button !== 0 || event.isPrimary === false) return;
-        suppressPointerClick.current = false;
         swipeStart.current = {
           id: event.pointerId,
           x: event.clientX,
@@ -141,8 +157,10 @@ type SideProps = {
   binder: Binder;
   aim: Aim | null;
   dropTarget: SlotAddress | null;
+  movingCopy: boolean;
   catalogue: Catalogue;
   onSlot: OpenSlot;
+  onCopyPress: PressCopy;
   inert: boolean;
 };
 
@@ -152,8 +170,10 @@ function PageSide({
   binder,
   aim,
   dropTarget,
+  movingCopy,
   catalogue,
   onSlot,
+  onCopyPress,
   inert,
 }: SideProps) {
   if (page === null) {
@@ -167,10 +187,11 @@ function PageSide({
     >
       <div className="page__grid">
         {pageSlots(binder, page).map((copy, position) => {
-          const label = slotName({ page, position });
+          const address = { page, position };
+          const label = slotName(address);
           const aimed =
-            isTarget(aim, { page, position }) ||
-            (aim?.kind === "holding" && !copy);
+            isTarget(aim, address) ||
+            ((movingCopy || aim?.kind === "holding") && !copy);
           const dropping =
             dropTarget?.page === page && dropTarget.position === position;
           const className = [
@@ -185,13 +206,16 @@ function PageSide({
               key={position}
               type="button"
               className={className}
-              {...(copy ? undefined : emptySlotTarget({ page, position }))}
+              {...(copy || inert ? undefined : emptySlotTarget(address))}
               aria-label={
                 copy ? `${label}: ${copy.card.name}` : `${label}, empty`
               }
-              onClick={(event) =>
-                onSlot({ page, position }, event.currentTarget)
-              }
+              onPointerDown={(event) => {
+                if (copy && !inert && onCopyPress(address, copy, event)) {
+                  event.stopPropagation();
+                }
+              }}
+              onClick={(event) => onSlot(address, event.currentTarget)}
             >
               {copy && (
                 <img
