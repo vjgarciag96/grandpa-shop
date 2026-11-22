@@ -124,6 +124,10 @@ body {
   outline-offset: calc(var(--empty-slot-stroke) * 2);
 }
 
+html:has(.dialog-backdrop) {
+  overflow: hidden;
+}
+
 .dialog-backdrop {
   position: fixed;
   inset: 0;

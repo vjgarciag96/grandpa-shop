@@ -28,8 +28,12 @@ const fillWithDarkMagician = () =>
   appWithFirstSlotFilled("dark", /Dark Magician/, /LOB-EN005/);
 
 describe("a copy's detail", () => {
-  it("opens from a filled slot and shows the printing", async () => {
-    const user = await fillWithDarkMagician();
+  it("shows the printing selected when the copy was added", async () => {
+    const user = await appWithFirstSlotFilled(
+      "dark",
+      /Dark Magician/,
+      /SDY-006/,
+    );
 
     await user.click(
       screen.getByRole("button", { name: "Page 1, slot 1: Dark Magician" }),
@@ -38,7 +42,7 @@ describe("a copy's detail", () => {
     const detail = screen.getByRole("dialog", { name: "Page 1, slot 1" });
     expect(
       within(detail).getByRole("list", { name: "Printing" }).textContent,
-    ).toBe("LOB-EN005Ultra RareLegend of Blue Eyes White Dragon");
+    ).toBe("SDY-006CommonStarter Deck: Yugi");
   });
 
   it("shows a monster's stats", async () => {
