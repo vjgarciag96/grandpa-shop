@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState, type PointerEvent } from "react";
 import type { Copy, SlotAddress } from "./binder";
-import { emptySlotAt } from "./pocketHitTest";
+import { dropSlotAt, type DropSlot } from "./pocketHitTest";
 import type { Card, Printing } from "./catalogue";
 import { DRAG_START_PX } from "./tokens";
 
@@ -27,7 +27,7 @@ type Press = {
 
 /**
  * A press becomes a drag once it moves `motion.dragStartPx`; a shorter press stays a tap.
- * Slots are found by their `data-empty-slot` attribute.
+ * Slots are found by their `data-drop-slot` attribute.
  * Pass a memoized `allowed`: each new object rechecks the active press and rebinds the listeners.
  */
 export function useDragToPocket(
@@ -81,7 +81,10 @@ export function useDragToPocket(
         origin: current.origin,
         x: event.clientX,
         y: event.clientY,
-        over: emptySlotAt(event.clientX, event.clientY),
+        over: dropAddress(
+          current.origin,
+          dropSlotAt(event.clientX, event.clientY),
+        ),
       });
     };
     const onUp = (event: globalThis.PointerEvent) => {
@@ -92,7 +95,10 @@ export function useDragToPocket(
         current.phase === "dragging" &&
         (current.origin.kind === "printing" || event.button === 0)
       ) {
-        const over = emptySlotAt(event.clientX, event.clientY);
+        const over = dropAddress(
+          current.origin,
+          dropSlotAt(event.clientX, event.clientY),
+        );
         if (over) drop.current(over, current.origin);
       }
       end();
@@ -155,6 +161,19 @@ type Allowed = {
 /** Whether this kind of origin may be dragged now. */
 function mayDrag(origin: DragOrigin, allowed: Allowed): boolean {
   return origin.kind === "copy" ? allowed.canMoveCopy : allowed.canDragPrinting;
+}
+
+/** The pocket a drag would drop into: a copy takes any pocket but its own, a printing only an empty one. */
+function dropAddress(
+  origin: DragOrigin,
+  hit: DropSlot | null,
+): SlotAddress | null {
+  if (!hit) return null;
+  if (origin.kind === "printing") return hit.filled ? null : hit.address;
+  const { from } = origin;
+  const own =
+    hit.address.page === from.page && hit.address.position === from.position;
+  return own ? null : hit.address;
 }
 
 // A release can produce a click on the drag source, even after Escape.

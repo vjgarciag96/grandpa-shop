@@ -2,7 +2,7 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it } from "vitest";
 import App from "./App";
-import { fakeCatalogue } from "./test/fakeCatalogue";
+import { darkMagician, fakeCatalogue } from "./test/fakeCatalogue";
 import { prefersReducedMotion, viewportWidth } from "./test/media";
 
 const slot = (name: string) => screen.getByRole("button", { name });
@@ -274,10 +274,14 @@ async function fileDarkMagician() {
   return user;
 }
 
-function dragCopy(source: HTMLElement, target: HTMLElement | null) {
+function dragCopy(
+  source: HTMLElement,
+  target: HTMLElement | null,
+  pointerType = "mouse",
+) {
   pointerIsOver(target);
   fireEvent.pointerDown(source, {
-    pointerType: "mouse",
+    pointerType,
     pointerId: 1,
     isPrimary: true,
     button: 0,
@@ -294,6 +298,53 @@ function releaseCopy(source: HTMLElement, target = source) {
     clientY: 300,
   });
   fireEvent.click(source, { detail: 1 });
+}
+
+/** Files SDY-006 in page 1, slot 1 in Lightly Played and LOB-EN005 in page 1, slot 2 in Near Mint, with the catalogue still open. */
+async function fileTwoDarkMagicians() {
+  const user = await fileDarkMagician();
+  await user.click(slot("Page 1, slot 2, empty"));
+  await user.click(printing(/LOB-EN005/));
+  await user.click(slot("Page 1, slot 1: Dark Magician"));
+  await user.selectOptions(
+    screen.getByRole("combobox", { name: "Condition" }),
+    "Lightly Played",
+  );
+  await user.click(slot("Close"));
+  return user;
+}
+
+/** Opens a pocket's detail, reads its printings and condition, and closes it again. */
+async function detailOf(
+  user: ReturnType<typeof userEvent.setup>,
+  pocket: HTMLElement,
+) {
+  await user.click(pocket);
+  const dialog = within(screen.getByRole("dialog"));
+  const shown = {
+    printings: dialog
+      .getAllByRole("list", { name: "Printing" })
+      .map((list) => within(list).getAllByRole("listitem")[0].textContent),
+    condition: dialog.getByRole<HTMLSelectElement>("combobox", {
+      name: "Condition",
+    }).value,
+  };
+  await user.click(dialog.getByRole("button", { name: "Close" }));
+  return shown;
+}
+
+const binderAnnouncement = () =>
+  document.querySelector(".binder__announcement")?.textContent?.trim();
+
+/** Opens the app on a saved binder holding the given copies, keyed by slot index from 0. */
+function openSavedBinder(copies: Record<number, object>) {
+  const slots: unknown[] = Array(360).fill(null);
+  for (const [index, copy] of Object.entries(copies)) {
+    slots[Number(index)] = copy;
+  }
+  localStorage.setItem("grandpa-shop.dev-binder.v1", JSON.stringify({ slots }));
+  render(<App catalogue={fakeCatalogue().catalogue} />);
+  return userEvent.setup();
 }
 
 describe("moving a filed copy", () => {
@@ -380,10 +431,9 @@ describe("moving a filed copy", () => {
     ).toBe("Lightly Played");
   });
 
-  it("leaves both copies in place on a filled destination", async () => {
-    const user = await fileDarkMagician();
-    await user.click(slot("Page 1, slot 2, empty"));
-    await user.click(printing(/LOB-EN005/));
+  it("swaps two filed copies with their printings and conditions", async () => {
+    const user = await fileTwoDarkMagicians();
+    await user.click(slot("Close catalogue"));
     const source = slot("Page 1, slot 1: Dark Magician");
     const occupied = slot("Page 1, slot 2: Dark Magician");
 
@@ -391,15 +441,86 @@ describe("moving a filed copy", () => {
     releaseCopy(source, occupied);
 
     expect(screen.queryByRole("dialog")).toBeNull();
-    expect(source.getAttribute("aria-label")).toBe(
-      "Page 1, slot 1: Dark Magician",
+    expect(binderAnnouncement()).toBe(
+      "Swapped SDY-006 to page 1, slot 2 and LOB-EN005 to page 1, slot 1.",
     );
+    expect(await detailOf(user, source)).toEqual({
+      printings: ["LOB-EN005"],
+      condition: "Near Mint",
+    });
+    expect(await detailOf(user, occupied)).toEqual({
+      printings: ["SDY-006"],
+      condition: "Lightly Played",
+    });
+  });
+
+  it("swaps across the gutter with a pen", async () => {
+    prefersReducedMotion(true);
+    const user = openSavedBinder({
+      17: {
+        card: darkMagician,
+        printing: darkMagician.printings[1],
+        condition: "Lightly Played",
+      },
+      18: {
+        card: darkMagician,
+        printing: darkMagician.printings[0],
+        condition: "Near Mint",
+      },
+    });
+    await user.click(slot("Next spread"));
+    const source = slot("Page 2, slot 9: Dark Magician");
+    const occupied = slot("Page 3, slot 1: Dark Magician");
+
+    dragCopy(source, occupied, "pen");
+    releaseCopy(source, occupied);
+
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(binderAnnouncement()).toBe(
+      "Swapped SDY-006 to page 3, slot 1 and LOB-EN005 to page 2, slot 9.",
+    );
+    expect(await detailOf(user, source)).toEqual({
+      printings: ["LOB-EN005"],
+      condition: "Near Mint",
+    });
+    expect(await detailOf(user, occupied)).toEqual({
+      printings: ["SDY-006"],
+      condition: "Lightly Played",
+    });
+  });
+
+  it("clears a catalogue target that a swap moves away", async () => {
+    const user = await fileTwoDarkMagicians();
+    const occupied = slot("Page 1, slot 2: Dark Magician");
     await user.click(occupied);
-    expect(
-      within(screen.getByRole("list", { name: "Printing" })).getByText(
-        "LOB-EN005",
-      ),
-    ).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: "Replace" }));
+    const panel = within(
+      screen.getByRole("complementary", { name: "Catalogue" }),
+    );
+
+    dragCopy(slot("Page 1, slot 1: Dark Magician"), occupied);
+    releaseCopy(slot("Page 1, slot 1: Dark Magician"), occupied);
+
+    expect(panel.getByRole("heading", { level: 2 }).textContent).toBe(
+      "Add cards",
+    );
+  });
+
+  it("clears a catalogue target on the copy that is dragged into a swap", async () => {
+    const user = await fileTwoDarkMagicians();
+    const source = slot("Page 1, slot 1: Dark Magician");
+    await user.click(source);
+    await user.click(screen.getByRole("button", { name: "Replace" }));
+    const panel = within(
+      screen.getByRole("complementary", { name: "Catalogue" }),
+    );
+
+    dragCopy(source, slot("Page 1, slot 2: Dark Magician"));
+    releaseCopy(source, slot("Page 1, slot 2: Dark Magician"));
+
+    expect(panel.getByRole("heading", { level: 2 }).textContent).toBe(
+      "Add cards",
+    );
   });
 
   it("keeps a catalogue target when Escape cancels an active drag", async () => {

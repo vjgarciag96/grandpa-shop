@@ -1,18 +1,34 @@
 import type { SlotAddress } from "./binder";
 
-const emptySlotAttribute = "data-empty-slot";
+const dropSlotAttribute = "data-drop-slot";
+const filledAttribute = "data-drop-slot-filled";
 
-export function emptySlotTarget({ page, position }: SlotAddress) {
-  return { [emptySlotAttribute]: `${page}:${position}` };
+/** A pocket under the pointer, and whether a copy is filed in it. */
+export type DropSlot = {
+  readonly address: SlotAddress;
+  readonly filled: boolean;
+};
+
+export function dropSlotTarget(
+  { page, position }: SlotAddress,
+  filled: boolean,
+): Record<string, string> {
+  return {
+    [dropSlotAttribute]: `${page}:${position}`,
+    ...(filled && { [filledAttribute]: "" }),
+  };
 }
 
-export function emptySlotAt(x: number, y: number): SlotAddress | null {
-  const marker = document
+export function dropSlotAt(x: number, y: number): DropSlot | null {
+  const pocket = document
     .elementFromPoint(x, y)
-    ?.closest(`[${emptySlotAttribute}]`)
-    ?.getAttribute(emptySlotAttribute);
-  if (!marker) return null;
+    ?.closest(`[${dropSlotAttribute}]`);
+  const marker = pocket?.getAttribute(dropSlotAttribute);
+  if (!pocket || !marker) return null;
 
   const [page, position] = marker.split(":");
-  return { page: Number(page), position: Number(position) };
+  return {
+    address: { page: Number(page), position: Number(position) },
+    filled: pocket.hasAttribute(filledAttribute),
+  };
 }

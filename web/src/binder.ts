@@ -57,6 +57,7 @@ export function remove(binder: Binder, address: SlotAddress): Binder {
   return { slots };
 }
 
+/** Moves `copy` from `from` to `to`. A copy already in `to` takes `from`. Same binder back if `from` no longer holds `copy` or `from` is `to`. */
 export function moveCopy(
   binder: Binder,
   from: SlotAddress,
@@ -65,11 +66,11 @@ export function moveCopy(
 ): Binder {
   const source = indexOf(from);
   const destination = indexOf(to);
-  if (binder.slots[source] !== copy || binder.slots[destination] !== null) {
+  if (binder.slots[source] !== copy || source === destination) {
     return binder;
   }
   const slots = [...binder.slots];
-  slots[source] = null;
+  slots[source] = binder.slots[destination];
   slots[destination] = copy;
   return { slots };
 }

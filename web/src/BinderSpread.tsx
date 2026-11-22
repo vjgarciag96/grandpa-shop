@@ -8,7 +8,7 @@ import {
   type Copy,
   type SlotAddress,
 } from "./binder";
-import { emptySlotTarget } from "./pocketHitTest";
+import { dropSlotTarget } from "./pocketHitTest";
 import type { Catalogue } from "./catalogue";
 import { SWIPE_THRESHOLD_PX } from "./tokens";
 import type { Turn } from "./useSpreadTurns";
@@ -26,7 +26,7 @@ type Props = {
   stacked: boolean;
   turn: Turn | null;
   aim: Aim | null;
-  /** The empty slot the drag would drop into. */
+  /** The slot the drag would drop into: empty or filled, never the source. */
   dropTarget: SlotAddress | null;
   movingCopy: boolean;
   catalogue: Catalogue;
@@ -189,15 +189,15 @@ function PageSide({
         {pageSlots(binder, page).map((copy, position) => {
           const address = { page, position };
           const label = slotName(address);
+          const dropping =
+            dropTarget?.page === page && dropTarget.position === position;
           const aimed =
             isTarget(aim, address) ||
             ((movingCopy || aim?.kind === "holding") && !copy);
-          const dropping =
-            dropTarget?.page === page && dropTarget.position === position;
           const className = [
             copy ? "slot slot--filled" : "slot slot--empty",
             aimed && "slot--aimed",
-            dropping && "slot--drop",
+            dropping && !copy && "slot--drop",
           ]
             .filter(Boolean)
             .join(" ");
@@ -206,7 +206,7 @@ function PageSide({
               key={position}
               type="button"
               className={className}
-              {...(copy || inert ? undefined : emptySlotTarget(address))}
+              {...(inert ? undefined : dropSlotTarget(address, copy !== null))}
               aria-label={
                 copy ? `${label}: ${copy.card.name}` : `${label}, empty`
               }

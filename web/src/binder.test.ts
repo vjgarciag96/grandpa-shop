@@ -174,7 +174,7 @@ describe("moveCopy", () => {
     ]);
   });
 
-  it("refuses a filled destination and keeps both copies", () => {
+  it("swaps with the copy in a filled destination", () => {
     const filled = place(
       place(emptyBinder(), { page: 2, position: 4 }, playedCopy),
       { page: 3, position: 1 },
@@ -189,8 +189,21 @@ describe("moveCopy", () => {
     );
 
     expect([pageSlots(binder, 2)[4], pageSlots(binder, 3)[1]]).toEqual([
-      playedCopy,
       potOfGreedCopy,
+      playedCopy,
     ]);
+  });
+
+  it("returns the same binder when dropped on its own slot", () => {
+    const filled = place(emptyBinder(), { page: 2, position: 4 }, playedCopy);
+
+    const binder = moveCopy(
+      filled,
+      { page: 2, position: 4 },
+      { page: 2, position: 4 },
+      playedCopy,
+    );
+
+    expect(binder).toBe(filled);
   });
 });
