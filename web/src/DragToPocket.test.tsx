@@ -320,6 +320,42 @@ describe("dragging a printing onto a slot", () => {
     ]);
   });
 
+  it("ends a printing drag when a move comes without the primary button", async () => {
+    await openPotOfGreedOverDarkMagician();
+    pointerIsOver(slot("Page 1, slot 1: Dark Magician"));
+    press(printing(/LOB-EN119/));
+    moveTo(400, 300);
+
+    moveTo(410, 300, 0);
+
+    expect([
+      document.querySelector(".drag-ghost"),
+      slot("Page 1, slot 1: Dark Magician").classList.contains("slot--aimed"),
+    ]).toEqual([null, false]);
+  });
+
+  it("drops nothing on a later primary click after the drag lost its primary button", async () => {
+    await openPotOfGreedOverDarkMagician();
+    pointerIsOver(slot("Page 1, slot 1: Dark Magician"));
+    press(printing(/LOB-EN119/));
+    moveTo(400, 300);
+    moveTo(410, 300, 0);
+
+    fireEvent.pointerDown(document.body, {
+      pointerType: "mouse",
+      pointerId: 1,
+      isPrimary: true,
+      button: 0,
+      buttons: 1,
+    });
+    fireEvent.pointerUp(window, { pointerId: 1, button: 0 });
+
+    expect([labelOf("Page 1, slot 1"), catalogueAnnouncement()]).toEqual([
+      "Page 1, slot 1: Dark Magician",
+      "",
+    ]);
+  });
+
   it("keeps a filled slot when a printing is released away from the binder", async () => {
     await openPotOfGreedOverDarkMagician();
     const row = printing(/LOB-EN119/);
