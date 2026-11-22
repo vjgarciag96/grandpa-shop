@@ -883,7 +883,7 @@ html:has(.dialog-backdrop) {
 }
 
 .catalogue__card-label > span,
-.catalogue__set,
+.catalogue__printing-detail,
 .catalogue__rarity {
   color: var(--color-on-surface-variant);
   font-size: var(--type-body-small);

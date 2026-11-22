@@ -95,3 +95,25 @@ it("lists matching sets before matching cards when searching by set prefix", asy
       .map((list) => list.getAttribute("aria-label")),
   ).toEqual(["Matching sets", "Matching cards"]);
 });
+
+it("shows matching cards while the set search is still pending", async () => {
+  const { catalogue } = fakeCatalogue();
+  vi.spyOn(catalogue, "searchSets").mockImplementation(
+    () => new Promise(() => {}),
+  );
+
+  await searchForSet(catalogue, "dark");
+
+  expect(
+    await screen.findByRole("button", { name: /Dark Magician/ }),
+  ).toBeTruthy();
+});
+
+it("shows matching sets while the card search is still pending", async () => {
+  const { catalogue } = fakeCatalogue();
+  vi.spyOn(catalogue, "search").mockImplementation(() => new Promise(() => {}));
+
+  await searchForSet(catalogue);
+
+  expect(await setResult()).toBeTruthy();
+});

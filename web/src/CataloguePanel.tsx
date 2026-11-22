@@ -42,7 +42,9 @@ type Props = {
 /** What the panel says aloud. Each new message counts up, so a repeated one is read again. */
 export type Announcement = { readonly text: string; readonly count: number };
 
-type Result = { cards: Card[] | null; sets: CardSet[] | null };
+type SearchResult<T> = T[] | "pending" | "failed";
+type Result = { cards: SearchResult<Card>; sets: SearchResult<CardSet> };
+const pendingResult: Result = { cards: "pending", sets: "pending" };
 /** What the panel shows in place of the search: one card's printings, or one set's. */
 type Opened =
   | { readonly kind: "card"; readonly card: Card }
@@ -84,25 +86,37 @@ export function CataloguePanel({
     answer.query === trimmed &&
     answer.attempt === attempt
       ? answer.result
-      : null;
+      : pendingResult;
 
   useEffect(() => {
     if (!canSearch) return;
     const request = new AbortController();
-    const receive = (result: Result) => {
-      if (!request.signal.aborted) {
-        setAnswer({ catalogue, query: trimmed, attempt, result });
-      }
+    const receive = (result: Partial<Result>) => {
+      if (request.signal.aborted) return;
+      setAnswer((previous) => {
+        const sameRequest =
+          previous?.catalogue === catalogue &&
+          previous.query === trimmed &&
+          previous.attempt === attempt;
+        return {
+          catalogue,
+          query: trimmed,
+          attempt,
+          result: {
+            ...(sameRequest ? previous.result : pendingResult),
+            ...result,
+          },
+        };
+      });
     };
     const timeout = window.setTimeout(() => {
-      Promise.allSettled([
-        catalogue.search(trimmed, request.signal),
-        catalogue.searchSets(trimmed, request.signal),
-      ]).then(([cards, sets]) =>
-        receive({
-          cards: cards.status === "fulfilled" ? cards.value : null,
-          sets: sets.status === "fulfilled" ? sets.value : null,
-        }),
+      catalogue.search(trimmed, request.signal).then(
+        (cards) => receive({ cards }),
+        () => receive({ cards: "failed" }),
+      );
+      catalogue.searchSets(trimmed, request.signal).then(
+        (sets) => receive({ sets }),
+        () => receive({ sets: "failed" }),
       );
     }, SEARCH_DELAY_MS);
     return () => {
@@ -277,7 +291,7 @@ function Results({
   onRetry,
   onOpen,
 }: {
-  answer: Result | null;
+  answer: Result;
   canSearch: boolean;
   query: string;
   catalogue: Catalogue;
@@ -299,14 +313,8 @@ function Results({
       </div>
     );
   }
-  if (!answer) {
-    return (
-      <div className="catalogue__message" role="status">
-        <strong>Searching the catalogue…</strong>
-      </div>
-    );
-  }
-  const { cards, sets } = answer;
+  const cards = Array.isArray(answer.cards) ? answer.cards : null;
+  const sets = Array.isArray(answer.sets) ? answer.sets : null;
   if (cards?.length === 0 && sets?.length === 0) {
     return (
       <div className="catalogue__message" role="status">
@@ -315,19 +323,36 @@ function Results({
       </div>
     );
   }
-  const searchError = cards
-    ? "Set search did not answer."
-    : sets
-      ? "Card search did not answer."
-      : "The card catalogue did not answer.";
+  const cardsFailed = answer.cards === "failed";
+  const setsFailed = answer.sets === "failed";
+  const cardsPending = answer.cards === "pending";
+  const setsPending = answer.sets === "pending";
   const counts = [
     sets && countOf(sets.length, "set"),
     cards && countOf(cards.length, "card"),
   ].filter(Boolean);
   return (
     <>
-      {(!cards || !sets) && (
-        <RetryMessage message={searchError} onRetry={onRetry} />
+      {(cardsFailed || setsFailed) && (
+        <RetryMessage
+          message={
+            cardsFailed && setsFailed
+              ? "The card catalogue did not answer."
+              : cardsFailed
+                ? "Card search did not answer."
+                : "Set search did not answer."
+          }
+          onRetry={onRetry}
+        />
+      )}
+      {(cardsPending || setsPending) && (
+        <p className="catalogue__result-count" role="status">
+          {cardsPending && setsPending
+            ? "Searching the catalogue…"
+            : cardsPending
+              ? "Searching for cards…"
+              : "Searching for sets…"}
+        </p>
       )}
       {counts.length > 0 && (
         <p className="catalogue__result-count" role="status">
@@ -626,7 +651,7 @@ function PrintingRow({
         <span className="catalogue__printing-label">
           <strong>{printing.setCode}</strong>
           <span className="catalogue__rarity">{printing.rarity}</span>
-          <span className="catalogue__set">{detail}</span>
+          <span className="catalogue__printing-detail">{detail}</span>
         </span>
       </button>
     </li>
