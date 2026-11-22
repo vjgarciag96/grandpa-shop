@@ -5,6 +5,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
+import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.install
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.response.header
@@ -31,19 +32,20 @@ fun Application.catalogueModule(
     install(ContentNegotiation) { json(Json { explicitNulls = false }) }
     routing {
         get("/api/cards") {
-            val query =
-                call.request.queryParameters["q"]
-                    .orEmpty()
-                    .trim()
-            val limitParameter = call.request.queryParameters["limit"]
-            val limit = if (limitParameter == null) DEFAULT_LIMIT else limitParameter.toIntOrNull()
+            val search = call.searchParameters() ?: return@get
+            call.respond(CardsResponse(catalogue.search(search.query, search.limit).map { it.toResponse() }))
+        }
+        get("/api/sets") {
+            val search = call.searchParameters() ?: return@get
+            call.respond(SetsResponse(catalogue.searchSets(search.query, search.limit).map { it.toResponse() }))
+        }
+        get("/api/sets/printings") {
+            val name = call.request.queryParameters["name"]
+            val found = name?.let(catalogue::setPrintings)
             when {
-                query.length < MIN_QUERY_LENGTH ->
-                    call.respond(HttpStatusCode.BadRequest, "q needs at least $MIN_QUERY_LENGTH characters")
-                limit == null || limit !in LIMITS ->
-                    call.respond(HttpStatusCode.BadRequest, "limit must be a number from 1 to $MAX_LIMIT")
-                else ->
-                    call.respond(CardsResponse(catalogue.search(query, limit).map { it.toResponse() }))
+                name == null -> call.respond(HttpStatusCode.BadRequest, "name is required")
+                found == null -> call.respond(HttpStatusCode.NotFound, "No set with that name")
+                else -> call.respond(found.toResponse())
             }
         }
         get("/api/cards/{passcode}/image") {
@@ -64,6 +66,32 @@ fun Application.catalogueModule(
                 call.respondBytes(image, ContentType.Image.JPEG)
             }
         }
+    }
+}
+
+private class SearchParameters(
+    val query: String,
+    val limit: Int,
+)
+
+/** Reads q and limit, or answers 400 and returns null when either is unusable. */
+private suspend fun ApplicationCall.searchParameters(): SearchParameters? {
+    val query =
+        request.queryParameters["q"]
+            .orEmpty()
+            .trim()
+    val limitParameter = request.queryParameters["limit"]
+    val limit = if (limitParameter == null) DEFAULT_LIMIT else limitParameter.toIntOrNull()
+    return when {
+        query.length < MIN_QUERY_LENGTH -> {
+            respond(HttpStatusCode.BadRequest, "q needs at least $MIN_QUERY_LENGTH characters")
+            null
+        }
+        limit == null || limit !in LIMITS -> {
+            respond(HttpStatusCode.BadRequest, "limit must be a number from 1 to $MAX_LIMIT")
+            null
+        }
+        else -> SearchParameters(query, limit)
     }
 }
 
@@ -121,4 +149,44 @@ private fun MonsterStats.toResponse() =
         linkRating = (rating as? MonsterRating.LinkRating)?.value,
         atk = atk,
         def = def,
+    )
+
+@Serializable
+private class SetsResponse(
+    val sets: List<SetResponse>,
+)
+
+@Serializable
+private class SetResponse(
+    val name: String,
+    val prefix: String,
+    val printings: Int,
+)
+
+@Serializable
+private class SetPrintingsResponse(
+    val name: String,
+    val prefix: String,
+    val cards: List<CardResponse>,
+    val printings: List<SetPrintingResponse>,
+)
+
+@Serializable
+private class SetPrintingResponse(
+    val setCode: String,
+    val rarity: String,
+    val passcode: Long,
+)
+
+private fun CardSet.toResponse() = SetResponse(name, prefix, printingCount)
+
+private fun SetContents.toResponse() =
+    SetPrintingsResponse(
+        name = set.name,
+        prefix = set.prefix,
+        cards = printings.map { it.card }.distinctBy { it.passcode }.map { it.toResponse() },
+        printings =
+            printings.map {
+                SetPrintingResponse(it.printing.setCode, it.printing.rarity, it.card.passcode.value)
+            },
     )

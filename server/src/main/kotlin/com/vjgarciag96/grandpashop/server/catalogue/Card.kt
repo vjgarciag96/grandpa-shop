@@ -44,3 +44,22 @@ sealed interface MonsterRating {
         val value: Int,
     ) : MonsterRating
 }
+
+/** A product printings come from, known by its exact name. Its prefix is the most common start of its set codes. */
+data class CardSet(
+    val name: String,
+    val prefix: String,
+    val printingCount: Int,
+)
+
+/** One printing in a set, with the card it is a printing of. */
+data class SetPrinting(
+    val card: Card,
+    val printing: Printing,
+)
+
+/** A set and its printings in set-code order. */
+data class SetContents(
+    val set: CardSet,
+    val printings: List<SetPrinting>,
+)
