@@ -7,8 +7,12 @@ export default defineConfig({
     host: "127.0.0.1",
     port: 43123,
     strictPort: true,
+    // The design tokens live beside web/, in design/.
+    fs: { allow: [".."] },
+    proxy: { "/api": "http://127.0.0.1:43124" },
   },
   test: {
-    passWithNoTests: true,
+    environment: "jsdom",
+    setupFiles: ["src/test/setup.ts"],
   },
 });

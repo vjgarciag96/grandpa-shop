@@ -4,7 +4,7 @@ Grandpa Shop is Víctor's tracker for a Yu-Gi-Oh card collection.
 
 The collection is stored in a database on a server you run yourself. A web app shows it, that same app can be installed as a desktop-style window, and an Android client shows it on a phone. An edit on one surface is meant to appear on the others live. How that live update travels, and what happens when two edits disagree, is not decided yet.
 
-This repository is early. The server searches the card catalogue. The web and Android modules do not list cards, turn a page, or sync yet.
+This repository is early. The server searches the card catalogue, and the web app fills a binder page from it. Copies are not saved, and nothing turns a page or syncs yet.
 
 The repo is public: [github.com/vjgarciag96/grandpa-shop](https://github.com/vjgarciag96/grandpa-shop). It is MIT licensed.
 
@@ -47,7 +47,7 @@ You need JDK 21, Node.js 22, and an Android SDK with platform 37.2 and build-too
 cd web && npm ci && npm run format:check && npm run lint && npm test && npm run build
 ```
 
-GitHub Actions runs those checks. The web test run is the Vitest runner with no behaviour tests yet. The server test task is JUnit, also with no behaviour tests yet.
+GitHub Actions runs those checks. The web tests are Vitest behaviour tests on jsdom. The server tests are JUnit tests of its routes.
 
 The server, which serves the card catalogue on `http://127.0.0.1:43124`:
 
@@ -57,13 +57,13 @@ The server, which serves the card catalogue on `http://127.0.0.1:43124`:
 
 On its first start it downloads the catalogue from [YGOPRODeck](https://ygoprodeck.com/api-guide/) into `server/.cache/` and reads it from there afterwards. `GRANDPA_SHOP_HOST`, `GRANDPA_SHOP_PORT`, and `GRANDPA_SHOP_CACHE_DIR` change where it listens and caches.
 
-The empty web shell:
+The web app, with the server running:
 
 ```sh
 cd web && npm run dev
 ```
 
-It serves on `http://127.0.0.1:43123` and renders nothing.
+It serves on `http://127.0.0.1:43123` and forwards `/api` to the server. It shows the binder, and a slot is filled by searching the catalogue. Copies are not saved yet: a reload empties the binder.
 
 ## Local database
 
