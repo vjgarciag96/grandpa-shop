@@ -40,8 +40,13 @@ function press(row: Element) {
   });
 }
 
-function moveTo(x: number, y: number) {
-  fireEvent.pointerMove(window, { pointerId: 1, clientX: x, clientY: y });
+function moveTo(x: number, y: number, buttons = 1) {
+  fireEvent.pointerMove(window, {
+    pointerId: 1,
+    clientX: x,
+    clientY: y,
+    buttons,
+  });
 }
 
 /** Releases the pointer; the browser then clicks the row the press began on. */
@@ -292,6 +297,30 @@ function releaseCopy(source: HTMLElement, target = source) {
 }
 
 describe("moving a filed copy", () => {
+  it("opens the copy on the first mouse click after a touch swipe without a click", async () => {
+    const user = await fileDarkMagician();
+    await user.click(slot("Close catalogue"));
+    const source = slot("Page 1, slot 1: Dark Magician");
+    fireEvent.pointerDown(source, {
+      pointerId: 2,
+      pointerType: "touch",
+      isPrimary: true,
+      clientX: 400,
+      clientY: 300,
+    });
+    fireEvent.pointerUp(source, {
+      pointerId: 2,
+      pointerType: "touch",
+      isPrimary: true,
+      clientX: 550,
+      clientY: 300,
+    });
+
+    await user.click(source);
+
+    expect(screen.getByRole("dialog", { name: "Page 1, slot 1" })).toBeTruthy();
+  });
+
   it("moves the printing and edited condition into an empty pocket", async () => {
     const user = await fileDarkMagician();
     const source = slot("Page 1, slot 1: Dark Magician");
@@ -360,6 +389,58 @@ describe("moving a filed copy", () => {
     expect(target.getAttribute("aria-label")).toBe("Page 1, slot 2, empty");
     await user.click(printing(/LOB-EN005/));
     expect(slot("Page 1, slot 2: Dark Magician")).toBeTruthy();
+  });
+
+  it("preserves the catalogue target through Escape repeats until a new press", async () => {
+    const user = await fileDarkMagician();
+    const target = slot("Page 1, slot 2, empty");
+    await user.click(target);
+    dragCopy(slot("Page 1, slot 1: Dark Magician"), target);
+    const panel = within(
+      screen.getByRole("complementary", { name: "Catalogue" }),
+    );
+
+    fireEvent.keyDown(target, { key: "Escape" });
+    fireEvent.keyDown(target, { key: "Escape", repeat: true });
+    fireEvent.pointerUp(target, { pointerId: 1 });
+    fireEvent.keyDown(target, { key: "Escape", repeat: true });
+
+    expect(panel.getByRole("heading", { level: 2 }).textContent).toBe(
+      "Adding to page 1, slot 2",
+    );
+
+    fireEvent.keyUp(target, { key: "Escape" });
+    fireEvent.keyDown(target, { key: "Escape" });
+
+    expect(panel.getByRole("heading", { level: 2 }).textContent).toBe(
+      "Add cards",
+    );
+  });
+
+  it("cancels a drag when only the secondary button remains held", async () => {
+    await fileDarkMagician();
+    const source = slot("Page 1, slot 1: Dark Magician");
+    const target = slot("Page 1, slot 2, empty");
+    dragCopy(source, target);
+
+    moveTo(410, 300, 2);
+
+    expect(document.querySelector(".drag-ghost")).toBeNull();
+    expect(target.getAttribute("aria-label")).toBe("Page 1, slot 2, empty");
+  });
+
+  it("does not drop a copy on a secondary button release", async () => {
+    await fileDarkMagician();
+    const source = slot("Page 1, slot 1: Dark Magician");
+    const target = slot("Page 1, slot 2, empty");
+    dragCopy(source, target);
+
+    fireEvent.pointerUp(target, { pointerId: 1, button: 2 });
+
+    expect(target.getAttribute("aria-label")).toBe("Page 1, slot 2, empty");
+    expect(source.getAttribute("aria-label")).toBe(
+      "Page 1, slot 1: Dark Magician",
+    );
   });
 
   it("clears a catalogue target when the moved copy fills it", async () => {

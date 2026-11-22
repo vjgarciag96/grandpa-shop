@@ -39,6 +39,7 @@ export function useDragToPocket(
 ) {
   const [drag, setDrag] = useState<Drag | null>(null);
   const press = useRef<Press | null>(null);
+  const escapeCanceledCopyDrag = useRef(false);
   const drop = useRef(onDrop);
 
   useLayoutEffect(() => {
@@ -70,6 +71,10 @@ export function useDragToPocket(
       const current = press.current;
       if (!current || current.pointerId !== event.pointerId) return;
       if (current.phase === "canceled") return;
+      if (current.origin.kind === "copy" && (event.buttons & 1) === 0) {
+        cancel();
+        return;
+      }
       const moved = Math.hypot(
         event.clientX - current.startX,
         event.clientY - current.startY,
@@ -87,7 +92,10 @@ export function useDragToPocket(
       const current = press.current;
       if (!current || current.pointerId !== event.pointerId) return;
       if (current.phase !== "pressed") swallowSourceClick(current.source);
-      if (current.phase === "dragging") {
+      if (
+        current.phase === "dragging" &&
+        (current.origin.kind === "printing" || event.button === 0)
+      ) {
         const over = emptySlotAt(event.clientX, event.clientY);
         if (over) drop.current(over, current.origin);
       }
@@ -97,13 +105,16 @@ export function useDragToPocket(
       if (press.current?.pointerId === event.pointerId) end();
     };
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && press.current?.phase === "dragging") {
+      if (event.key !== "Escape") return;
+      // Escape repeats still belong to the same press after the pointer is released.
+      if (!event.repeat) escapeCanceledCopyDrag.current = false;
+      if (press.current?.phase === "dragging") {
         if (press.current.origin.kind === "copy") {
-          // Escape ends the move without discarding the independent catalogue aim.
-          event.stopPropagation();
+          escapeCanceledCopyDrag.current = true;
         }
         cancel();
       }
+      if (escapeCanceledCopyDrag.current) event.stopPropagation();
     };
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);

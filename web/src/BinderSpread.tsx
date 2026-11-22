@@ -72,9 +72,13 @@ export function BinderSpread({
     <div
       className={stacked ? "spread spread--stacked" : "spread"}
       data-testid="spread"
+      onPointerDownCapture={(event) => {
+        if (event.button === 0 && event.isPrimary !== false) {
+          suppressPointerClick.current = false;
+        }
+      }}
       onPointerDown={(event) => {
         if (event.button !== 0 || event.isPrimary === false) return;
-        suppressPointerClick.current = false;
         swipeStart.current = {
           id: event.pointerId,
           x: event.clientX,
