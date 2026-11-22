@@ -30,7 +30,7 @@ One side of a binder sheet. Pages in a binder have an order.
 
 ## Spread
 
-Two facing pages of a binder, seen together: pages 1 and 2, then 3 and 4. Turning the binder moves one spread.
+What an open binder shows at once. Page 1 and page 2 are the two sides of one sheet, so they never face each other. The first spread is page 1 alone, on the right of the inside cover. Then pages 2 and 3 face each other, then 4 and 5, and the last page of an even-paged binder sits alone on the left. Turning the binder moves one spread.
 
 ## Slot
 
@@ -38,7 +38,7 @@ One pocket on a page. A slot holds one copy, or it is empty.
 
 ## Catalogue
 
-Every card and printing that exists, as reference data from outside the collection. The catalogue is read-only. A copy is made by picking a printing from it.
+The cards and printings known to an outside source, as reference data apart from the collection. The catalogue is read-only. A copy is made by picking a printing from it. It holds only what its source carries: today that is YGOPRODeck, which lists English printings and does not mark the edition, so edition and language are absent from its printings until another source supplies them.
 
 ## Set
 
