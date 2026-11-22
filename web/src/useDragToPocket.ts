@@ -19,6 +19,7 @@ type Press = {
   origin: DragOrigin;
   spread: number;
   pointerId: number;
+  pointerType: string;
   startX: number;
   startY: number;
   phase: "pressed" | "dragging" | "canceled";
@@ -81,10 +82,7 @@ export function useDragToPocket(
         origin: current.origin,
         x: event.clientX,
         y: event.clientY,
-        over: dropAddress(
-          current.origin,
-          dropSlotAt(event.clientX, event.clientY),
-        ),
+        over: dropAddress(current, dropSlotAt(event.clientX, event.clientY)),
       });
     };
     const onUp = (event: globalThis.PointerEvent) => {
@@ -96,7 +94,7 @@ export function useDragToPocket(
         (current.origin.kind === "printing" || event.button === 0)
       ) {
         const over = dropAddress(
-          current.origin,
+          current,
           dropSlotAt(event.clientX, event.clientY),
         );
         if (over) drop.current(over, current.origin);
@@ -141,6 +139,7 @@ export function useDragToPocket(
       origin,
       spread: allowed.spread,
       pointerId: event.pointerId,
+      pointerType: event.pointerType,
       startX: event.clientX,
       startY: event.clientY,
       phase: "pressed",
@@ -163,13 +162,18 @@ function mayDrag(origin: DragOrigin, allowed: Allowed): boolean {
   return origin.kind === "copy" ? allowed.canMoveCopy : allowed.canDragPrinting;
 }
 
-/** The pocket a drag would drop into: a printing takes any pocket, a copy any pocket but its own. */
+/**
+ * The pocket a drag would drop into. A copy takes any pocket but its own.
+ * A printing takes any pocket, except that touch never replaces a filed copy.
+ */
 function dropAddress(
-  origin: DragOrigin,
+  { origin, pointerType }: Press,
   hit: DropSlot | null,
 ): SlotAddress | null {
   if (!hit) return null;
-  if (origin.kind === "printing") return hit.address;
+  if (origin.kind === "printing") {
+    return hit.filled && pointerType === "touch" ? null : hit.address;
+  }
   return sameSlot(hit.address, origin.from) ? null : hit.address;
 }
 

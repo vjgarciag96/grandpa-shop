@@ -185,6 +185,45 @@ describe("dragging a printing onto a slot", () => {
     ).toBe(false);
   });
 
+  it("fills an empty slot with a printing dragged by touch", async () => {
+    await openPotOfGreedOverDarkMagician();
+    const row = printing(/LOB-EN119/);
+    pointerIsOver(slot("Page 1, slot 2, empty"));
+
+    press(row, "touch");
+    moveTo(400, 300);
+    release(row, 400, 300);
+
+    expect(labelOf("Page 1, slot 2")).toBe("Page 1, slot 2: Pot of Greed");
+  });
+
+  it("keeps a filled slot when a printing dragged by touch is released on it", async () => {
+    await openPotOfGreedOverDarkMagician();
+    const row = printing(/LOB-EN119/);
+    pointerIsOver(slot("Page 1, slot 1: Dark Magician"));
+
+    press(row, "touch");
+    moveTo(400, 300);
+    release(row, 400, 300);
+
+    expect([labelOf("Page 1, slot 1"), catalogueAnnouncement()]).toEqual([
+      "Page 1, slot 1: Dark Magician",
+      "",
+    ]);
+  });
+
+  it("does not outline a filled slot under a printing dragged by touch", async () => {
+    await openPotOfGreedOverDarkMagician();
+    pointerIsOver(slot("Page 1, slot 1: Dark Magician"));
+
+    press(printing(/LOB-EN119/), "touch");
+    moveTo(400, 300);
+
+    expect(
+      slot("Page 1, slot 1: Dark Magician").classList.contains("slot--aimed"),
+    ).toBe(false);
+  });
+
   it("keeps a filled slot when a printing is released away from the binder", async () => {
     await openPotOfGreedOverDarkMagician();
     const row = printing(/LOB-EN119/);
