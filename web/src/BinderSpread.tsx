@@ -1,6 +1,8 @@
 import { useRef, type PointerEvent } from "react";
+import { isTarget, type Aim } from "./aim";
 import {
   pageSlots,
+  slotName,
   spreadPages,
   type Binder,
   type SlotAddress,
@@ -16,6 +18,7 @@ type Props = {
   spread: number;
   stacked: boolean;
   turn: Turn | null;
+  aim: Aim | null;
   catalogue: Catalogue;
   onSlot: OpenSlot;
   onSwipe: (direction: Turn["direction"]) => void;
@@ -26,6 +29,7 @@ export function BinderSpread({
   spread,
   stacked,
   turn,
+  aim,
   catalogue,
   onSlot,
   onSwipe,
@@ -36,7 +40,7 @@ export function BinderSpread({
   const right = turn?.direction === "back" ? leaving.right : arriving.right;
   const swipeStart = useRef<{ id: number; x: number; y: number } | null>(null);
   const suppressPointerClick = useRef(false);
-  const sides = { binder, catalogue, onSlot, inert: turn !== null };
+  const sides = { binder, aim, catalogue, onSlot, inert: turn !== null };
   const stopTracking = (event: PointerEvent) => {
     if (swipeStart.current?.id === event.pointerId) swipeStart.current = null;
   };
@@ -124,12 +128,21 @@ type SideProps = {
   page: number | null;
   side: "left" | "right";
   binder: Binder;
+  aim: Aim | null;
   catalogue: Catalogue;
   onSlot: OpenSlot;
   inert: boolean;
 };
 
-function PageSide({ page, side, binder, catalogue, onSlot, inert }: SideProps) {
+function PageSide({
+  page,
+  side,
+  binder,
+  aim,
+  catalogue,
+  onSlot,
+  inert,
+}: SideProps) {
   if (page === null) {
     return <div className={`page-side page-side--${side} page-side--cover`} />;
   }
@@ -141,12 +154,16 @@ function PageSide({ page, side, binder, catalogue, onSlot, inert }: SideProps) {
     >
       <div className="page__grid">
         {pageSlots(binder, page).map((copy, position) => {
-          const label = `Page ${page}, slot ${position + 1}`;
+          const label = slotName({ page, position });
+          const aimed =
+            isTarget(aim, { page, position }) ||
+            (aim?.kind === "holding" && !copy);
+          const className = copy ? "slot slot--filled" : "slot slot--empty";
           return (
             <button
               key={position}
               type="button"
-              className={copy ? "slot slot--filled" : "slot slot--empty"}
+              className={aimed ? `${className} slot--aimed` : className}
               aria-label={
                 copy ? `${label}: ${copy.card.name}` : `${label}, empty`
               }

@@ -186,6 +186,13 @@ body {
   font-size: var(--type-body-small);
 }
 
+.desk__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(var(--space-slot) * 1.5);
+}
+
 .binder__turns {
   display: flex;
   align-items: center;
@@ -296,6 +303,22 @@ body {
 .slot--empty:hover::before {
   background: var(--color-primary-container);
   color: var(--color-on-primary-container);
+}
+
+/* The aim is drawn inside the pocket's edge so the focus ring, outside it, stays distinct. */
+.slot--empty.slot--aimed {
+  border-color: transparent;
+  box-shadow: inset 0 0 0 var(--aim-stroke) var(--color-primary);
+}
+
+.slot--filled.slot--aimed {
+  outline: var(--aim-stroke) solid var(--color-primary);
+  outline-offset: calc(var(--aim-stroke) * -1);
+}
+
+.slot:focus-visible {
+  outline: var(--aim-stroke) solid var(--color-on-surface);
+  outline-offset: var(--aim-stroke);
 }
 
 .slot img {
@@ -546,26 +569,132 @@ html:has(.dialog-backdrop) {
   gap: calc(var(--space-slot) / 2);
 }
 
-.dialog.picker {
+.desk--beside {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--panel-width);
+  align-items: start;
+  gap: calc(var(--space-slot) * 3);
+  max-width: none;
+  padding-block: calc(var(--space-slot) * 2);
+}
+
+/*
+ * Beside the panel the binder fills the height under the desk head, and its width follows from that
+ * height so the whole spread stays in view. A page is its padding, three rows of pockets, two gaps,
+ * and its number; the pockets' width over height is the pocket aspect.
+ */
+.desk--beside .desk__main {
   display: flex;
   flex-direction: column;
-  width: min(calc(var(--space-slot) * 86), 100%);
-  height: min(calc(var(--space-slot) * 76), 100%);
-  max-height: 100%;
+  height: calc(100dvh - var(--space-slot) * 4);
+}
+
+.desk--beside .desk__binder {
+  flex: 1;
+  min-height: 0;
+  container-type: size;
+}
+
+.desk--beside .binder {
+  --page-number-row: calc(var(--space-slot) + var(--type-body-small) * 1.5);
+  --pocket-rows: calc(
+    100cqh - var(--board-padding) * 2 - var(--page-padding) * 2 -
+      var(--pocket-gap) * 2 - var(--page-number-row)
+  );
+  --page-width: calc(
+    var(--pocket-rows) * (var(--pocket-aspect)) + var(--page-padding) * 2 +
+      var(--pocket-gap) * 2
+  );
+  /* On a very short window, keep pockets at the touch target and let the desk scroll instead. */
+  --least-page-width: calc(
+    var(--target-size) * 3 + var(--pocket-gap) * 2 + var(--page-padding) * 2
+  );
+  width: min(
+    100%,
+    max(
+      calc(var(--page-width) * 2 + var(--spine) + var(--board-padding) * 2),
+      calc(
+        var(--least-page-width) * 2 + var(--spine) + var(--board-padding) * 2
+      )
+    )
+  );
+  margin-inline: auto;
+}
+
+.desk--sheet {
+  padding-bottom: calc(var(--sheet-height) + var(--space-slot) * 2);
+}
+
+.catalogue {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
   overflow: hidden;
+  background: var(--color-surface-container);
 }
 
-.picker__controls,
-.picker__scroll,
-.picker__footer {
-  padding-inline: var(--dialog-inset);
+.catalogue--beside {
+  position: sticky;
+  top: calc(var(--space-slot) * 2);
+  height: calc(100dvh - var(--space-slot) * 4);
+  border-radius: var(--radius-surface);
 }
 
-.picker__controls {
+.catalogue--sheet {
+  position: fixed;
+  inset: auto 0 0;
+  z-index: 1;
+  height: var(--sheet-height);
+  border-radius: var(--radius-dialog) var(--radius-dialog) 0 0;
+  box-shadow: 0 calc(var(--space-slot) * -1) calc(var(--space-slot) * 4)
+    color-mix(in srgb, var(--color-binder-board) 18%, transparent);
+}
+
+.catalogue__head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: var(--space-slot);
+  padding: calc(var(--space-slot) * 2) calc(var(--space-slot) * 2) 0;
+}
+
+.catalogue__head > div {
+  min-width: 0;
+}
+
+.catalogue__head h2 {
+  margin: 0;
+  font-size: var(--type-title);
+  font-weight: 500;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.catalogue__hint {
+  margin: calc(var(--space-slot) * 0.25) 0 0;
+  color: var(--color-on-surface-variant);
+  font-size: var(--type-body-small);
+}
+
+.catalogue__announcement {
+  min-height: 1lh;
+  margin: 0;
+  padding: calc(var(--space-slot) * 0.5) calc(var(--space-slot) * 2);
+  color: var(--color-primary);
+  font-size: var(--type-body-small);
+  font-weight: 600;
+}
+
+.catalogue__controls,
+.catalogue__scroll {
+  padding-inline: calc(var(--space-slot) * 2);
+}
+
+.catalogue__controls {
   padding-bottom: calc(var(--space-slot) * 1.5);
 }
 
-.picker__field {
+.catalogue__field {
   display: flex;
   align-items: center;
   gap: calc(var(--space-slot) * 1.5);
@@ -576,12 +705,12 @@ html:has(.dialog-backdrop) {
   background: var(--color-surface);
 }
 
-.picker__field:has(input:focus) {
+.catalogue__field:has(input:focus) {
   outline: calc(var(--empty-slot-stroke) * 2) solid var(--color-primary);
   outline-offset: var(--empty-slot-stroke);
 }
 
-.picker__field input {
+.catalogue__field input {
   flex: 1;
   min-width: 0;
   min-height: inherit;
@@ -592,16 +721,16 @@ html:has(.dialog-backdrop) {
   color: var(--color-on-surface);
 }
 
-.picker__field input::placeholder {
+.catalogue__field input::placeholder {
   color: var(--color-on-surface-variant);
   opacity: 1;
 }
 
-.picker__field input::-webkit-search-cancel-button {
+.catalogue__field input::-webkit-search-cancel-button {
   appearance: none;
 }
 
-.picker__magnifier {
+.catalogue__magnifier {
   position: relative;
   flex: none;
   width: calc(var(--space-slot) * 1.65);
@@ -611,7 +740,7 @@ html:has(.dialog-backdrop) {
   border-radius: 50%;
 }
 
-.picker__magnifier::after {
+.catalogue__magnifier::after {
   position: absolute;
   top: 100%;
   left: 100%;
@@ -623,14 +752,7 @@ html:has(.dialog-backdrop) {
   transform-origin: left center;
 }
 
-.picker__context {
-  margin: var(--space-slot) 0 0;
-  color: var(--color-on-surface-variant);
-  font-size: var(--type-body-small);
-  overflow-wrap: anywhere;
-}
-
-.picker__scroll {
+.catalogue__scroll {
   flex: 1;
   min-height: 0;
   overflow: auto;
@@ -639,7 +761,7 @@ html:has(.dialog-backdrop) {
   padding-bottom: calc(var(--space-slot) * 2);
 }
 
-.picker__message {
+.catalogue__message {
   display: grid;
   justify-items: center;
   align-content: center;
@@ -652,31 +774,30 @@ html:has(.dialog-backdrop) {
   overflow-wrap: anywhere;
 }
 
-.picker__message > .picker__magnifier {
+.catalogue__message > .catalogue__magnifier {
   margin-bottom: var(--space-slot);
   color: var(--color-primary);
 }
 
-.picker__message p {
+.catalogue__message p {
   max-width: 38ch;
   margin: calc(var(--space-slot) * 0.75) 0 0;
   color: var(--color-on-surface-variant);
   font-size: var(--type-body-small);
 }
 
-.picker__message [role="alert"] {
+.catalogue__message [role="alert"] {
   color: var(--color-error);
 }
 
-.picker__result-count,
-.picker__printings legend {
+.catalogue__result-count {
   margin: 0 0 var(--space-slot);
   color: var(--color-on-surface-variant);
   font-size: var(--type-body-small);
   font-weight: 600;
 }
 
-.picker__results {
+.catalogue__results {
   display: grid;
   grid-template-columns: repeat(
     auto-fit,
@@ -688,8 +809,8 @@ html:has(.dialog-backdrop) {
   padding: 0;
 }
 
-.picker__card,
-.picker__card-summary {
+.catalogue__card,
+.catalogue__card-summary {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
@@ -705,11 +826,11 @@ html:has(.dialog-backdrop) {
   text-align: left;
 }
 
-.picker__card {
+.catalogue__card {
   cursor: pointer;
 }
 
-.picker__card:hover {
+.catalogue__card:hover {
   background: color-mix(
     in srgb,
     var(--color-surface),
@@ -717,7 +838,7 @@ html:has(.dialog-backdrop) {
   );
 }
 
-.picker__card:active {
+.catalogue__card:active {
   background: color-mix(
     in srgb,
     var(--color-surface),
@@ -725,11 +846,11 @@ html:has(.dialog-backdrop) {
   );
 }
 
-.picker__card .chevron {
+.catalogue__card .chevron {
   color: var(--color-on-surface-variant);
 }
 
-.picker__thumb {
+.catalogue__thumb {
   display: block;
   width: calc(var(--space-slot) * 5.5);
   aspect-ratio: var(--pocket-aspect);
@@ -738,148 +859,94 @@ html:has(.dialog-backdrop) {
   background: var(--color-surface-container-highest);
 }
 
-.picker__card-label {
+.catalogue__card-label {
   display: grid;
   gap: calc(var(--space-slot) * 0.25);
   min-width: 0;
   overflow-wrap: anywhere;
 }
 
-.picker__card-label strong,
-.picker__card-label h3 {
+.catalogue__card-label strong,
+.catalogue__card-label h3 {
   margin: 0;
   font-weight: 600;
   line-height: 1.25;
 }
 
-.picker__card-label h3 {
+.catalogue__card-label h3 {
   font-size: var(--type-title);
   font-weight: 500;
 }
 
-.picker__card-label > span,
-.picker__set,
-.picker__rarity {
+.catalogue__card-label > span,
+.catalogue__set,
+.catalogue__rarity {
   color: var(--color-on-surface-variant);
   font-size: var(--type-body-small);
   line-height: 1.35;
 }
 
-.picker__controls--printings {
+.catalogue__controls--printings {
   display: grid;
   justify-items: start;
   gap: calc(var(--space-slot) / 2);
 }
 
-.picker__back {
+.catalogue__back {
   margin-left: calc(var(--space-slot) * -1);
   padding-inline: var(--space-slot) calc(var(--space-slot) * 1.5);
   text-align: left;
 }
 
-.picker__card-summary {
+.catalogue__card-summary {
   grid-template-columns: auto minmax(0, 1fr);
   height: auto;
   background: var(--color-surface-container-highest);
 }
 
-.picker__printings {
+.catalogue__printings {
   display: grid;
   gap: calc(var(--space-slot) * 0.5);
-  min-width: 0;
+  list-style: none;
   margin: 0;
   padding: 0;
-  border: 0;
 }
 
-.picker__printings legend {
-  padding: 0;
-}
-
-.picker__printing {
+.catalogue__printing {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   gap: calc(var(--space-slot) * 1.5);
+  width: 100%;
   min-height: calc(var(--space-slot) * 7);
   padding: var(--space-slot) calc(var(--space-slot) * 1.5);
   border: var(--empty-slot-stroke) solid transparent;
   border-radius: calc(var(--radius-surface) * 0.75);
+  color: var(--color-on-surface);
   background: var(--color-surface);
+  text-align: left;
+  overflow-wrap: anywhere;
   cursor: pointer;
 }
 
-.picker__printing:hover {
+.catalogue__printing:hover {
   border-color: var(--color-outline);
 }
 
-.picker__printing:has(input:checked) {
+.catalogue__printing[aria-pressed="true"] {
   border-color: var(--color-primary);
   background: var(--color-primary-container);
   color: var(--color-on-primary-container);
 }
 
-.picker__printing:has(input:focus-visible) {
-  outline: calc(var(--empty-slot-stroke) * 2) solid var(--color-primary);
-  outline-offset: var(--empty-slot-stroke);
-}
-
-.picker__printing input {
-  width: calc(var(--space-slot) * 2.5);
-  height: calc(var(--space-slot) * 2.5);
-  margin: 0;
-  accent-color: var(--color-primary);
-  outline: none;
-}
-
-.picker__printing-label {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: calc(var(--space-slot) * 0.25) var(--space-slot);
-  overflow-wrap: anywhere;
-}
-
-.picker__printings strong {
-  font-weight: 650;
-}
-
-.picker__rarity {
-  max-width: 100%;
-}
-
-.picker__set {
-  flex-basis: 100%;
-}
-
-.picker__footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: calc(var(--space-slot) * 1.5);
-  padding-block: calc(var(--space-slot) * 1.5);
-  border-top: var(--empty-slot-stroke) solid var(--color-outline-variant);
-  background: var(--color-surface-container);
-}
-
-.picker__selection {
+.catalogue__printing-label {
   display: grid;
   gap: calc(var(--space-slot) * 0.25);
   min-width: 0;
-  margin: 0;
-  color: var(--color-on-surface-variant);
-  font-size: var(--type-body-small);
-  line-height: 1.3;
-  overflow-wrap: anywhere;
 }
 
-.picker__selection strong {
-  color: var(--color-on-surface);
-}
-
-.picker__confirm {
-  flex: none;
-  padding-inline: clamp(var(--space-slot), 4vw, calc(var(--space-slot) * 2.5));
+.catalogue__printing strong {
+  font-weight: 650;
 }
 
 @media (max-width: 36rem) {
@@ -904,47 +971,5 @@ html:has(.dialog-backdrop) {
 
   .detail__image {
     width: calc(var(--space-slot) * 11);
-  }
-}
-
-@media (max-height: 28rem) {
-  .dialog.picker {
-    overflow: auto;
-  }
-
-  .picker .dialog__head {
-    padding-block: calc(var(--space-slot) * 0.75);
-  }
-
-  .picker .dialog__head h2 {
-    font-size: var(--type-title);
-  }
-
-  .picker__controls--printings {
-    grid-template-columns: auto minmax(0, 1fr);
-    align-items: center;
-    padding-bottom: 0;
-  }
-
-  .picker__card-summary {
-    gap: var(--space-slot);
-    padding: calc(var(--space-slot) / 2);
-  }
-
-  .picker__card-summary .picker__thumb {
-    width: calc(var(--space-slot) * 3.5);
-  }
-
-  .picker__card-summary h3 {
-    font-size: var(--type-body);
-  }
-
-  .picker__scroll {
-    min-height: calc(var(--space-slot) * 12);
-    padding-bottom: var(--space-slot);
-  }
-
-  .picker__footer {
-    padding-block: calc(var(--space-slot) * 0.75);
   }
 }

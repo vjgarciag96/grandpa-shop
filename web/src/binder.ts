@@ -25,6 +25,16 @@ export const SPREADS = PAGES / 2 + 1;
 /** A page is numbered from 1; a position on it runs 0 to 8, left to right, top to bottom. */
 export type SlotAddress = { readonly page: number; readonly position: number };
 
+/** How a slot is named to the person using the binder, such as "Page 1, slot 3". */
+export function slotName({ page, position }: SlotAddress): string {
+  return `Page ${page}, slot ${position + 1}`;
+}
+
+/** A slot's name inside a sentence, such as "page 1, slot 3". */
+export function slotNameInSentence(address: SlotAddress): string {
+  return `page ${address.page}, slot ${address.position + 1}`;
+}
+
 export type Binder = { readonly slots: ReadonlyArray<Copy | null> };
 
 export function emptyBinder(): Binder {
