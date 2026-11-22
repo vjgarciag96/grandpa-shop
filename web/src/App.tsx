@@ -41,18 +41,20 @@ type BinderState = {
   binder: Binder;
   aim: Aim | null;
   moveAnnouncement: Announcement;
+  /** What the catalogue says about placing: decided in the same update as the placement. */
+  announcement: Announcement;
 };
 
 export default function App({ catalogue }: { catalogue: Catalogue }) {
-  const [{ binder, aim, moveAnnouncement }, setBinderState] =
+  const [{ binder, aim, moveAnnouncement, announcement }, setBinderState] =
     useState<BinderState>(() => ({
       binder: loadBinder(),
       aim: null,
       moveAnnouncement: silence,
+      announcement: silence,
     }));
   const [detail, setDetail] = useState<SlotAddress | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
-  const [announcement, setAnnouncement] = useState<Announcement>(silence);
   const [panelFocus, setPanelFocus] = useState(0);
   const closeDetail = useCallback(() => setDetail(null), []);
   const opener = useRef<HTMLButtonElement>(null);
@@ -80,12 +82,21 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
     [],
   );
 
+  const silenceCatalogue = useCallback(
+    () =>
+      setBinderState((current) => ({
+        ...current,
+        announcement: silenced(current.announcement),
+      })),
+    [],
+  );
+
   useEffect(() => {
     if (detail) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setAim(null);
-        setAnnouncement(silenced);
+        silenceCatalogue();
       }
       if (isTextField(event.target)) return;
       if (event.key === "ArrowRight") go("forward");
@@ -93,10 +104,13 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [detail, go, setAim]);
+  }, [detail, go, setAim, silenceCatalogue]);
 
   const announce = (text: string) =>
-    setAnnouncement((current) => announced(current, text));
+    setBinderState((current) => ({
+      ...current,
+      announcement: announced(current.announcement, text),
+    }));
 
   const openPanel = (nextAim: Aim | null) => {
     setPanelOpen(true);
@@ -107,32 +121,31 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
   const closePanel = () => {
     setPanelOpen(false);
     setAim(null);
-    setAnnouncement(silenced);
+    silenceCatalogue();
     addCards.current?.focus();
   };
 
-  /** Files a Near Mint copy; `replaced`, when given, names the copy a drag displaced. */
-  const placeAt = (
-    address: SlotAddress,
-    card: Card,
-    printing: Printing,
-    replaced: Copy | null = null,
-  ) => {
-    setBinderState((current) => ({
-      ...current,
-      binder: place(current.binder, address, {
-        card,
-        printing,
-        condition: "Near Mint",
-      }),
-      aim: null,
-    }));
-    const placed = `Placed ${printing.setCode} in ${slotNameInSentence(address)}`;
-    announce(
-      replaced
-        ? `${placed}, replacing ${replaced.printing.setCode}.`
-        : `${placed}.`,
-    );
+  /** Files a Near Mint copy, and names the copy it replaced, if any. */
+  const placeAt = (address: SlotAddress, card: Card, printing: Printing) => {
+    setBinderState((current) => {
+      const replaced = slotAt(current.binder, address);
+      const placed = `Placed ${printing.setCode} in ${slotNameInSentence(address)}`;
+      return {
+        ...current,
+        binder: place(current.binder, address, {
+          card,
+          printing,
+          condition: "Near Mint",
+        }),
+        aim: null,
+        announcement: announced(
+          current.announcement,
+          replaced
+            ? `${placed}, replacing ${replaced.printing.setCode}.`
+            : `${placed}.`,
+        ),
+      };
+    });
   };
 
   const canDragPrinting = panelOpen && beside && detail === null;
@@ -148,6 +161,7 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
       const swapped = move.kind === "swapped";
       const moved = `${copy.printing.setCode} to ${slotNameInSentence(to)}`;
       return {
+        ...current,
         binder: move.binder,
         aim:
           isTarget(current.aim, to) || (swapped && isTarget(current.aim, from))
@@ -171,12 +185,7 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
     allowedDrags,
     (address, origin) =>
       origin.kind === "printing"
-        ? placeAt(
-            address,
-            origin.card,
-            origin.printing,
-            slotAt(binder, address),
-          )
+        ? placeAt(address, origin.card, origin.printing)
         : moveAt(address, origin.from, origin.copy),
   );
   const origin = drag?.origin;
