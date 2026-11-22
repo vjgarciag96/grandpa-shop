@@ -1,22 +1,33 @@
 package com.vjgarciag96.grandpashop.server.catalogue
 
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.response.header
 import io.ktor.server.response.respond
+import io.ktor.server.response.respondBytes
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import java.io.IOException
 
 private const val MIN_QUERY_LENGTH = 2
 private const val DEFAULT_LIMIT = 24
 private const val MAX_LIMIT = 50
 private val LIMITS = 1..MAX_LIMIT
 
-fun Application.catalogueModule(catalogue: CardCatalogue) {
+// A card's printed image never changes, so a browser may keep it for a week.
+private const val IMAGE_CACHE_CONTROL = "public, max-age=604800, immutable"
+
+fun Application.catalogueModule(
+    catalogue: CardCatalogue,
+    images: CardImages,
+) {
     install(ContentNegotiation) { json(Json { explicitNulls = false }) }
     routing {
         get("/api/cards") {
@@ -33,6 +44,24 @@ fun Application.catalogueModule(catalogue: CardCatalogue) {
                     call.respond(HttpStatusCode.BadRequest, "limit must be a number from 1 to $MAX_LIMIT")
                 else ->
                     call.respond(CardsResponse(catalogue.search(query, limit).map { it.toResponse() }))
+            }
+        }
+        get("/api/cards/{passcode}/image") {
+            val passcode = call.parameters["passcode"]?.toLongOrNull()?.let(::Passcode)
+            val image =
+                try {
+                    passcode?.let(images::image)
+                } catch (e: IOException) {
+                    call.application.environment.log
+                        .warn("Could not fetch the image of card ${passcode?.value}", e)
+                    call.respond(HttpStatusCode.BadGateway, "The card image source did not answer")
+                    return@get
+                }
+            if (image == null) {
+                call.respond(HttpStatusCode.NotFound, "No card with that passcode")
+            } else {
+                call.response.header(HttpHeaders.CacheControl, IMAGE_CACHE_CONTROL)
+                call.respondBytes(image, ContentType.Image.JPEG)
             }
         }
     }
