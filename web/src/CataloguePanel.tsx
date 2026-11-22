@@ -4,6 +4,7 @@ import {
   useLayoutEffect,
   useRef,
   useState,
+  type PointerEvent,
   type RefObject,
 } from "react";
 import type { Aim } from "./aim";
@@ -26,6 +27,12 @@ type Props = {
   inert: boolean;
   /** Each new value moves focus into the panel: to the search, or back to results when a card is open. */
   focusRequest: number;
+  /** Tracks a printing press when dragging is available. */
+  onPrintingPress?: (
+    card: Card,
+    printing: Printing,
+    event: PointerEvent,
+  ) => void;
   onChoose: (card: Card, printing: Printing) => void;
   onClose: () => void;
 };
@@ -51,6 +58,7 @@ export function CataloguePanel({
   beside,
   inert,
   focusRequest,
+  onPrintingPress,
   onChoose,
   onClose,
 }: Props) {
@@ -150,6 +158,7 @@ export function CataloguePanel({
           aim={aim}
           backButton={backButton}
           onBack={() => setOpened(null)}
+          onPrintingPress={onPrintingPress}
           onChoose={(printing) => onChoose(opened, printing)}
         />
       ) : (
@@ -344,6 +353,7 @@ function PrintingList({
   aim,
   backButton,
   onBack,
+  onPrintingPress,
   onChoose,
 }: {
   card: Card;
@@ -351,6 +361,11 @@ function PrintingList({
   query: string;
   aim: Aim | null;
   backButton: RefObject<HTMLButtonElement | null>;
+  onPrintingPress?: (
+    card: Card,
+    printing: Printing,
+    event: PointerEvent,
+  ) => void;
   onBack: () => void;
   onChoose: (printing: Printing) => void;
 }) {
@@ -396,6 +411,10 @@ function PrintingList({
                 type="button"
                 className="catalogue__printing"
                 aria-pressed={isHeld(aim, card, printing)}
+                data-draggable={onPrintingPress ? "" : undefined}
+                onPointerDown={(event) =>
+                  onPrintingPress?.(card, printing, event)
+                }
                 onClick={() => onChoose(printing)}
               >
                 <img
