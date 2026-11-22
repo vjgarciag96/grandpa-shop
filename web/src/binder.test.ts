@@ -2,13 +2,14 @@ import { describe, expect, it } from "vitest";
 import {
   changeCondition,
   emptyBinder,
+  moveCopy,
   pageSlots,
   place,
   remove,
   spreadPages,
   type Copy,
 } from "./binder";
-import { darkMagician } from "./test/fakeCatalogue";
+import { darkMagician, potOfGreed } from "./test/fakeCatalogue";
 
 const darkMagicianCopy: Copy = {
   card: darkMagician,
@@ -108,5 +109,85 @@ describe("changeCondition", () => {
     );
 
     expect(pageSlots(binder, 2)[4]).toBeNull();
+  });
+});
+
+describe("moveCopy", () => {
+  const playedCopy: Copy = {
+    card: darkMagician,
+    printing: darkMagician.printings[1],
+    condition: "Lightly Played",
+  };
+  const potOfGreedCopy: Copy = {
+    card: potOfGreed,
+    printing: potOfGreed.printings[0],
+    condition: "Near Mint",
+  };
+
+  it("puts the same printing and condition in the destination", () => {
+    const filled = place(emptyBinder(), { page: 2, position: 4 }, playedCopy);
+
+    const binder = moveCopy(
+      filled,
+      { page: 2, position: 4 },
+      { page: 3, position: 1 },
+      playedCopy,
+    );
+
+    expect(pageSlots(binder, 3)[1]).toEqual({
+      card: darkMagician,
+      printing: {
+        setCode: "SDY-006",
+        setName: "Starter Deck: Yugi",
+        rarity: "Common",
+      },
+      condition: "Lightly Played",
+    });
+  });
+
+  it("empties the source slot", () => {
+    const filled = place(emptyBinder(), { page: 2, position: 4 }, playedCopy);
+
+    const binder = moveCopy(
+      filled,
+      { page: 2, position: 4 },
+      { page: 3, position: 1 },
+      playedCopy,
+    );
+
+    expect(pageSlots(binder, 2)[4]).toBeNull();
+  });
+
+  it("refuses a copy that is no longer in the source slot", () => {
+    const filled = place(emptyBinder(), { page: 2, position: 4 }, playedCopy);
+
+    const binder = moveCopy(
+      filled,
+      { page: 2, position: 4 },
+      { page: 3, position: 1 },
+      { ...playedCopy, condition: "Damaged" },
+    );
+
+    expect(pageSlots(binder, 3)[1]).toBeNull();
+  });
+
+  it("refuses a filled destination and keeps both copies", () => {
+    const filled = place(
+      place(emptyBinder(), { page: 2, position: 4 }, playedCopy),
+      { page: 3, position: 1 },
+      potOfGreedCopy,
+    );
+
+    const binder = moveCopy(
+      filled,
+      { page: 2, position: 4 },
+      { page: 3, position: 1 },
+      playedCopy,
+    );
+
+    expect([pageSlots(binder, 2)[4], pageSlots(binder, 3)[1]]).toEqual([
+      playedCopy,
+      potOfGreedCopy,
+    ]);
   });
 });

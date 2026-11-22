@@ -321,6 +321,33 @@ describe("moving a filed copy", () => {
     expect(screen.getByRole("dialog", { name: "Page 1, slot 1" })).toBeTruthy();
   });
 
+  it("does not drag a copy pressed and moved by touch", async () => {
+    const user = await fileDarkMagician();
+    await user.click(slot("Close catalogue"));
+    const source = slot("Page 1, slot 1: Dark Magician");
+    const target = slot("Page 1, slot 2, empty");
+    pointerIsOver(target);
+
+    // A vertical press-and-move, so the binder does not take it as a page swipe.
+    fireEvent.pointerDown(source, {
+      pointerId: 1,
+      pointerType: "touch",
+      isPrimary: true,
+      button: 0,
+      clientX: 400,
+      clientY: 0,
+    });
+    moveTo(400, 300);
+    const ghost = document.querySelector(".drag-ghost");
+    releaseCopy(source, target);
+
+    expect(ghost).toBeNull();
+    expect([
+      source.getAttribute("aria-label"),
+      target.getAttribute("aria-label"),
+    ]).toEqual(["Page 1, slot 1: Dark Magician", "Page 1, slot 2, empty"]);
+  });
+
   it("moves the printing and edited condition into an empty pocket", async () => {
     const user = await fileDarkMagician();
     const source = slot("Page 1, slot 1: Dark Magician");
@@ -424,9 +451,13 @@ describe("moving a filed copy", () => {
     dragCopy(source, target);
 
     moveTo(410, 300, 2);
+    releaseCopy(source, target);
 
     expect(document.querySelector(".drag-ghost")).toBeNull();
-    expect(target.getAttribute("aria-label")).toBe("Page 1, slot 2, empty");
+    expect([
+      source.getAttribute("aria-label"),
+      target.getAttribute("aria-label"),
+    ]).toEqual(["Page 1, slot 1: Dark Magician", "Page 1, slot 2, empty"]);
   });
 
   it("does not drop a copy on a secondary button release", async () => {
