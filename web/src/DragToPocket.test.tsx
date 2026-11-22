@@ -493,11 +493,13 @@ describe("moving a filed copy", () => {
     const user = await fileDarkMagician();
     await user.click(slot("Page 1, slot 3, empty"));
     await user.click(printing(/LOB-EN005/));
+    await user.click(slot("Close catalogue"));
     const source = slot("Page 1, slot 1: Dark Magician");
     const target = slot("Page 1, slot 2, empty");
     dragCopy(source, target);
 
     fireEvent.click(slot("Page 1, slot 3: Dark Magician"), { detail: 0 });
+    expect(document.querySelector(".drag-ghost")).toBeNull();
     fireEvent.pointerUp(target, { pointerId: 1, clientX: 400, clientY: 300 });
 
     expect([
