@@ -130,7 +130,8 @@ export function CataloguePanel({
     const previous = lastResult.current;
     if (previous && results.current) {
       results.current.scrollTop = previous.scrollTop;
-      document.getElementById(previous.id)?.focus({ preventScroll: true });
+      // Set results may have arrived above this row while its printings were open.
+      document.getElementById(previous.id)?.focus();
     }
   }, [opened]);
 
