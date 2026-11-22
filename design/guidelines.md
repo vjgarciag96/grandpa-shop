@@ -4,7 +4,7 @@ Grandpa Shop presents a physical binder on a desk. The cover and spine are flat 
 
 ## Colour
 
-Spell Card teal anchors the primary actions, with parchment surfaces and muted antique gold for secondary controls.
+Blue-Eyes-inspired sapphire and ice blue mark primary actions and selections, with parchment surfaces and muted antique gold for secondary controls.
 
 | Token | Use |
 | --- | --- |
