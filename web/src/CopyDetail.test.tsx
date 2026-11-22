@@ -19,8 +19,7 @@ async function appWithFirstSlotFilled(
     query,
   );
   await user.click(await screen.findByRole("button", { name: cardName }));
-  await user.click(screen.getByRole("radio", { name: setCode }));
-  await user.click(screen.getByRole("button", { name: "Add to pocket" }));
+  await user.click(screen.getByRole("button", { name: setCode }));
   return user;
 }
 
@@ -122,12 +121,43 @@ describe("a copy's detail", () => {
     ).toBeTruthy();
   });
 
+  it("aims the catalogue panel at the copy it replaces", async () => {
+    const user = await fillWithDarkMagician();
+    await user.click(
+      screen.getByRole("button", { name: "Page 1, slot 1: Dark Magician" }),
+    );
+
+    await user.click(screen.getByRole("button", { name: "Replace" }));
+
+    const panel = screen.getByRole("complementary", { name: "Catalogue" });
+    expect(within(panel).getByRole("heading", { level: 2 }).textContent).toBe(
+      "Replacing Dark Magician",
+    );
+  });
+
+  it("moves focus into the catalogue panel on Replace", async () => {
+    const user = await fillWithDarkMagician();
+    await user.click(
+      screen.getByRole("button", { name: "Page 1, slot 1: Dark Magician" }),
+    );
+
+    await user.click(screen.getByRole("button", { name: "Replace" }));
+
+    expect(
+      screen
+        .getByRole("complementary", { name: "Catalogue" })
+        .contains(document.activeElement),
+    ).toBe(true);
+  });
+
   it("replaces the copy with another card picked from the catalogue", async () => {
     const user = await fillWithDarkMagician();
     await user.click(
       screen.getByRole("button", { name: "Page 1, slot 1: Dark Magician" }),
     );
     await user.click(screen.getByRole("button", { name: "Replace" }));
+    await user.click(screen.getByRole("button", { name: "Back to results" }));
+    await user.clear(screen.getByRole("searchbox", { name: "Search cards" }));
     await user.type(
       screen.getByRole("searchbox", { name: "Search cards" }),
       "pot",
@@ -136,8 +166,7 @@ describe("a copy's detail", () => {
       await screen.findByRole("button", { name: /Pot of Greed/ }),
     );
 
-    await user.click(screen.getByRole("radio", { name: /LOB-EN119/ }));
-    await user.click(screen.getByRole("button", { name: "Replace card" }));
+    await user.click(screen.getByRole("button", { name: /LOB-EN119/ }));
 
     expect(
       screen.getByRole("button", { name: "Page 1, slot 1: Pot of Greed" }),

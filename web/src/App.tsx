@@ -5,8 +5,9 @@ import {
   useRef,
   useState,
 } from "react";
+import { chooseSlot, choosePrinting, type Aim } from "./aim";
 import { BinderSpread } from "./BinderSpread";
-import { CardPicker } from "./CardPicker";
+import { CataloguePanel, type Announcement } from "./CataloguePanel";
 import { CopyDetail } from "./CopyDetail";
 import {
   changeCondition,
@@ -14,58 +15,115 @@ import {
   place,
   remove,
   slotAt,
+  slotNameInSentence,
+  slotName,
   spreadPages,
   type SlotAddress,
 } from "./binder";
-import type { Catalogue } from "./catalogue";
-import { STACK_BELOW_PX } from "./tokens";
+import type { Card, Catalogue, Printing } from "./catalogue";
+import { PANEL_BESIDE_FROM_PX, STACK_BELOW_PX } from "./tokens";
 import { useMediaQuery } from "./useMediaQuery";
 import { useSpreadTurns } from "./useSpreadTurns";
 
-/** The slot a dialog is open for, and which dialog. */
-type Open = { dialog: "picker" | "detail"; address: SlotAddress };
-
 export default function App({ catalogue }: { catalogue: Catalogue }) {
   const [binder, setBinder] = useState(emptyBinder);
-  const [open, setOpen] = useState<Open | null>(null);
-  const close = useCallback(() => setOpen(null), []);
+  const [detail, setDetail] = useState<SlotAddress | null>(null);
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [aim, setAim] = useState<Aim | null>(null);
+  const [announcement, setAnnouncement] = useState<Announcement>({
+    text: "",
+    count: 0,
+  });
+  const [panelFocus, setPanelFocus] = useState(0);
+  const closeDetail = useCallback(() => setDetail(null), []);
   const opener = useRef<HTMLButtonElement>(null);
+  const addCards = useRef<HTMLButtonElement>(null);
 
   useLayoutEffect(() => {
-    if (open === null && opener.current) {
+    if (detail === null && opener.current) {
       opener.current.focus({ preventScroll: true });
       opener.current = null;
     }
-  }, [open]);
+  }, [detail]);
+
   const reducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
   const stacked = useMediaQuery(`(width < ${STACK_BELOW_PX}px)`);
+  const beside = useMediaQuery(`(width >= ${PANEL_BESIDE_FROM_PX}px)`);
   const { spread, turn, go, canGoBack, canGoForward } = useSpreadTurns(
     reducedMotion || stacked,
   );
   const { left, right } = spreadPages(spread);
 
   useEffect(() => {
-    if (open) return;
-    const turnOnArrow = (event: KeyboardEvent) => {
+    if (detail) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setAim(null);
+        setAnnouncement((current) => ({ ...current, text: "" }));
+      }
       if (isTextField(event.target)) return;
       if (event.key === "ArrowRight") go("forward");
       if (event.key === "ArrowLeft") go("back");
     };
-    document.addEventListener("keydown", turnOnArrow);
-    return () => document.removeEventListener("keydown", turnOnArrow);
-  }, [open, go]);
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [detail, go]);
 
-  const openSlot = (address: SlotAddress, button: HTMLButtonElement) => {
-    opener.current = button;
-    setOpen({ dialog: slotAt(binder, address) ? "detail" : "picker", address });
+  const announce = (text: string) =>
+    setAnnouncement((current) => ({ text, count: current.count + 1 }));
+
+  const openPanel = (nextAim: Aim | null) => {
+    setPanelOpen(true);
+    setAim(nextAim);
+    setPanelFocus((count) => count + 1);
   };
-  const copy = open && slotAt(binder, open.address);
-  const title =
-    open && `Page ${open.address.page}, slot ${open.address.position + 1}`;
+
+  const closePanel = () => {
+    setPanelOpen(false);
+    setAim(null);
+    setAnnouncement((current) => ({ ...current, text: "" }));
+    addCards.current?.focus();
+  };
+
+  const placeAt = (address: SlotAddress, card: Card, printing: Printing) => {
+    setBinder((current) =>
+      place(current, address, { card, printing, condition: "Near Mint" }),
+    );
+    setAim(null);
+    announce(`Placed ${printing.setCode} in ${slotNameInSentence(address)}.`);
+  };
+
+  const onSlot = (address: SlotAddress, button: HTMLButtonElement) => {
+    const choice = chooseSlot(aim, slotAt(binder, address) !== null);
+    switch (choice.kind) {
+      case "place":
+        return placeAt(address, choice.card, choice.printing);
+      case "refuse":
+        return announce(`${slotName(address)} is filled.`);
+      case "open-detail":
+        opener.current = button;
+        return setDetail(address);
+      case "target":
+        return openPanel({ kind: "target", address });
+    }
+  };
+
+  const onPrinting = (card: Card, printing: Printing) => {
+    const choice = choosePrinting(aim, card, printing);
+    if (choice.kind === "place") placeAt(choice.address, card, printing);
+    else setAim(choice.aim);
+  };
+
+  const copy = detail && slotAt(binder, detail);
+  const deskLayout = panelOpen
+    ? beside
+      ? " desk--beside"
+      : " desk--sheet"
+    : "";
 
   return (
-    <main className="desk">
-      <div inert={open !== null}>
+    <main className={`desk${deskLayout}`}>
+      <div className="desk__main" inert={detail !== null}>
         <header className="desk__head">
           <div className="desk__identity">
             <span className="desk__mark" aria-hidden="true" />
@@ -76,75 +134,87 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
               </p>
             </div>
           </div>
-          <nav className="binder__turns" aria-label="Turn the binder">
+          <div className="desk__actions">
             <button
+              ref={addCards}
               type="button"
-              className="control control--icon control--tonal"
-              aria-label="Previous spread"
-              disabled={!canGoBack}
-              onClick={() => go("back")}
+              className="control control--tonal"
+              onClick={() => openPanel(null)}
             >
-              <span className="chevron chevron--back" aria-hidden="true" />
+              <span aria-hidden="true">+</span> Add cards
             </button>
-            <span className="binder__position" aria-live="polite">
-              {pagesLabel(left, right)}
-            </span>
-            <button
-              type="button"
-              className="control control--icon control--tonal"
-              aria-label="Next spread"
-              disabled={!canGoForward}
-              onClick={() => go("forward")}
-            >
-              <span className="chevron" aria-hidden="true" />
-            </button>
-          </nav>
+            <nav className="binder__turns" aria-label="Turn the binder">
+              <button
+                type="button"
+                className="control control--icon control--tonal"
+                aria-label="Previous spread"
+                disabled={!canGoBack}
+                onClick={() => go("back")}
+              >
+                <span className="chevron chevron--back" aria-hidden="true" />
+              </button>
+              <span className="binder__position" aria-live="polite">
+                {pagesLabel(left, right)}
+              </span>
+              <button
+                type="button"
+                className="control control--icon control--tonal"
+                aria-label="Next spread"
+                disabled={!canGoForward}
+                onClick={() => go("forward")}
+              >
+                <span className="chevron" aria-hidden="true" />
+              </button>
+            </nav>
+          </div>
         </header>
-        <div className="binder">
-          <BinderSpread
-            binder={binder}
-            spread={spread}
-            stacked={stacked}
-            turn={turn}
-            catalogue={catalogue}
-            onSlot={openSlot}
-            onSwipe={go}
-          />
+        <div className="desk__binder">
+          <div className="binder">
+            <BinderSpread
+              binder={binder}
+              spread={spread}
+              stacked={stacked}
+              turn={turn}
+              aim={aim}
+              catalogue={catalogue}
+              onSlot={onSlot}
+              onSwipe={go}
+            />
+          </div>
         </div>
       </div>
-      {open?.dialog === "picker" && (
-        <CardPicker
+      {panelOpen && (
+        <CataloguePanel
           catalogue={catalogue}
-          destination={`Page ${open.address.page}, pocket ${open.address.position + 1}`}
-          replacing={copy?.card.name}
-          onClose={close}
-          onPick={(card, printing) => {
-            setBinder((current) =>
-              place(current, open.address, {
-                card,
-                printing,
-                condition: "Near Mint",
-              }),
-            );
-            close();
-          }}
+          aim={aim}
+          replacing={
+            aim?.kind === "target" ? slotAt(binder, aim.address) : null
+          }
+          announcement={announcement}
+          beside={beside}
+          inert={detail !== null}
+          focusRequest={panelFocus}
+          onChoose={onPrinting}
+          onClose={closePanel}
         />
       )}
-      {open?.dialog === "detail" && copy && (
+      {detail && copy && (
         <CopyDetail
           copy={copy}
-          title={title ?? ""}
+          title={slotName(detail)}
           catalogue={catalogue}
-          onClose={close}
+          onClose={closeDetail}
           onCondition={(condition) =>
-            setBinder((current) =>
-              changeCondition(current, open.address, condition),
-            )
+            setBinder((current) => changeCondition(current, detail, condition))
           }
-          onReplace={() => setOpen({ dialog: "picker", address: open.address })}
+          onReplace={() => {
+            opener.current = null;
+            setDetail(null);
+            openPanel({ kind: "target", address: detail });
+          }}
           onRemove={() => {
-            setBinder((current) => remove(current, open.address));
-            close();
+            setBinder((current) => remove(current, detail));
+            closeDetail();
           }}
         />
       )}

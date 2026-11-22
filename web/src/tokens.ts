@@ -40,6 +40,9 @@ export function applyTokens(root: HTMLElement) {
     "--board-padding": `${tokens.layout.boardPaddingPx}px`,
     "--spine": `${tokens.layout.spinePx}px`,
     "--empty-slot-stroke": `${tokens.layout.emptySlotStrokePx}px`,
+    "--aim-stroke": `${tokens.layout.aimStrokePx}px`,
+    "--panel-width": `${tokens.layout.panelWidthPx}px`,
+    "--sheet-height": `${tokens.layout.sheetHeightPercent}dvh`,
     "--page-flip": `${tokens.motion.pageFlipMs}ms`,
     "--easing": tokens.motion.easing,
   };
@@ -50,6 +53,9 @@ export function applyTokens(root: HTMLElement) {
 
 /** The viewport width below which a spread's pages stack. CSS media queries cannot read a custom property. */
 export const STACK_BELOW_PX = tokens.layout.stackBelowPx;
+
+/** The viewport width from which the catalogue panel sits beside the binder instead of below it. */
+export const PANEL_BESIDE_FROM_PX = tokens.layout.panelBesideFromPx;
 
 /** How long a page-turn plays. Timers need it as a number, not as a custom property. */
 export const PAGE_FLIP_MS = tokens.motion.pageFlipMs;

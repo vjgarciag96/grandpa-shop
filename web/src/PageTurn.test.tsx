@@ -72,15 +72,16 @@ describe("turning the binder", () => {
     expect(shownPages()).toEqual(["Page 2", "Page 3"]);
   });
 
-  it("does not turn with arrow keys while a dialog button has focus", async () => {
+  it("does not turn with arrow keys while typing in the catalogue search", async () => {
     const user = renderApp();
     await user.click(
       screen.getByRole("button", { name: "Page 1, slot 1, empty" }),
     );
-    screen.getByRole("button", { name: "Close" }).focus();
 
-    await user.keyboard("{ArrowRight}");
-    await user.keyboard("{Escape}");
+    await user.type(
+      screen.getByRole("searchbox", { name: "Search cards" }),
+      "{ArrowRight}",
+    );
 
     expect(shownPages()).toEqual(["Page 1"]);
   });
@@ -144,7 +145,9 @@ describe("turning the binder", () => {
     fireEvent.pointerUp(slot, { clientX: 300, clientY: 200, isPrimary: true });
     fireEvent.click(slot, { detail: 1 });
 
-    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(
+      screen.queryByRole("complementary", { name: "Catalogue" }),
+    ).toBeNull();
   });
 
   it("fills a slot on the page it turned to", async () => {
@@ -161,8 +164,7 @@ describe("turning the binder", () => {
       await screen.findByRole("button", { name: /Pot of Greed/ }),
     );
 
-    await user.click(screen.getByRole("radio", { name: /LOB-EN119/ }));
-    await user.click(screen.getByRole("button", { name: "Add to pocket" }));
+    await user.click(screen.getByRole("button", { name: /LOB-EN119/ }));
 
     expect(
       screen.getByRole("button", { name: "Page 3, slot 9: Pot of Greed" }),
