@@ -1,11 +1,14 @@
 import type { Card, Printing } from "./catalogue";
 
-export type Condition =
-  | "Near Mint"
-  | "Lightly Played"
-  | "Moderately Played"
-  | "Heavily Played"
-  | "Damaged";
+export const CONDITIONS = [
+  "Near Mint",
+  "Lightly Played",
+  "Moderately Played",
+  "Heavily Played",
+  "Damaged",
+] as const;
+
+export type Condition = (typeof CONDITIONS)[number];
 
 /** One physical card: a printing of a card, in some condition. */
 export type Copy = {
@@ -36,6 +39,25 @@ export function place(
   const slots = [...binder.slots];
   slots[indexOf(address)] = copy;
   return { slots };
+}
+
+export function remove(binder: Binder, address: SlotAddress): Binder {
+  const slots = [...binder.slots];
+  slots[indexOf(address)] = null;
+  return { slots };
+}
+
+export function changeCondition(
+  binder: Binder,
+  address: SlotAddress,
+  condition: Condition,
+): Binder {
+  const copy = binder.slots[indexOf(address)];
+  return copy ? place(binder, address, { ...copy, condition }) : binder;
+}
+
+export function slotAt(binder: Binder, address: SlotAddress): Copy | null {
+  return binder.slots[indexOf(address)];
 }
 
 export function pageSlots(
