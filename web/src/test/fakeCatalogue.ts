@@ -49,7 +49,13 @@ export function fakeCatalogue(cards: Card[] = [darkMagician, potOfGreed]) {
     async search(query) {
       queries.push(query);
       const needle = query.toLowerCase();
-      return cards.filter((card) => card.name.toLowerCase().includes(needle));
+      return cards.filter(
+        (card) =>
+          card.name.toLowerCase().includes(needle) ||
+          card.printings.some((printing) =>
+            printing.setCode.toLowerCase().includes(needle),
+          ),
+      );
     },
     imageUrl: (passcode) => `/images/${passcode}.jpg`,
   };

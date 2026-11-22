@@ -9,13 +9,15 @@ import type { Catalogue } from "./catalogue";
 import { SWIPE_THRESHOLD_PX } from "./tokens";
 import type { Turn } from "./useSpreadTurns";
 
+type OpenSlot = (address: SlotAddress, button: HTMLButtonElement) => void;
+
 type Props = {
   binder: Binder;
   spread: number;
   stacked: boolean;
   turn: Turn | null;
   catalogue: Catalogue;
-  onSlot: (address: SlotAddress) => void;
+  onSlot: OpenSlot;
   onSwipe: (direction: Turn["direction"]) => void;
 };
 
@@ -123,7 +125,7 @@ type SideProps = {
   side: "left" | "right";
   binder: Binder;
   catalogue: Catalogue;
-  onSlot: (address: SlotAddress) => void;
+  onSlot: OpenSlot;
   inert: boolean;
 };
 
@@ -148,7 +150,9 @@ function PageSide({ page, side, binder, catalogue, onSlot, inert }: SideProps) {
               aria-label={
                 copy ? `${label}: ${copy.card.name}` : `${label}, empty`
               }
-              onClick={() => onSlot({ page, position })}
+              onClick={(event) =>
+                onSlot({ page, position }, event.currentTarget)
+              }
             >
               {copy && (
                 <img

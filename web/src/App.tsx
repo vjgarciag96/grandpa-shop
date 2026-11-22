@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { BinderSpread } from "./BinderSpread";
 import { CardPicker } from "./CardPicker";
 import { CopyDetail } from "./CopyDetail";
@@ -23,6 +29,14 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
   const [binder, setBinder] = useState(emptyBinder);
   const [open, setOpen] = useState<Open | null>(null);
   const close = useCallback(() => setOpen(null), []);
+  const opener = useRef<HTMLButtonElement>(null);
+
+  useLayoutEffect(() => {
+    if (open === null && opener.current) {
+      opener.current.focus({ preventScroll: true });
+      opener.current = null;
+    }
+  }, [open]);
   const reducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
   const stacked = useMediaQuery(`(width < ${STACK_BELOW_PX}px)`);
   const { spread, turn, go, canGoBack, canGoForward } = useSpreadTurns(
@@ -41,8 +55,10 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
     return () => document.removeEventListener("keydown", turnOnArrow);
   }, [open, go]);
 
-  const openSlot = (address: SlotAddress) =>
+  const openSlot = (address: SlotAddress, button: HTMLButtonElement) => {
+    opener.current = button;
     setOpen({ dialog: slotAt(binder, address) ? "detail" : "picker", address });
+  };
   const copy = open && slotAt(binder, open.address);
   const title =
     open && `Page ${open.address.page}, slot ${open.address.position + 1}`;
@@ -86,7 +102,8 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
       {open?.dialog === "picker" && (
         <CardPicker
           catalogue={catalogue}
-          title={`Fill ${title?.toLowerCase()}`}
+          destination={`Page ${open.address.page}, pocket ${open.address.position + 1}`}
+          replacing={copy?.card.name}
           onClose={close}
           onPick={(card, printing) => {
             setBinder((current) =>
