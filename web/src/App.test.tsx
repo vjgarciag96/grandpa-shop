@@ -99,6 +99,19 @@ describe("filling a slot", () => {
     expect(queries).toEqual([]);
   });
 
+  it("clears the search and brings focus back to the search field", async () => {
+    const user = renderApp();
+    await searchFromFirstSlot(user, "dark");
+    await screen.findByRole("button", { name: /Dark Magician/ });
+
+    await user.click(screen.getByRole("button", { name: "Clear search" }));
+
+    const search = screen.getByRole<HTMLInputElement>("searchbox");
+    expect(search.value).toBe("");
+    expect(document.activeElement).toBe(search);
+    expect(screen.queryByRole("list", { name: "Matching cards" })).toBeNull();
+  });
+
   it("says so when no card matches", async () => {
     const user = renderApp();
 

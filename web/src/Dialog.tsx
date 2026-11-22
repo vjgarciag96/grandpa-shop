@@ -86,11 +86,11 @@ export function Dialog({
           <button
             ref={closeButton}
             type="button"
-            className="dialog__close"
+            className="control control--icon dialog__close"
             aria-label="Close"
             onClick={onClose}
           >
-            ×
+            <span className="close-icon" aria-hidden="true" />
           </button>
         </header>
         {children}

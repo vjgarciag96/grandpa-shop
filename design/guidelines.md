@@ -1,24 +1,26 @@
 # Visual guidelines
 
-Grandpa Shop should feel like a binder on a desk: plain black boards, warm paper, and the cards doing the talking. The tokens in [tokens.json](tokens.json) are the only colours, type, sizes, and motion values.
+Grandpa Shop presents a physical binder on a desk. The cover and spine are flat black, the pages frame the catalogue artwork, and the controls use a light Material 3 palette. Use [tokens.json](tokens.json) for colour, type, shape, spacing, and motion.
 
 ## Colour
 
+Blue-Eyes-inspired sapphire and ice blue mark primary actions and selections, with parchment surfaces and muted antique gold for secondary controls.
+
 | Token | Use |
 | --- | --- |
-| `ink` | Text on `paper` and `page`. |
-| `paper` | The desk behind the binder. |
-| `binderBoard` | The cover and the spine. One flat colour: no texture, stripes, or gradient. |
-| `page` | A binder page, and any text or control drawn on the boards (18:1 on `binderBoard`). |
-| `slotEdge` | The outline and plus of an empty slot (4.2:1 on `page`, so the place to click is visible). |
-| `rule` | Hairlines that mark no action, such as a divider in the copy detail. |
-| `foil` | The rarity mark in the copy detail. It is a mark beside an `ink` label, never text on its own (3.1:1 on `page` is too faint for text). |
-
-Do not add a colour in a client. Add it here first.
+| `primary`, `onPrimary` | A filled action and its label. |
+| `primaryContainer`, `onPrimaryContainer` | A selected printing and its contents. |
+| `secondaryContainer`, `onSecondaryContainer` | Tonal controls and their labels. |
+| `surface`, `surfaceContainer*` | The desk, dialogs, and the distinct layers within them. |
+| `onSurface`, `onSurfaceVariant` | Main and supporting content on surfaces. |
+| `outline`, `outlineVariant` | Visible control boundaries and quiet dividers, respectively. |
+| `error` | Destructive actions and error messages on light surfaces. |
+| `binderBoard`, `binderPage` | The physical cover, spine, and sheet surfaces. |
+| `foil` | A decorative rarity mark beside its text label. |
 
 ## Typography
 
-`display` is for card names and binder titles. `body` is for stats, set codes, and condition. Do not ship a font file until a slice needs one, and record that dependency.
+Use the shared sans-serif family. Use the headline or title for an app or dialog heading, the body styles for card labels and descriptions, and the small label style for pocket destinations. The font stacks fall back to system fonts. Ship a font file only with a dependency decision.
 
 ## Layout
 
@@ -30,11 +32,9 @@ A spread is what an open binder shows (see Spread in [CONTEXT.md](../CONTEXT.md)
 
 Below a viewport width of `layout.stackBelowPx`, the pages of a spread stack, left page first, and the spine is not drawn.
 
-A filled slot shows the card's image in its pocket and nothing else. The rarity, set code, and condition belong to the copy's detail, which opens from the slot. An empty slot shows a dashed outline `layout.emptySlotStrokePx` wide and a plus, both in `slotEdge`.
+A filled slot shows the card's image in its pocket and nothing else. The rarity, set code, and condition belong to the copy's detail, which opens from the slot. An empty slot shows a dashed outline `layout.emptySlotStrokePx` wide and a plus in a tonal circle.
 
 ## Binder page-turn
-
-This is the spec. There is no animation code yet.
 
 - A turn moves one spread. It starts from a previous or next control, the left or right arrow key, or a horizontal swipe on the spread of at least `motion.swipeThresholdPx`.
 - The arrow keys turn only while no dialog is open and focus is not in a text field, so typing in a search never turns the binder.
@@ -46,7 +46,9 @@ This is the spec. There is no animation code yet.
 
 ## Components
 
-Shared pieces, once a slice needs them: card face, slot, page, binder spread, copy detail, condition mark, rarity mark, empty collection. Build them from these tokens. A component that needs a new token comes back here before it lands in a client.
+Use pill shapes for filled and tonal actions, circles for icon controls, and `layout.minTargetPx` for their touch targets. Use the filled action for confirming a printing, tonal actions for secondary choices, and text actions for back or remove. Search uses a full-radius surface with a leading search symbol and a trailing clear button when there is text. Card and printing rows place the identifying label above or beside the supporting information.
+
+Dialogs use `radius.dialogPx` and a distinct container tone. Keep the picker destination and confirmation in view while results or printings scroll. At short heights, compact the controls and allow the dialog itself to scroll if they need more room.
 
 ## What clients must not do
 

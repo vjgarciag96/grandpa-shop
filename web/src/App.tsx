@@ -65,39 +65,52 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
 
   return (
     <main className="desk">
-      <header className="desk__head">
-        <h1>Grandpa Shop</h1>
-        <p>Cards you place stay until the page reloads. Saving comes later.</p>
-      </header>
-      <div className="binder" inert={open !== null}>
-        <nav className="binder__turns" aria-label="Turn the binder">
-          <button
-            type="button"
-            aria-label="Previous spread"
-            disabled={!canGoBack}
-            onClick={() => go("back")}
-          >
-            ‹
-          </button>
-          <span aria-live="polite">{pagesLabel(left, right)}</span>
-          <button
-            type="button"
-            aria-label="Next spread"
-            disabled={!canGoForward}
-            onClick={() => go("forward")}
-          >
-            ›
-          </button>
-        </nav>
-        <BinderSpread
-          binder={binder}
-          spread={spread}
-          stacked={stacked}
-          turn={turn}
-          catalogue={catalogue}
-          onSlot={openSlot}
-          onSwipe={go}
-        />
+      <div inert={open !== null}>
+        <header className="desk__head">
+          <div className="desk__identity">
+            <span className="desk__mark" aria-hidden="true" />
+            <div>
+              <h1>Grandpa Shop</h1>
+              <p>
+                Cards you place stay until the page reloads. Saving comes later.
+              </p>
+            </div>
+          </div>
+          <nav className="binder__turns" aria-label="Turn the binder">
+            <button
+              type="button"
+              className="control control--icon control--tonal"
+              aria-label="Previous spread"
+              disabled={!canGoBack}
+              onClick={() => go("back")}
+            >
+              <span className="chevron chevron--back" aria-hidden="true" />
+            </button>
+            <span className="binder__position" aria-live="polite">
+              {pagesLabel(left, right)}
+            </span>
+            <button
+              type="button"
+              className="control control--icon control--tonal"
+              aria-label="Next spread"
+              disabled={!canGoForward}
+              onClick={() => go("forward")}
+            >
+              <span className="chevron" aria-hidden="true" />
+            </button>
+          </nav>
+        </header>
+        <div className="binder">
+          <BinderSpread
+            binder={binder}
+            spread={spread}
+            stacked={stacked}
+            turn={turn}
+            catalogue={catalogue}
+            onSlot={openSlot}
+            onSwipe={go}
+          />
+        </div>
       </div>
       {open?.dialog === "picker" && (
         <CardPicker
