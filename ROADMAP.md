@@ -46,7 +46,7 @@ Done when the installed window shows the collection list from milestone 2. Not s
 
 ## 7. File cards from a catalogue panel
 
-Replace the one-slot picker with a catalogue panel beside the binder. Search by card name or open a set, which lists its printings in set-code order, then place a printing in a slot by tapping or by dragging it there. A filled slot refuses a drop. Copies stay in the page's memory, as in milestone 3.
+Replace the one-slot picker with a catalogue panel beside the binder. Search by card name or open a set, which lists its printings in set-code order, then place a printing in a slot by tapping or by dragging it there. A printing dragged onto a filled slot with a mouse or pen replaces the copy there, and that copy leaves the binder. Holding a printing and then tapping or choosing a filled slot with the keyboard still refuses it. Replace in a copy's detail aims the panel at that slot, so the next printing chosen replaces the copy. Copies stay in the page's memory, as in milestone 3.
 
 Built on milestone 3, because filling a binder from a set card by card is too slow. Framed in [#11](https://github.com/vjgarciag96/grandpa-shop/issues/11). Owners: design, web, backend.
 

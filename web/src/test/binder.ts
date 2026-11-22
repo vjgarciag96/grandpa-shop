@@ -12,6 +12,13 @@ export const savedDarkMagician = {
   condition: "Near Mint",
 };
 
+/** Dark Magician SDY-006 in Lightly Played, as the saved binder stores a copy. */
+export const savedPlayedSdyDarkMagician = {
+  card: darkMagician,
+  printing: darkMagician.printings[1],
+  condition: "Lightly Played",
+};
+
 /** Pot of Greed LOB-EN119 in Near Mint, as the saved binder stores a copy. */
 export const savedPotOfGreed = {
   card: potOfGreed,

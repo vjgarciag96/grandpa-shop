@@ -80,8 +80,8 @@ Printing rows and pockets are buttons, so each step works by tapping, by clickin
 - While holding, every empty pocket shows a `primary` outline `layout.aimStrokePx` wide. Choosing one places the held printing there and puts it down.
 - With nothing held, choosing an empty pocket makes it the target. The target shows the same outline, including a filled pocket being replaced. Escape clears it. With nothing held or targeted, Escape does nothing.
 - Closing the panel puts down what is held and clears the target.
-- A filled pocket never takes a printing from the panel, except the one being replaced. While holding, choosing a filled pocket keeps holding, opens nothing, and says "Page 1, slot 2 is filled". A filled pocket shows no outline, except the one being replaced.
-- Every placement is announced in words, such as "Placed TLM-EN001 in page 1, slot 3".
+- A filled pocket never takes a printing from the panel by tap or keyboard, except the one being replaced. While holding, choosing a filled pocket keeps holding, opens nothing, and says "Page 1, slot 2 is filled". A filled pocket shows no outline, except the one being replaced.
+- Every placement is announced in words, such as "Placed TLM-EN001 in page 1, slot 3". A placement that replaces a copy names it, whether it comes from the copy's detail or from a drag: "Placed LOB-EN119 in page 1, slot 1, replacing SDY-006".
 
 ## Dragging
 
@@ -90,9 +90,11 @@ Printing rows and pockets are buttons, so each step works by tapping, by clickin
 - Dragging a printing is offered only while the panel is beside the binder. In the bottom sheet, pick up and place is the way to add a card.
 - A press on a printing becomes a drag once the pointer moves `motion.dragStartPx`. A shorter movement is a tap.
 - While dragging, the card's thumbnail follows the pointer, `layout.dragGhostWidthPx` wide at `layout.pocketAspect`, with `radius.cardPx`, at `layout.dragGhostOpacity` so the pocket beneath shows through. Every empty pocket shows the `primary` outline, as when holding.
-- An empty pocket under the pointer also fills with `primaryContainer`. A filled pocket does not change while a printing is dragged.
-- Releasing over an empty pocket places the printing there and announces it. Releasing anywhere else, or pressing Escape, drops nothing. There is no animation back to the panel.
-- A dragged printing only fills an empty pocket. Replacing a copy stays a tap, from its detail.
+- An empty pocket under the pointer also fills with `primaryContainer`. In a mouse or pen drag, a filled pocket under the pointer shows the `primary` outline `layout.aimStrokePx` wide, inside its edge. Other filled pockets show nothing, and in a touch drag no filled pocket does.
+- Releasing over an empty pocket places the printing there and announces it.
+- Releasing a mouse or pen drag over a filled pocket files a new Near Mint copy of the printing there, and the copy that was there leaves the binder, as with Remove. There is no confirmation. The replace is announced as "Placed LOB-EN119 in page 1, slot 1, replacing SDY-006". A touch drag never replaces a copy: released over a filled pocket, it drops nothing.
+- A release drops only on the pocket shown as the drop target. When the spread turns mid-drag, no pocket is a target until the pointer moves again.
+- Releasing outside the binder, pressing Escape, letting go of the primary button, or releasing another button drops nothing. There is no animation back to the panel.
 
 ### Dragging a filed copy
 

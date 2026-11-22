@@ -150,6 +150,20 @@ describe("a copy's detail", () => {
     ).toBe(true);
   });
 
+  it("names the copy it replaced when a printing is picked after Replace", async () => {
+    const user = await fillWithDarkMagician();
+    await user.click(
+      screen.getByRole("button", { name: "Page 1, slot 1: Dark Magician" }),
+    );
+    await user.click(screen.getByRole("button", { name: "Replace" }));
+
+    await user.click(screen.getByRole("button", { name: /SDY-006/ }));
+
+    expect(
+      document.querySelector(".catalogue__announcement")?.textContent?.trim(),
+    ).toBe("Placed SDY-006 in page 1, slot 1, replacing LOB-EN005.");
+  });
+
   it("replaces the copy with another card picked from the catalogue", async () => {
     const user = await fillWithDarkMagician();
     await user.click(

@@ -19,10 +19,13 @@ type Press = {
   origin: DragOrigin;
   spread: number;
   pointerId: number;
+  pointerType: string;
   startX: number;
   startY: number;
   phase: "pressed" | "dragging" | "canceled";
   source: Element;
+  /** The pocket shown as the drop target; a release drops only there. */
+  over: SlotAddress | null;
 };
 
 /**
@@ -57,6 +60,11 @@ export function useDragToPocket(
         (active.origin.kind === "copy" && active.spread !== allowed.spread))
     ) {
       cancel();
+    } else if (active && active.spread !== allowed.spread) {
+      // The spread turned under a still pointer: nothing is a target until it moves.
+      active.spread = allowed.spread;
+      active.over = null;
+      setDrag((current) => current && { ...current, over: null });
     }
 
     const end = () => {
@@ -67,7 +75,7 @@ export function useDragToPocket(
       const current = press.current;
       if (!current || current.pointerId !== event.pointerId) return;
       if (current.phase === "canceled") return;
-      if (current.origin.kind === "copy" && (event.buttons & 1) === 0) {
+      if ((event.buttons & 1) === 0) {
         cancel();
         return;
       }
@@ -77,29 +85,29 @@ export function useDragToPocket(
       );
       if (current.phase === "pressed" && moved < DRAG_START_PX) return;
       current.phase = "dragging";
+      current.over = dropAddress(
+        current,
+        dropSlotAt(event.clientX, event.clientY),
+      );
       setDrag({
         origin: current.origin,
         x: event.clientX,
         y: event.clientY,
-        over: dropAddress(
-          current.origin,
-          dropSlotAt(event.clientX, event.clientY),
-        ),
+        over: current.over,
       });
     };
     const onUp = (event: globalThis.PointerEvent) => {
       const current = press.current;
       if (!current || current.pointerId !== event.pointerId) return;
       if (current.phase !== "pressed") swallowSourceClick(current.source);
-      if (
-        current.phase === "dragging" &&
-        (current.origin.kind === "printing" || event.button === 0)
-      ) {
+      if (current.phase === "dragging" && event.button === 0) {
         const over = dropAddress(
-          current.origin,
+          current,
           dropSlotAt(event.clientX, event.clientY),
         );
-        if (over) drop.current(over, current.origin);
+        if (over && current.over && sameSlot(over, current.over)) {
+          drop.current(over, current.origin);
+        }
       }
       end();
     };
@@ -141,10 +149,12 @@ export function useDragToPocket(
       origin,
       spread: allowed.spread,
       pointerId: event.pointerId,
+      pointerType: event.pointerType,
       startX: event.clientX,
       startY: event.clientY,
       phase: "pressed",
       source: event.currentTarget,
+      over: null,
     };
     return true;
   };
@@ -163,13 +173,18 @@ function mayDrag(origin: DragOrigin, allowed: Allowed): boolean {
   return origin.kind === "copy" ? allowed.canMoveCopy : allowed.canDragPrinting;
 }
 
-/** The pocket a drag would drop into: a copy takes any pocket but its own, a printing only an empty one. */
+/**
+ * The pocket a drag would drop into. A copy takes any pocket but its own.
+ * A printing takes any pocket, except that touch never replaces a filed copy.
+ */
 function dropAddress(
-  origin: DragOrigin,
+  { origin, pointerType }: Press,
   hit: DropSlot | null,
 ): SlotAddress | null {
   if (!hit) return null;
-  if (origin.kind === "printing") return hit.filled ? null : hit.address;
+  if (origin.kind === "printing") {
+    return hit.filled && pointerType === "touch" ? null : hit.address;
+  }
   return sameSlot(hit.address, origin.from) ? null : hit.address;
 }
 
