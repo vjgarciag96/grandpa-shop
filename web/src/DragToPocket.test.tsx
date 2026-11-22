@@ -239,6 +239,37 @@ describe("dragging a printing onto a slot", () => {
     ).toBe(false);
   });
 
+  it("keeps a filled slot when a printing is released away from the binder", async () => {
+    await openPotOfGreedOverDarkMagician();
+    const row = printing(/LOB-EN119/);
+    pointerIsOver(document.body);
+
+    press(row);
+    moveTo(400, 300);
+    release(row, 400, 300);
+
+    expect([labelOf("Page 1, slot 1"), catalogueAnnouncement()]).toEqual([
+      "Page 1, slot 1: Dark Magician",
+      "",
+    ]);
+  });
+
+  it("keeps a filled slot when Escape is pressed mid-drag", async () => {
+    await openPotOfGreedOverDarkMagician();
+    const row = printing(/LOB-EN119/);
+    pointerIsOver(slot("Page 1, slot 1: Dark Magician"));
+    press(row);
+    moveTo(400, 300);
+
+    fireEvent.keyDown(window, { key: "Escape" });
+    release(row, 400, 300);
+
+    expect([labelOf("Page 1, slot 1"), catalogueAnnouncement()]).toEqual([
+      "Page 1, slot 1: Dark Magician",
+      "",
+    ]);
+  });
+
   it("drops nothing when released away from the binder", async () => {
     await openDarkMagicianAt(1200);
     const row = printing(/SDY-006/);
@@ -333,6 +364,21 @@ describe("dragging a printing onto a slot", () => {
     fireEvent.pointerUp(window, { pointerId: 1, clientX: 400, clientY: 300 });
 
     expect(slot("Page 1, slot 2, empty")).toBeTruthy();
+  });
+
+  it("does not replace a filled slot while the panel is a bottom sheet", async () => {
+    await openPotOfGreedOverDarkMagician(959);
+    const row = printing(/LOB-EN119/);
+    pointerIsOver(slot("Page 1, slot 1: Dark Magician"));
+
+    press(row);
+    moveTo(400, 300);
+    fireEvent.pointerUp(window, { pointerId: 1, clientX: 400, clientY: 300 });
+
+    expect([
+      document.querySelector(".drag-ghost"),
+      labelOf("Page 1, slot 1"),
+    ]).toEqual([null, "Page 1, slot 1: Dark Magician"]);
   });
 });
 
