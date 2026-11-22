@@ -489,6 +489,23 @@ describe("moving a filed copy", () => {
     });
   });
 
+  it("keeps a catalogue target on the pocket a copy moves out of to an empty pocket", async () => {
+    const user = await fileDarkMagician();
+    const source = slot("Page 1, slot 1: Dark Magician");
+    await user.click(source);
+    await user.click(screen.getByRole("button", { name: "Replace" }));
+    const panel = within(
+      screen.getByRole("complementary", { name: "Catalogue" }),
+    );
+
+    dragCopy(source, slot("Page 1, slot 3, empty"));
+    releaseCopy(source, slot("Page 1, slot 3, empty"));
+
+    expect(panel.getByRole("heading", { level: 2 }).textContent).toBe(
+      "Adding to page 1, slot 1",
+    );
+  });
+
   it("outlines the filled pocket under the pointer", async () => {
     const user = await fileTwoDarkMagicians();
     await user.click(slot("Close catalogue"));
