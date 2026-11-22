@@ -28,9 +28,10 @@ type Press = {
 /**
  * A press becomes a drag once it moves `motion.dragStartPx`; a shorter press stays a tap.
  * Slots are found by their `data-empty-slot` attribute.
+ * Pass a memoized `allowed`: each new object rechecks the active press and rebinds the listeners.
  */
 export function useDragToPocket(
-  { canDragPrinting, canMoveCopy, spread }: Allowed,
+  allowed: Allowed,
   onDrop: (address: SlotAddress, origin: DragOrigin) => void,
 ) {
   const [drag, setDrag] = useState<Drag | null>(null);
@@ -50,8 +51,13 @@ export function useDragToPocket(
       }
     };
     const active = press.current;
-    if (active && !mayDrag(active, { canDragPrinting, canMoveCopy, spread }))
+    if (
+      active &&
+      (!mayDrag(active.origin, allowed) ||
+        (active.origin.kind === "copy" && active.spread !== allowed.spread))
+    ) {
       cancel();
+    }
 
     const end = () => {
       press.current = null;
@@ -116,19 +122,18 @@ export function useDragToPocket(
       window.removeEventListener("pointercancel", onCancel);
       window.removeEventListener("keydown", onKeyDown, true);
     };
-  }, [canDragPrinting, canMoveCopy, spread]);
+  }, [allowed]);
 
   const start = (origin: DragOrigin, event: PointerEvent): boolean => {
     if (event.button !== 0 || !event.isPrimary) return false;
     if (press.current && press.current.pointerId !== event.pointerId)
       return false;
-    if (!mayDrag({ origin, spread }, { canDragPrinting, canMoveCopy, spread }))
-      return false;
+    if (!mayDrag(origin, allowed)) return false;
     if (origin.kind === "copy" && !["mouse", "pen"].includes(event.pointerType))
       return false;
     press.current = {
       origin,
-      spread,
+      spread: allowed.spread,
       pointerId: event.pointerId,
       startX: event.clientX,
       startY: event.clientY,
@@ -142,19 +147,14 @@ export function useDragToPocket(
 }
 
 type Allowed = {
-  canDragPrinting: boolean;
-  canMoveCopy: boolean;
-  spread: number;
+  readonly canDragPrinting: boolean;
+  readonly canMoveCopy: boolean;
+  readonly spread: number;
 };
 
-/** Whether a press on its origin, begun on its spread, may drag now. */
-function mayDrag(
-  { origin, spread }: Pick<Press, "origin" | "spread">,
-  allowed: Allowed,
-): boolean {
-  return origin.kind === "copy"
-    ? allowed.canMoveCopy && spread === allowed.spread
-    : allowed.canDragPrinting;
+/** Whether this kind of origin may be dragged now. */
+function mayDrag(origin: DragOrigin, allowed: Allowed): boolean {
+  return origin.kind === "copy" ? allowed.canMoveCopy : allowed.canDragPrinting;
 }
 
 // A release can produce a click on the drag source, even after Escape.

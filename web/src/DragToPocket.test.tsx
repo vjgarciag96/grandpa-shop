@@ -489,6 +489,23 @@ describe("moving a filed copy", () => {
     expect(source.getAttribute("aria-label")).toBe("Page 1, slot 1, empty");
   });
 
+  it("does not drop a copy after another copy's detail opens mid-drag", async () => {
+    const user = await fileDarkMagician();
+    await user.click(slot("Page 1, slot 3, empty"));
+    await user.click(printing(/LOB-EN005/));
+    const source = slot("Page 1, slot 1: Dark Magician");
+    const target = slot("Page 1, slot 2, empty");
+    dragCopy(source, target);
+
+    fireEvent.click(slot("Page 1, slot 3: Dark Magician"), { detail: 0 });
+    fireEvent.pointerUp(target, { pointerId: 1, clientX: 400, clientY: 300 });
+
+    expect([
+      source.getAttribute("aria-label"),
+      target.getAttribute("aria-label"),
+    ]).toEqual(["Page 1, slot 1: Dark Magician", "Page 1, slot 2, empty"]);
+  });
+
   it("cancels a drag when reduced motion immediately cuts to a new spread", async () => {
     const user = await fileDarkMagician();
     prefersReducedMotion(true);
@@ -498,6 +515,7 @@ describe("moving a filed copy", () => {
     expect(target.classList.contains("slot--drop")).toBe(true);
 
     fireEvent.keyDown(document, { key: "ArrowRight" });
+    expect(document.querySelector(".drag-ghost")).toBeNull();
     const nextSpread = slot("Page 2, slot 1, empty");
     pointerIsOver(nextSpread);
     fireEvent.pointerUp(nextSpread, { pointerId: 1 });

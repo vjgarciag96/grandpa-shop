@@ -168,7 +168,10 @@ describe("moveCopy", () => {
       { ...playedCopy, condition: "Damaged" },
     );
 
-    expect(pageSlots(binder, 3)[1]).toBeNull();
+    expect([pageSlots(binder, 2)[4], pageSlots(binder, 3)[1]]).toEqual([
+      playedCopy,
+      null,
+    ]);
   });
 
   it("refuses a filled destination and keeps both copies", () => {

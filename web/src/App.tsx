@@ -2,6 +2,7 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -144,8 +145,12 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
     });
   };
 
+  const allowedDrags = useMemo(
+    () => ({ canDragPrinting, canMoveCopy, spread }),
+    [canDragPrinting, canMoveCopy, spread],
+  );
   const { drag, start: startDrag } = useDragToPocket(
-    { canDragPrinting, canMoveCopy, spread },
+    allowedDrags,
     (address, origin) =>
       origin.kind === "printing"
         ? placeAt(address, origin.card, origin.printing)
