@@ -1,0 +1,233 @@
+/* Every value here is a design token set by applyTokens, or a derived proportion of one. */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+.desk {
+  max-width: calc(var(--space-slot) * 135);
+  margin: 0 auto;
+  padding: calc(var(--space-slot) * 3) calc(var(--space-slot) * 2);
+}
+
+.desk__head h1 {
+  font-family: var(--font-display);
+  margin: 0;
+}
+
+.desk__head p {
+  margin: calc(var(--space-slot) / 2) 0 calc(var(--space-slot) * 3);
+}
+
+.binder {
+  background: var(--color-binder-board);
+  border-radius: calc(var(--radius-card) * 2);
+  padding: var(--board-padding);
+}
+
+.spread {
+  display: grid;
+  grid-template-columns: 1fr var(--spine) 1fr;
+}
+
+.spread--stacked {
+  grid-template-columns: 1fr;
+  gap: var(--board-padding);
+}
+
+.spread--stacked .spine,
+.spread--stacked .page-side--cover {
+  display: none;
+}
+
+.page {
+  background: var(--color-page);
+  border-radius: var(--radius-card);
+  padding: var(--page-padding);
+}
+
+.page__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--pocket-gap);
+}
+
+.page__number {
+  text-align: center;
+  margin-top: var(--space-slot);
+}
+
+.slot {
+  aspect-ratio: var(--pocket-aspect);
+  padding: 0;
+  border-radius: var(--radius-card);
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  color: var(--color-slot-edge);
+}
+
+.slot--empty {
+  border: var(--empty-slot-stroke) dashed var(--color-slot-edge);
+}
+
+.slot--empty::before {
+  content: "+";
+  font-size: calc(var(--space-slot) * 4);
+}
+
+.slot--filled {
+  border: none;
+}
+
+.slot img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-card);
+}
+
+.slot:focus-visible,
+.dialog button:focus-visible {
+  outline: calc(var(--empty-slot-stroke) * 2) solid var(--color-ink);
+  outline-offset: calc(var(--empty-slot-stroke) * 2);
+}
+
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: color-mix(in srgb, var(--color-binder-board) 55%, transparent);
+  display: grid;
+  place-items: center;
+  padding: calc(var(--space-slot) * 2);
+}
+
+.dialog {
+  background: var(--color-page);
+  border-radius: calc(var(--radius-card) * 1.5);
+  width: min(calc(var(--space-slot) * 90), 100%);
+  max-height: calc(100dvh - var(--space-slot) * 4);
+  overflow: auto;
+  padding: calc(var(--space-slot) * 2);
+}
+
+.dialog__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-slot);
+}
+
+.dialog__head h2 {
+  flex: 1;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: calc(var(--space-slot) * 2.5);
+}
+
+.dialog button {
+  font: inherit;
+  color: var(--color-ink);
+  background: none;
+  border: var(--empty-slot-stroke) solid var(--color-rule);
+  border-radius: var(--radius-card);
+  cursor: pointer;
+}
+
+.dialog__close {
+  padding: 0 var(--space-slot);
+  font-size: calc(var(--space-slot) * 3);
+}
+
+.picker__search {
+  width: 100%;
+  margin: calc(var(--space-slot) * 2) 0 var(--space-slot);
+  padding: var(--space-slot);
+  font: inherit;
+  color: var(--color-ink);
+  border: var(--empty-slot-stroke) solid var(--color-slot-edge);
+  border-radius: var(--radius-card);
+}
+
+.picker__results {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(calc(var(--space-slot) * 13), 1fr)
+  );
+  gap: var(--pocket-gap);
+}
+
+.dialog .picker__card {
+  width: 100%;
+  border: none;
+  padding: 0;
+  text-align: left;
+}
+
+.picker__card img,
+.picker__chosen {
+  display: block;
+  width: 100%;
+  aspect-ratio: var(--pocket-aspect);
+  object-fit: cover;
+  border-radius: var(--radius-card);
+}
+
+.picker__printings {
+  display: grid;
+  grid-template-columns: minmax(0, calc(var(--space-slot) * 25)) 1fr;
+  gap: calc(var(--space-slot) * 2);
+  margin-top: calc(var(--space-slot) * 2);
+}
+
+.picker__printings h3 {
+  font-family: var(--font-display);
+  margin: var(--space-slot) 0 0;
+}
+
+.picker__printings ul {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: var(--space-slot);
+}
+
+.dialog .picker__printing {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0 var(--space-slot);
+  padding: var(--space-slot);
+  text-align: left;
+}
+
+.picker__code {
+  font-weight: 600;
+}
+
+.picker__set {
+  grid-column: 1 / -1;
+}
+
+.dialog .picker__back {
+  padding: calc(var(--space-slot) / 2) var(--space-slot);
+}
+
+.picker__note {
+  margin: var(--space-slot) 0;
+}
