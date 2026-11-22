@@ -1,17 +1,19 @@
 import { useCallback, useEffect, useState } from "react";
 import { SPREADS } from "./binder";
-import type { Turn } from "./BinderSpread";
 import { PAGE_FLIP_MS } from "./tokens";
 
+export type Turn = { from: number; direction: "forward" | "back" };
+
 /**
- * Which spread is open, and the page lifting while it turns. The new spread shows at once; the
- * lifting page plays over it for the flip and is dropped by a timer. With [cut] there is no lift.
+ * Which spread is open and which sheet is in motion. Cutting cancels any in-flight turn.
  */
 export function useSpreadTurns(cut: boolean) {
   const [{ spread, turn }, setPosition] = useState<{
     spread: number;
     turn: Turn | null;
   }>({ spread: 0, turn: null });
+
+  if (cut && turn) setPosition({ spread, turn: null });
 
   const go = useCallback(
     (direction: Turn["direction"]) => {

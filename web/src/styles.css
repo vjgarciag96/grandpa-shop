@@ -39,6 +39,20 @@ body {
 .spread {
   display: grid;
   grid-template-columns: 1fr var(--spine) 1fr;
+  perspective: calc(var(--space-slot) * 300);
+  touch-action: pan-y;
+}
+
+.page-side {
+  grid-row: 1;
+}
+
+.page-side--left {
+  grid-column: 1;
+}
+
+.page-side--right {
+  grid-column: 3;
 }
 
 .spread--stacked {
@@ -366,24 +380,6 @@ body {
 .binder__turns span {
   min-width: calc(var(--space-slot) * 13);
   text-align: center;
-}
-
-.spread {
-  position: relative;
-  perspective: calc(var(--space-slot) * 300);
-  touch-action: pan-y;
-}
-
-.page-side {
-  grid-row: 1;
-}
-
-.page-side--left {
-  grid-column: 1;
-}
-
-.page-side--right {
-  grid-column: 3;
 }
 
 /* The sheet lifts from the gutter: a forward turn swings the right page over the spine to the left. */

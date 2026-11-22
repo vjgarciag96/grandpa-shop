@@ -18,7 +18,7 @@ const turningPage = () => document.querySelector(".page-turn");
 
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
-  prefersReducedMotion(false);
+  prefersReducedMotion(true);
 });
 
 afterEach(() => {
@@ -72,15 +72,12 @@ describe("turning the binder", () => {
     expect(shownPages()).toEqual(["Page 2", "Page 3"]);
   });
 
-  it("does not turn while a search is being typed", async () => {
+  it("does not turn with arrow keys while a dialog button has focus", async () => {
     const user = renderApp();
     await user.click(
       screen.getByRole("button", { name: "Page 1, slot 1, empty" }),
     );
-    await user.type(
-      screen.getByRole("searchbox", { name: "Search cards" }),
-      "dark",
-    );
+    screen.getByRole("button", { name: "Close" }).focus();
 
     await user.keyboard("{ArrowRight}");
     await user.keyboard("{Escape}");
@@ -112,6 +109,25 @@ describe("turning the binder", () => {
       isPrimary: true,
     });
     fireEvent.pointerUp(spread, { clientX: 260, clientY: 200 });
+
+    expect(shownPages()).toEqual(["Page 1"]);
+  });
+
+  it("does not turn when a pointer reenters after leaving mid-swipe", () => {
+    renderApp();
+    const spread = screen.getByTestId("spread");
+    fireEvent.pointerDown(spread, {
+      clientX: 300,
+      clientY: 200,
+      isPrimary: true,
+      pointerId: 1,
+    });
+    fireEvent.pointerOut(spread, {
+      relatedTarget: document.body,
+      pointerId: 1,
+    });
+
+    fireEvent.pointerUp(spread, { clientX: 200, clientY: 200, pointerId: 1 });
 
     expect(shownPages()).toEqual(["Page 1"]);
   });
@@ -154,22 +170,38 @@ describe("turning the binder", () => {
 });
 
 describe("the page-turn motion", () => {
-  it("lifts the turning page for 480ms and then lets it go", async () => {
-    const user = renderApp();
-    await user.click(screen.getByRole("button", { name: "Next spread" }));
-    const during = turningPage() !== null;
+  it("keeps the turning page through 479 ms and completes at 480 ms", () => {
+    prefersReducedMotion(false);
+    vi.useRealTimers();
+    vi.useFakeTimers();
+    renderApp();
+    fireEvent.click(screen.getByRole("button", { name: "Next spread" }));
 
-    act(() => vi.advanceTimersByTime(480));
+    act(() => vi.advanceTimersByTime(479));
+    const beforeEnd = turningPage() !== null;
+    act(() => vi.advanceTimersByTime(1));
 
-    expect([during, turningPage()]).toEqual([true, null]);
+    expect([beforeEnd, turningPage(), shownPages()]).toEqual([
+      true,
+      null,
+      ["Page 2", "Page 3"],
+    ]);
+  });
+
+  it("keeps the cover under the rotating sheet on the first turn", () => {
+    prefersReducedMotion(false);
+    renderApp();
+
+    fireEvent.click(screen.getByRole("button", { name: "Next spread" }));
+
+    expect(shownPages()).toEqual(["Page 3"]);
   });
 
   it("cuts without lifting a page when reduced motion is asked for", async () => {
-    prefersReducedMotion(true);
     const user = renderApp();
 
     await user.click(screen.getByRole("button", { name: "Next spread" }));
 
-    expect(turningPage()).toBeNull();
+    expect([turningPage(), shownPages()]).toEqual([null, ["Page 2", "Page 3"]]);
   });
 });

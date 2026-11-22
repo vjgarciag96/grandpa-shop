@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, type PointerEvent } from "react";
 import {
   pageSlots,
   spreadPages,
@@ -7,9 +7,7 @@ import {
 } from "./binder";
 import type { Catalogue } from "./catalogue";
 import { SWIPE_THRESHOLD_PX } from "./tokens";
-
-/** A page lifting from the gutter while the binder turns away from [from]. */
-export type Turn = { from: number; direction: "forward" | "back" };
+import type { Turn } from "./useSpreadTurns";
 
 type Props = {
   binder: Binder;
@@ -30,10 +28,16 @@ export function BinderSpread({
   onSlot,
   onSwipe,
 }: Props) {
-  const { left, right } = spreadPages(spread);
+  const arriving = spreadPages(spread);
+  const leaving = turn ? spreadPages(turn.from) : arriving;
+  const left = turn?.direction === "forward" ? leaving.left : arriving.left;
+  const right = turn?.direction === "back" ? leaving.right : arriving.right;
   const swipeStart = useRef<{ id: number; x: number; y: number } | null>(null);
-  const swiped = useRef(false);
-  const sides = { binder, catalogue, onSlot };
+  const suppressPointerClick = useRef(false);
+  const sides = { binder, catalogue, onSlot, inert: turn !== null };
+  const stopTracking = (event: PointerEvent) => {
+    if (swipeStart.current?.id === event.pointerId) swipeStart.current = null;
+  };
 
   return (
     <div
@@ -41,18 +45,15 @@ export function BinderSpread({
       data-testid="spread"
       onPointerDown={(event) => {
         if (event.button !== 0 || event.isPrimary === false) return;
-        swiped.current = false;
+        suppressPointerClick.current = false;
         swipeStart.current = {
           id: event.pointerId,
           x: event.clientX,
           y: event.clientY,
         };
       }}
-      onPointerCancel={(event) => {
-        if (swipeStart.current?.id === event.pointerId) {
-          swipeStart.current = null;
-        }
-      }}
+      onPointerCancel={stopTracking}
+      onPointerLeave={stopTracking}
       onPointerUp={(event) => {
         const start = swipeStart.current;
         if (!start || start.id !== event.pointerId) return;
@@ -60,13 +61,14 @@ export function BinderSpread({
         const dx = event.clientX - start.x;
         const dy = event.clientY - start.y;
         if (Math.abs(dx) >= SWIPE_THRESHOLD_PX && Math.abs(dx) > Math.abs(dy)) {
-          swiped.current = true;
+          suppressPointerClick.current = true;
           onSwipe(dx < 0 ? "forward" : "back");
         }
       }}
       onClickCapture={(event) => {
-        if (swiped.current && event.detail > 0) {
-          swiped.current = false;
+        // Keyboard activation has no pointer click count.
+        if (suppressPointerClick.current && event.detail > 0) {
+          suppressPointerClick.current = false;
           event.stopPropagation();
         }
       }}
@@ -77,7 +79,9 @@ export function BinderSpread({
       {turn && (
         <TurningPage
           key={`${turn.from}-${turn.direction}`}
-          turn={turn}
+          direction={turn.direction}
+          leaving={leaving}
+          arriving={arriving}
           {...sides}
         />
       )}
@@ -87,30 +91,28 @@ export function BinderSpread({
 
 /** The sheet being turned: its front is a page of the spread being left, its back a page of the next. */
 function TurningPage({
-  turn,
+  direction,
+  leaving,
+  arriving,
   ...sides
-}: { turn: Turn } & Omit<SideProps, "page" | "side">) {
-  const leaving = spreadPages(turn.from);
-  const arriving = spreadPages(
-    turn.from + (turn.direction === "forward" ? 1 : -1),
-  );
-  const [front, back] =
-    turn.direction === "forward"
-      ? [leaving.right, arriving.left]
-      : [leaving.left, arriving.right];
+}: {
+  direction: Turn["direction"];
+  leaving: ReturnType<typeof spreadPages>;
+  arriving: ReturnType<typeof spreadPages>;
+} & Omit<SideProps, "page" | "side">) {
   const [frontSide, backSide]: ["left" | "right", "left" | "right"] =
-    turn.direction === "forward" ? ["right", "left"] : ["left", "right"];
+    direction === "forward" ? ["right", "left"] : ["left", "right"];
   return (
     <div
-      className={`page-turn page-turn--${turn.direction}`}
+      className={`page-turn page-turn--${direction}`}
       aria-hidden="true"
       inert
     >
       <div className="page-turn__face">
-        <PageSide page={front} side={frontSide} {...sides} />
+        <PageSide page={leaving[frontSide]} side={frontSide} {...sides} />
       </div>
       <div className="page-turn__face page-turn__face--back">
-        <PageSide page={back} side={backSide} {...sides} />
+        <PageSide page={arriving[backSide]} side={backSide} {...sides} />
       </div>
     </div>
   );
@@ -122,9 +124,10 @@ type SideProps = {
   binder: Binder;
   catalogue: Catalogue;
   onSlot: (address: SlotAddress) => void;
+  inert: boolean;
 };
 
-function PageSide({ page, side, binder, catalogue, onSlot }: SideProps) {
+function PageSide({ page, side, binder, catalogue, onSlot, inert }: SideProps) {
   if (page === null) {
     return <div className={`page-side page-side--${side} page-side--cover`} />;
   }
@@ -132,6 +135,7 @@ function PageSide({ page, side, binder, catalogue, onSlot }: SideProps) {
     <section
       className={`page-side page-side--${side} page`}
       aria-label={`Page ${page}`}
+      inert={inert}
     >
       <div className="page__grid">
         {pageSlots(binder, page).map((copy, position) => {

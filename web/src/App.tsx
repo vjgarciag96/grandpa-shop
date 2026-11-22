@@ -12,7 +12,8 @@ import {
   type SlotAddress,
 } from "./binder";
 import type { Catalogue } from "./catalogue";
-import { useMediaQuery, useStackedPages } from "./useMediaQuery";
+import { STACK_BELOW_PX } from "./tokens";
+import { useMediaQuery } from "./useMediaQuery";
 import { useSpreadTurns } from "./useSpreadTurns";
 
 /** The slot a dialog is open for, and which dialog. */
@@ -23,7 +24,7 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
   const [open, setOpen] = useState<Open | null>(null);
   const close = useCallback(() => setOpen(null), []);
   const reducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
-  const stacked = useStackedPages();
+  const stacked = useMediaQuery(`(width < ${STACK_BELOW_PX}px)`);
   const { spread, turn, go, canGoBack, canGoForward } = useSpreadTurns(
     reducedMotion || stacked,
   );
@@ -52,7 +53,7 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
         <h1>Grandpa Shop</h1>
         <p>Cards you place stay until the page reloads. Saving comes later.</p>
       </header>
-      <div className="binder">
+      <div className="binder" inert={open !== null}>
         <nav className="binder__turns" aria-label="Turn the binder">
           <button
             type="button"
