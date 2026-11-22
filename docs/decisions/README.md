@@ -16,3 +16,4 @@ A new dependency needs a new file in this folder in the same change that adds it
 | [0008](0008-ci-is-github-actions.md) | accepted | CI is GitHub Actions |
 | [0009](0009-realtime-transport.md) | open | Real-time transport |
 | [0010](0010-sync-and-conflict-model.md) | open | Sync and conflict model |
+| [0011](0011-server-json-is-kotlinx-serialization.md) | accepted | Server JSON is kotlinx.serialization through Ktor |

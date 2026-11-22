@@ -1,0 +1,266 @@
+{
+  "data": [
+    {
+      "id": 89631139,
+      "name": "Blue-Eyes White Dragon",
+      "type": "Normal Monster",
+      "frameType": "normal",
+      "desc": "This legendary dragon is a powerful engine of destruction. Virtually invincible, very few have faced this awesome creature and lived to tell the tale.",
+      "race": "Dragon",
+      "atk": 3000,
+      "def": 2500,
+      "level": 8,
+      "attribute": "LIGHT",
+      "archetype": "Blue-Eyes",
+      "card_sets": [
+        {
+          "set_name": "Legend of Blue Eyes White Dragon",
+          "set_code": "LOB-EN001",
+          "set_rarity": "Ultra Rare",
+          "set_rarity_code": "(UR)",
+          "set_price": "0"
+        }
+      ],
+      "card_images": [
+        {
+          "id": 89631139,
+          "image_url": "https://images.ygoprodeck.com/images/cards/89631139.jpg",
+          "image_url_small": "https://images.ygoprodeck.com/images/cards_small/89631139.jpg",
+          "image_url_cropped": "https://images.ygoprodeck.com/images/cards_cropped/89631139.jpg"
+        }
+      ]
+    },
+    {
+      "id": 46986414,
+      "name": "Dark Magician",
+      "type": "Normal Monster",
+      "frameType": "normal",
+      "desc": "''The ultimate wizard in terms of attack and defense.''",
+      "race": "Spellcaster",
+      "atk": 2500,
+      "def": 2100,
+      "level": 7,
+      "attribute": "DARK",
+      "archetype": "Dark Magician",
+      "card_sets": [
+        {
+          "set_name": "Legend of Blue Eyes White Dragon",
+          "set_code": "LOB-EN005",
+          "set_rarity": "Ultra Rare",
+          "set_rarity_code": "(UR)",
+          "set_price": "0"
+        }
+      ],
+      "card_images": [
+        {
+          "id": 46986414,
+          "image_url": "https://images.ygoprodeck.com/images/cards/46986414.jpg",
+          "image_url_small": "https://images.ygoprodeck.com/images/cards_small/46986414.jpg",
+          "image_url_cropped": "https://images.ygoprodeck.com/images/cards_cropped/46986414.jpg"
+        }
+      ]
+    },
+    {
+      "id": 1861629,
+      "name": "Decode Talker",
+      "type": "Link Monster",
+      "frameType": "link",
+      "desc": "2+ Effect Monsters\r\nGains 500 ATK for each monster it points to. When your opponent activates a card or effect that targets a card(s) you control (Quick Effect): You can Tribute 1 monster this card points to; negate the activation, and if you do, destroy that card.",
+      "race": "Cyberse",
+      "atk": 2300,
+      "def": null,
+      "level": 0,
+      "attribute": "DARK",
+      "archetype": "Code Talker",
+      "linkval": 3,
+      "linkmarkers": [
+        "Top",
+        "Bottom-Left",
+        "Bottom-Right"
+      ],
+      "card_sets": [
+        {
+          "set_name": "Duel Devastator",
+          "set_code": "DUDE-EN023",
+          "set_rarity": "Ultra Rare",
+          "set_rarity_code": "(UR)",
+          "set_price": "1.54"
+        }
+      ],
+      "card_images": [
+        {
+          "id": 1861629,
+          "image_url": "https://images.ygoprodeck.com/images/cards/1861629.jpg",
+          "image_url_small": "https://images.ygoprodeck.com/images/cards_small/1861629.jpg",
+          "image_url_cropped": "https://images.ygoprodeck.com/images/cards_cropped/1861629.jpg"
+        }
+      ]
+    },
+    {
+      "id": 84013237,
+      "name": "Number 39: Utopia",
+      "type": "XYZ Monster",
+      "frameType": "xyz",
+      "desc": "2 Level 4 monsters\r\nWhen a monster declares an attack: You can detach 1 material from this card; negate the attack. If this card is targeted for an attack, while it has no material: Destroy this card.",
+      "race": "Warrior",
+      "atk": 2500,
+      "def": 2000,
+      "level": 4,
+      "attribute": "LIGHT",
+      "archetype": "Utopia",
+      "card_sets": [
+        {
+          "set_name": "Battle Pack: Epic Dawn",
+          "set_code": "BP01-EN024",
+          "set_rarity": "Rare",
+          "set_rarity_code": "(R)",
+          "set_price": "2.41"
+        },
+        {
+          "set_name": "Battle Pack: Epic Dawn",
+          "set_code": "BP01-EN024",
+          "set_rarity": "Starfoil Rare",
+          "set_rarity_code": "(SFR)",
+          "set_price": "2.7"
+        }
+      ],
+      "card_images": [
+        {
+          "id": 84013237,
+          "image_url": "https://images.ygoprodeck.com/images/cards/84013237.jpg",
+          "image_url_small": "https://images.ygoprodeck.com/images/cards_small/84013237.jpg",
+          "image_url_cropped": "https://images.ygoprodeck.com/images/cards_cropped/84013237.jpg"
+        }
+      ]
+    },
+    {
+      "id": 55144522,
+      "name": "Pot of Greed",
+      "type": "Spell Card",
+      "frameType": "spell",
+      "desc": "Draw 2 cards.",
+      "race": "Normal",
+      "archetype": "Greed",
+      "card_sets": [
+        {
+          "set_name": "Legend of Blue Eyes White Dragon",
+          "set_code": "LOB-EN119",
+          "set_rarity": "Rare",
+          "set_rarity_code": "(R)",
+          "set_price": "0"
+        }
+      ],
+      "card_images": [
+        {
+          "id": 55144522,
+          "image_url": "https://images.ygoprodeck.com/images/cards/55144522.jpg",
+          "image_url_small": "https://images.ygoprodeck.com/images/cards_small/55144522.jpg",
+          "image_url_cropped": "https://images.ygoprodeck.com/images/cards_cropped/55144522.jpg"
+        }
+      ]
+    },
+    {
+      "id": 21296502,
+      "name": "Toon Dark Magician",
+      "type": "Toon Monster",
+      "frameType": "effect",
+      "desc": "Cannot attack the turn it is Summoned. While you control \"Toon World\" and your opponent controls no Toon monsters, this card can attack your opponent directly. Once per turn: You can discard 1 \"Toon\" card, then activate 1 of these effects;\n● Special Summon 1 Toon monster from your Deck, except \"Toon Dark Magician\", ignoring its Summoning conditions.\n● Add 1 \"Toon\" Spell/Trap from your Deck to your hand.",
+      "race": "Spellcaster",
+      "atk": 2500,
+      "def": 2100,
+      "level": 7,
+      "attribute": "DARK",
+      "archetype": "Toon",
+      "card_sets": [
+        {
+          "set_name": "2017 Mega-Tin Mega Pack",
+          "set_code": "MP17-EN083",
+          "set_rarity": "Super Rare",
+          "set_rarity_code": "(SR)",
+          "set_price": "0"
+        }
+      ],
+      "card_images": [
+        {
+          "id": 21296502,
+          "image_url": "https://images.ygoprodeck.com/images/cards/21296502.jpg",
+          "image_url_small": "https://images.ygoprodeck.com/images/cards_small/21296502.jpg",
+          "image_url_cropped": "https://images.ygoprodeck.com/images/cards_cropped/21296502.jpg"
+        }
+      ]
+    },
+    {
+      "id": 300302022,
+      "name": "Ancient Fusion",
+      "type": "Skill Card",
+      "frameType": "skill",
+      "desc": "Once per Duel, you can discard 1 card to Fusion Summon 1 \"Ancient Gear\" Fusion Monster from your Extra Deck, using monsters from your field as Fusion Material. If 1 of those materials is an \"Ancient Gear Golem\" monster, you can also use monsters from your hand and/or Deck as the other material. Your opponent takes no damage for the rest of this turn. Any battle damage your opponent takes from that Fusion Monster is halved.",
+      "race": "Dr. Vellian C",
+      "archetype": "Fusion",
+      "card_sets": [
+        {
+          "set_name": "Speed Duel GX: Duel Academy Box",
+          "set_code": "SGX1-ENS04",
+          "set_rarity": "Common",
+          "set_rarity_code": "(C)",
+          "set_price": "0"
+        }
+      ],
+      "card_images": [
+        {
+          "id": 300302022,
+          "image_url": "https://images.ygoprodeck.com/images/cards/300302022.jpg",
+          "image_url_small": "https://images.ygoprodeck.com/images/cards_small/300302022.jpg",
+          "image_url_cropped": "https://images.ygoprodeck.com/images/cards_cropped/300302022.jpg"
+        }
+      ]
+    },
+    {
+      "id": 44052075,
+      "name": "Ancient Gear Token",
+      "type": "Token",
+      "frameType": "token",
+      "desc": "This card can be used as an \"Ancient Gear Token\".\r\n\r\n\r\n*If used for another Token, apply that Token's Type/Attribute/Level/ATK/DEF.",
+      "race": "Machine",
+      "archetype": "Ancient Gear",
+      "card_sets": [
+        {
+          "set_name": "Machine Reactor Structure Deck",
+          "set_code": "SR03-ENTKN",
+          "set_rarity": "Common",
+          "set_rarity_code": "(C)",
+          "set_price": "3.25"
+        }
+      ],
+      "card_images": [
+        {
+          "id": 44052075,
+          "image_url": "https://images.ygoprodeck.com/images/cards/44052075.jpg",
+          "image_url_small": "https://images.ygoprodeck.com/images/cards_small/44052075.jpg",
+          "image_url_cropped": "https://images.ygoprodeck.com/images/cards_cropped/44052075.jpg"
+        }
+      ]
+    },
+    {
+      "id": 11714098,
+      "name": "30,000-Year White Turtle",
+      "type": "Normal Monster",
+      "frameType": "normal",
+      "desc": "''A huge turtle that has existed for over 30,000 years.''",
+      "race": "Aqua",
+      "atk": 1250,
+      "def": 2100,
+      "level": 5,
+      "attribute": "WATER",
+      "card_images": [
+        {
+          "id": 11714098,
+          "image_url": "https://images.ygoprodeck.com/images/cards/11714098.jpg",
+          "image_url_small": "https://images.ygoprodeck.com/images/cards_small/11714098.jpg",
+          "image_url_cropped": "https://images.ygoprodeck.com/images/cards_cropped/11714098.jpg"
+        }
+      ],
+      "card_sets": []
+    }
+  ]
+}
