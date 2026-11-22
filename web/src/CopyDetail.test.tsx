@@ -19,7 +19,8 @@ async function appWithFirstSlotFilled(
     query,
   );
   await user.click(await screen.findByRole("button", { name: cardName }));
-  await user.click(screen.getByRole("button", { name: setCode }));
+  await user.click(screen.getByRole("radio", { name: setCode }));
+  await user.click(screen.getByRole("button", { name: "Add to pocket" }));
   return user;
 }
 
@@ -131,7 +132,8 @@ describe("a copy's detail", () => {
       await screen.findByRole("button", { name: /Pot of Greed/ }),
     );
 
-    await user.click(screen.getByRole("button", { name: /LOB-EN119/ }));
+    await user.click(screen.getByRole("radio", { name: /LOB-EN119/ }));
+    await user.click(screen.getByRole("button", { name: "Replace card" }));
 
     expect(
       screen.getByRole("button", { name: "Page 1, slot 1: Pot of Greed" }),

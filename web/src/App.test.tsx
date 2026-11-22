@@ -1,8 +1,12 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import App from "./App";
-import { failingCatalogue, fakeCatalogue } from "./test/fakeCatalogue";
+import {
+  darkMagician,
+  failingCatalogue,
+  fakeCatalogue,
+} from "./test/fakeCatalogue";
 
 function renderApp(catalogue = fakeCatalogue().catalogue) {
   render(<App catalogue={catalogue} />);
@@ -42,7 +46,8 @@ describe("filling a slot", () => {
       await screen.findByRole("button", { name: /Dark Magician/ }),
     );
 
-    await user.click(screen.getByRole("button", { name: /LOB-EN005/ }));
+    await user.click(screen.getByRole("radio", { name: /LOB-EN005/ }));
+    await user.click(screen.getByRole("button", { name: "Add to pocket" }));
 
     expect(
       screen.getByRole("button", { name: "Page 1, slot 1: Dark Magician" }),
@@ -56,7 +61,8 @@ describe("filling a slot", () => {
       await screen.findByRole("button", { name: /Dark Magician/ }),
     );
 
-    await user.click(screen.getByRole("button", { name: /LOB-EN005/ }));
+    await user.click(screen.getByRole("radio", { name: /LOB-EN005/ }));
+    await user.click(screen.getByRole("button", { name: "Add to pocket" }));
 
     const slot = screen.getByRole("button", {
       name: "Page 1, slot 1: Dark Magician",
@@ -76,8 +82,8 @@ describe("filling a slot", () => {
 
     expect(
       screen
-        .getAllByRole("button", { name: /^(LOB-EN005|SDY-006)/ })
-        .map((b) => b.textContent),
+        .getAllByRole("radio", { name: /^(LOB-EN005|SDY-006)/ })
+        .map((radio) => (radio as HTMLInputElement).labels?.[0].textContent),
     ).toEqual([
       "LOB-EN005Ultra RareLegend of Blue Eyes White Dragon",
       "SDY-006CommonStarter Deck: Yugi",
@@ -107,9 +113,7 @@ describe("filling a slot", () => {
     await searchFromFirstSlot(user, "dark");
 
     expect(
-      await screen.findByText(
-        "The card catalogue did not answer. Try again in a moment.",
-      ),
+      await screen.findByText("The card catalogue did not answer."),
     ).toBeTruthy();
   });
 
@@ -133,6 +137,62 @@ describe("filling a slot", () => {
 
     await user.click(screen.getByRole("button", { name: "Back to results" }));
 
-    expect(screen.getByRole("button", { name: /Dark Magician/ })).toBeTruthy();
+    const result = screen.getByRole("button", { name: /Dark Magician/ });
+    expect(document.activeElement).toBe(result);
+    expect((screen.getByRole("searchbox") as HTMLInputElement).value).toBe(
+      "dark",
+    );
+  });
+
+  it("puts an exact set code first and still asks for confirmation", async () => {
+    const user = renderApp();
+    await searchFromFirstSlot(user, "sdy-006");
+
+    await user.click(
+      await screen.findByRole("button", { name: /Dark Magician/ }),
+    );
+
+    const printings = screen.getAllByRole("radio") as HTMLInputElement[];
+    expect(printings[0].labels?.[0].textContent).toContain("SDY-006");
+    expect(
+      (
+        screen.getByRole("button", {
+          name: "Add to pocket",
+        }) as HTMLButtonElement
+      ).disabled,
+    ).toBe(true);
+  });
+
+  it("returns focus to the same empty pocket when a selected printing is cancelled", async () => {
+    const user = renderApp();
+    await searchFromFirstSlot(user, "dark");
+    await user.click(
+      await screen.findByRole("button", { name: /Dark Magician/ }),
+    );
+    await user.click(screen.getByRole("radio", { name: /LOB-EN005/ }));
+
+    await user.keyboard("{Escape}");
+
+    expect(document.activeElement).toBe(
+      screen.getByRole("button", { name: "Page 1, slot 1, empty" }),
+    );
+  });
+
+  it("can retry the same query after the catalogue fails", async () => {
+    const catalogue = {
+      ...failingCatalogue,
+      search: vi
+        .fn()
+        .mockRejectedValueOnce(new Error("the server is down"))
+        .mockResolvedValueOnce([darkMagician]),
+    };
+    const user = renderApp(catalogue);
+    await searchFromFirstSlot(user, "dark");
+
+    await user.click(await screen.findByRole("button", { name: "Try again" }));
+
+    expect(
+      await screen.findByRole("button", { name: /Dark Magician/ }),
+    ).toBeTruthy();
   });
 });

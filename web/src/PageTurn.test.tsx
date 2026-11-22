@@ -161,7 +161,8 @@ describe("turning the binder", () => {
       await screen.findByRole("button", { name: /Pot of Greed/ }),
     );
 
-    await user.click(screen.getByRole("button", { name: /LOB-EN119/ }));
+    await user.click(screen.getByRole("radio", { name: /LOB-EN119/ }));
+    await user.click(screen.getByRole("button", { name: "Add to pocket" }));
 
     expect(
       screen.getByRole("button", { name: "Page 3, slot 9: Pot of Greed" }),
