@@ -203,7 +203,7 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
           beside={beside}
           inert={detail !== null}
           focusRequest={panelFocus}
-          onDragStart={canDrag ? startDrag : undefined}
+          onPrintingPress={canDrag ? startDrag : undefined}
           onChoose={onPrinting}
           onClose={closePanel}
         />

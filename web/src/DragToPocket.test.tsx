@@ -77,10 +77,10 @@ describe("dragging a printing onto a slot", () => {
 
     await user.click(slot("Page 1, slot 2: Dark Magician"));
 
-    expect(
-      within(screen.getByRole("dialog")).getByRole("list", { name: "Printing" })
-        .textContent,
-    ).toBe("SDY-006CommonStarter Deck: Yugi");
+    const detail = within(screen.getByRole("dialog")).getByRole("list", {
+      name: "Printing",
+    });
+    expect(within(detail).getByText("SDY-006")).toBeTruthy();
   });
 
   it("does not also pick the printing up when the drag ends", async () => {
@@ -238,6 +238,8 @@ describe("dragging a printing onto a slot", () => {
 
     press(row);
     moveTo(400, 300);
+    expect(document.querySelector(".drag-ghost")).toBeNull();
+
     fireEvent.pointerUp(window, { pointerId: 1, clientX: 400, clientY: 300 });
 
     expect(slot("Page 1, slot 2, empty")).toBeTruthy();

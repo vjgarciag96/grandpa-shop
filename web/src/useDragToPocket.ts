@@ -1,10 +1,11 @@
 import { useLayoutEffect, useRef, useState, type PointerEvent } from "react";
 import type { SlotAddress } from "./binder";
+import { emptySlotAt } from "./pocketHitTest";
 import type { Card, Printing } from "./catalogue";
 import { DRAG_START_PX } from "./tokens";
 
 /** A printing being dragged: where the pointer is, and the empty slot under it, if any. */
-export type Drag = {
+type Drag = {
   readonly card: Card;
   readonly printing: Printing;
   readonly x: number;
@@ -114,15 +115,6 @@ export function useDragToPocket(
   };
 
   return { drag, start };
-}
-
-function emptySlotAt(x: number, y: number): SlotAddress | null {
-  const slot = document
-    .elementFromPoint(x, y)
-    ?.closest<HTMLElement>("[data-empty-slot]");
-  if (!slot) return null;
-  const [page, position] = (slot.dataset.emptySlot ?? "").split(":");
-  return { page: Number(page), position: Number(position) };
 }
 
 // A release can produce a click on the source row, even after Escape.

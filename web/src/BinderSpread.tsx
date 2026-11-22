@@ -7,6 +7,7 @@ import {
   type Binder,
   type SlotAddress,
 } from "./binder";
+import { emptySlotTarget } from "./pocketHitTest";
 import type { Catalogue } from "./catalogue";
 import { SWIPE_THRESHOLD_PX } from "./tokens";
 import type { Turn } from "./useSpreadTurns";
@@ -184,7 +185,7 @@ function PageSide({
               key={position}
               type="button"
               className={className}
-              data-empty-slot={copy ? undefined : `${page}:${position}`}
+              {...(copy ? undefined : emptySlotTarget({ page, position }))}
               aria-label={
                 copy ? `${label}: ${copy.card.name}` : `${label}, empty`
               }
