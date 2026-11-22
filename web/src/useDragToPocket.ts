@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState, type PointerEvent } from "react";
-import type { Copy, SlotAddress } from "./binder";
+import { sameSlot, type Copy, type SlotAddress } from "./binder";
 import { dropSlotAt, type DropSlot } from "./pocketHitTest";
 import type { Card, Printing } from "./catalogue";
 import { DRAG_START_PX } from "./tokens";
@@ -170,10 +170,7 @@ function dropAddress(
 ): SlotAddress | null {
   if (!hit) return null;
   if (origin.kind === "printing") return hit.filled ? null : hit.address;
-  const { from } = origin;
-  const own =
-    hit.address.page === from.page && hit.address.position === from.position;
-  return own ? null : hit.address;
+  return sameSlot(hit.address, origin.from) ? null : hit.address;
 }
 
 // A release can produce a click on the drag source, even after Escape.

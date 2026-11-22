@@ -6,6 +6,7 @@ import {
   pageSlots,
   place,
   remove,
+  sameSlot,
   spreadPages,
   type Copy,
 } from "./binder";
@@ -109,6 +110,26 @@ describe("changeCondition", () => {
     );
 
     expect(pageSlots(binder, 2)[4]).toBeNull();
+  });
+});
+
+describe("sameSlot", () => {
+  it("matches two addresses of the same page and position", () => {
+    const same = sameSlot({ page: 2, position: 4 }, { page: 2, position: 4 });
+
+    expect(same).toBe(true);
+  });
+
+  it("tells apart the same position on another page", () => {
+    const same = sameSlot({ page: 2, position: 4 }, { page: 3, position: 4 });
+
+    expect(same).toBe(false);
+  });
+
+  it("tells apart another position on the same page", () => {
+    const same = sameSlot({ page: 2, position: 4 }, { page: 2, position: 5 });
+
+    expect(same).toBe(false);
   });
 });
 

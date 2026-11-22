@@ -1,4 +1,4 @@
-import type { SlotAddress } from "./binder";
+import { sameSlot, type SlotAddress } from "./binder";
 import type { Card, Printing } from "./catalogue";
 
 /**
@@ -59,9 +59,5 @@ export function isHeld(aim: Aim | null, card: Card, printing: Printing) {
 }
 
 export function isTarget(aim: Aim | null, address: SlotAddress) {
-  return (
-    aim?.kind === "target" &&
-    aim.address.page === address.page &&
-    aim.address.position === address.position
-  );
+  return aim?.kind === "target" && sameSlot(aim.address, address);
 }

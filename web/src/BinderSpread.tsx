@@ -2,6 +2,7 @@ import { useRef, type PointerEvent } from "react";
 import { isTarget, type Aim } from "./aim";
 import {
   pageSlots,
+  sameSlot,
   slotName,
   spreadPages,
   type Binder,
@@ -189,8 +190,7 @@ function PageSide({
         {pageSlots(binder, page).map((copy, position) => {
           const address = { page, position };
           const label = slotName(address);
-          const dropping =
-            dropTarget?.page === page && dropTarget.position === position;
+          const dropping = dropTarget !== null && sameSlot(dropTarget, address);
           const aimed =
             isTarget(aim, address) ||
             ((movingCopy || aim?.kind === "holding") && !copy) ||

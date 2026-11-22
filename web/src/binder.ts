@@ -25,6 +25,11 @@ export const SPREADS = PAGES / 2 + 1;
 /** A page is numbered from 1; a position on it runs 0 to 8, left to right, top to bottom. */
 export type SlotAddress = { readonly page: number; readonly position: number };
 
+/** Whether two addresses name the same slot. */
+export function sameSlot(a: SlotAddress, b: SlotAddress): boolean {
+  return a.page === b.page && a.position === b.position;
+}
+
 /** How a slot is named to the person using the binder, such as "Page 1, slot 3". */
 export function slotName({ page, position }: SlotAddress): string {
   return `Page ${page}, slot ${position + 1}`;
