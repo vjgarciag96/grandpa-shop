@@ -56,7 +56,9 @@ describe("dragging a printing onto a slot", () => {
   it("fills the empty slot it is dropped on", async () => {
     await openDarkMagicianAt(1200);
     const row = printing(/SDY-006/);
-    pointerIsOver(slot("Page 1, slot 2, empty"));
+    const target = slot("Page 1, slot 2, empty");
+    document.elementFromPoint = (x, y) =>
+      x === 400 && y === 300 ? target : null;
 
     press(row);
     moveTo(400, 300);
@@ -95,7 +97,9 @@ describe("dragging a printing onto a slot", () => {
 
   it("lights the empty slot under the pointer", async () => {
     await openDarkMagicianAt(1200);
-    pointerIsOver(slot("Page 1, slot 4, empty"));
+    const target = slot("Page 1, slot 4, empty");
+    document.elementFromPoint = (x, y) =>
+      x === 400 && y === 300 ? target : null;
 
     press(printing(/SDY-006/));
     moveTo(400, 300);
@@ -168,6 +172,46 @@ describe("dragging a printing onto a slot", () => {
 
     fireEvent.keyDown(window, { key: "Escape" });
     release(row, 400, 300);
+
+    expect(slot("Page 1, slot 2, empty")).toBeTruthy();
+  });
+
+  it("does not pick up the printing when released after Escape", async () => {
+    await openDarkMagicianAt(1200);
+    const row = printing(/SDY-006/);
+    pointerIsOver(row);
+    press(row);
+    moveTo(890, 300);
+
+    fireEvent.keyDown(window, { key: "Escape" });
+    release(row, 900, 300);
+
+    expect(row.getAttribute("aria-pressed")).toBe("false");
+  });
+
+  it("keeps dragging when another pointer is canceled", async () => {
+    await openDarkMagicianAt(1200);
+    const row = printing(/SDY-006/);
+    pointerIsOver(slot("Page 1, slot 2, empty"));
+    press(row);
+    moveTo(400, 300);
+
+    fireEvent.pointerCancel(window, { pointerId: 2 });
+    release(row, 400, 300);
+
+    expect(slot("Page 1, slot 2: Dark Magician")).toBeTruthy();
+  });
+
+  it("drops nothing when the catalogue closes during a drag", async () => {
+    const user = await openDarkMagicianAt(1200);
+    const row = printing(/SDY-006/);
+    pointerIsOver(slot("Page 1, slot 2, empty"));
+    press(row);
+    moveTo(400, 300);
+
+    screen.getByRole("button", { name: "Close catalogue" }).focus();
+    await user.keyboard("{Enter}");
+    fireEvent.pointerUp(window, { pointerId: 1, clientX: 400, clientY: 300 });
 
     expect(slot("Page 1, slot 2, empty")).toBeTruthy();
   });

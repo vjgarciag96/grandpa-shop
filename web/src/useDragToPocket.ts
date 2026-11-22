@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type PointerEvent } from "react";
+import { useLayoutEffect, useRef, useState, type PointerEvent } from "react";
 import type { SlotAddress } from "./binder";
 import type { Card, Printing } from "./catalogue";
 import { DRAG_START_PX } from "./tokens";
@@ -18,7 +18,8 @@ type Press = {
   pointerId: number;
   startX: number;
   startY: number;
-  dragging: boolean;
+  phase: "pressed" | "dragging" | "canceled";
+  source: Element;
 };
 
 /**
@@ -26,17 +27,26 @@ type Press = {
  * `motion.dragStartPx`; a shorter press stays a tap. Slots are found by their `data-empty-slot` attribute.
  */
 export function useDragToPocket(
+  enabled: boolean,
   onDrop: (address: SlotAddress, card: Card, printing: Printing) => void,
 ) {
   const [drag, setDrag] = useState<Drag | null>(null);
   const press = useRef<Press | null>(null);
   const drop = useRef(onDrop);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     drop.current = onDrop;
   }, [onDrop]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    const cancel = () => {
+      if (press.current) {
+        press.current.phase = "canceled";
+        setDrag(null);
+      }
+    };
+    if (!enabled) cancel();
+
     const end = () => {
       press.current = null;
       setDrag(null);
@@ -44,12 +54,13 @@ export function useDragToPocket(
     const onMove = (event: globalThis.PointerEvent) => {
       const current = press.current;
       if (!current || current.pointerId !== event.pointerId) return;
+      if (current.phase === "canceled") return;
       const moved = Math.hypot(
         event.clientX - current.startX,
         event.clientY - current.startY,
       );
-      if (!current.dragging && moved < DRAG_START_PX) return;
-      current.dragging = true;
+      if (current.phase === "pressed" && moved < DRAG_START_PX) return;
+      current.phase = "dragging";
       setDrag({
         card: current.card,
         printing: current.printing,
@@ -61,37 +72,44 @@ export function useDragToPocket(
     const onUp = (event: globalThis.PointerEvent) => {
       const current = press.current;
       if (!current || current.pointerId !== event.pointerId) return;
-      if (current.dragging) {
-        swallowNextClick();
+      if (current.phase !== "pressed") swallowSourceClick(current.source);
+      if (current.phase === "dragging") {
         const over = emptySlotAt(event.clientX, event.clientY);
         if (over) drop.current(over, current.card, current.printing);
       }
       end();
     };
+    const onCancel = (event: globalThis.PointerEvent) => {
+      if (press.current?.pointerId === event.pointerId) end();
+    };
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && press.current?.dragging) end();
+      if (event.key === "Escape" && press.current?.phase === "dragging") {
+        cancel();
+      }
     };
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
-    window.addEventListener("pointercancel", end);
+    window.addEventListener("pointercancel", onCancel);
     window.addEventListener("keydown", onKeyDown);
     return () => {
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
-      window.removeEventListener("pointercancel", end);
+      window.removeEventListener("pointercancel", onCancel);
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, []);
+  }, [enabled]);
 
   const start = (card: Card, printing: Printing, event: PointerEvent) => {
-    if (event.button !== 0 || !event.isPrimary) return;
+    if (!enabled || event.button !== 0 || !event.isPrimary) return;
+    if (press.current && press.current.pointerId !== event.pointerId) return;
     press.current = {
       card,
       printing,
       pointerId: event.pointerId,
       startX: event.clientX,
       startY: event.clientY,
-      dragging: false,
+      phase: "pressed",
+      source: event.currentTarget,
     };
   };
 
@@ -107,15 +125,15 @@ function emptySlotAt(x: number, y: number): SlotAddress | null {
   return { page: Number(page), position: Number(position) };
 }
 
-// The press that ended a drag also ends in a click on the printing; that click must not pick it up.
-function swallowNextClick() {
+// A release can produce a click on the source row, even after Escape.
+function swallowSourceClick(source: Element) {
+  const cleanup = () => window.removeEventListener("click", swallow, true);
   const swallow = (event: MouseEvent) => {
+    if (event.detail === 0 || !event.composedPath().includes(source)) return;
+    cleanup();
     event.stopPropagation();
     event.preventDefault();
   };
-  window.addEventListener("click", swallow, { capture: true, once: true });
-  window.setTimeout(
-    () => window.removeEventListener("click", swallow, { capture: true }),
-    0,
-  );
+  window.addEventListener("click", swallow, true);
+  window.setTimeout(cleanup, 0);
 }

@@ -94,7 +94,8 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
     announce(`Placed ${printing.setCode} in ${slotNameInSentence(address)}.`);
   };
 
-  const { drag, start: startDrag } = useDragToPocket(placeAt);
+  const canDrag = panelOpen && beside && detail === null;
+  const { drag, start: startDrag } = useDragToPocket(canDrag, placeAt);
   // While a printing is dragged, the binder and the panel show it as held.
   const shownAim: Aim | null = drag
     ? { kind: "holding", card: drag.card, printing: drag.printing }
@@ -202,7 +203,7 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
           beside={beside}
           inert={detail !== null}
           focusRequest={panelFocus}
-          onDragStart={beside ? startDrag : undefined}
+          onDragStart={canDrag ? startDrag : undefined}
           onChoose={onPrinting}
           onClose={closePanel}
         />
