@@ -216,6 +216,15 @@ body {
   padding: var(--board-padding);
 }
 
+.binder__announcement {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .spread {
   display: grid;
   grid-template-columns: 1fr var(--spine) 1fr;

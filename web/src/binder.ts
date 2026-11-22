@@ -57,6 +57,23 @@ export function remove(binder: Binder, address: SlotAddress): Binder {
   return { slots };
 }
 
+export function moveCopy(
+  binder: Binder,
+  from: SlotAddress,
+  to: SlotAddress,
+  copy: Copy,
+): Binder {
+  const source = indexOf(from);
+  const destination = indexOf(to);
+  if (binder.slots[source] !== copy || binder.slots[destination] !== null) {
+    return binder;
+  }
+  const slots = [...binder.slots];
+  slots[source] = null;
+  slots[destination] = copy;
+  return { slots };
+}
+
 export function changeCondition(
   binder: Binder,
   address: SlotAddress,
