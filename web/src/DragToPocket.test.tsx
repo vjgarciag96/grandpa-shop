@@ -19,6 +19,7 @@ import {
   press,
   release,
   releaseCopy,
+  releaseSecondary,
 } from "./test/drag";
 import { prefersReducedMotion } from "./test/media";
 
@@ -222,6 +223,45 @@ describe("dragging a printing onto a slot", () => {
     expect(
       slot("Page 1, slot 1: Dark Magician").classList.contains("slot--aimed"),
     ).toBe(false);
+  });
+
+  it("keeps a filled slot when the primary button was let go before a secondary click on it", async () => {
+    await openPotOfGreedOverDarkMagician();
+    const filled = slot("Page 1, slot 1: Dark Magician");
+    pointerIsOver(filled);
+    press(printing(/LOB-EN119/));
+    moveTo(400, 300);
+    moveTo(410, 300, 0);
+
+    fireEvent.pointerDown(filled, {
+      pointerType: "mouse",
+      pointerId: 1,
+      isPrimary: true,
+      button: 2,
+      buttons: 2,
+    });
+    releaseSecondary(410, 300);
+
+    expect([labelOf("Page 1, slot 1"), catalogueAnnouncement()]).toEqual([
+      "Page 1, slot 1: Dark Magician",
+      "",
+    ]);
+  });
+
+  it("keeps a filled slot when a drag ends on the secondary button", async () => {
+    await openPotOfGreedOverDarkMagician();
+    pointerIsOver(slot("Page 1, slot 1: Dark Magician"));
+    press(printing(/LOB-EN119/));
+    moveTo(400, 300);
+    moveTo(400, 300, 3);
+    moveTo(400, 300, 2);
+
+    releaseSecondary(400, 300);
+
+    expect([labelOf("Page 1, slot 1"), catalogueAnnouncement()]).toEqual([
+      "Page 1, slot 1: Dark Magician",
+      "",
+    ]);
   });
 
   it("keeps a filled slot when a printing is released away from the binder", async () => {

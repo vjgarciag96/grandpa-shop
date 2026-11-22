@@ -68,7 +68,7 @@ export function useDragToPocket(
       const current = press.current;
       if (!current || current.pointerId !== event.pointerId) return;
       if (current.phase === "canceled") return;
-      if (current.origin.kind === "copy" && (event.buttons & 1) === 0) {
+      if ((event.buttons & 1) === 0) {
         cancel();
         return;
       }
@@ -89,10 +89,7 @@ export function useDragToPocket(
       const current = press.current;
       if (!current || current.pointerId !== event.pointerId) return;
       if (current.phase !== "pressed") swallowSourceClick(current.source);
-      if (
-        current.phase === "dragging" &&
-        (current.origin.kind === "printing" || event.button === 0)
-      ) {
+      if (current.phase === "dragging" && event.button === 0) {
         const over = dropAddress(
           current,
           dropSlotAt(event.clientX, event.clientY),
