@@ -646,6 +646,7 @@ function PrintingRow({
           src={catalogue.imageUrl(card.passcode)}
           alt=""
           loading="lazy"
+          draggable={false}
         />
         <span className="catalogue__printing-label">
           <strong>{printing.setCode}</strong>

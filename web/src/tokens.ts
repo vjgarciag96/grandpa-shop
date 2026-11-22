@@ -43,7 +43,6 @@ export function applyTokens(root: HTMLElement) {
     "--aim-stroke": `${tokens.layout.aimStrokePx}px`,
     "--panel-width": `${tokens.layout.panelWidthPx}px`,
     "--sheet-height": `${tokens.layout.sheetHeightPercent}dvh`,
-    "--drag-ghost-width": `${tokens.layout.dragGhostWidthPx}px`,
     "--drag-ghost-opacity": String(tokens.layout.dragGhostOpacity),
     "--page-flip": `${tokens.motion.pageFlipMs}ms`,
     "--easing": tokens.motion.easing,

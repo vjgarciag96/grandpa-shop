@@ -1,5 +1,5 @@
 import { act, fireEvent, screen, within } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   openApp,
   openCatalogueResult,
@@ -14,14 +14,17 @@ import {
 } from "./test/binder";
 import {
   dragCopy,
+  awayFromBinder,
+  moveOnto,
   moveTo,
-  pointerIsOver,
   press,
   release,
   releaseCopy,
+  releaseOnto,
   releaseSecondary,
 } from "./test/drag";
-import { prefersReducedMotion } from "./test/media";
+import { centreOf, stubLayout, type Layout } from "./test/layout";
+import { prefersReducedMotion, viewportWidth } from "./test/media";
 import { PAGE_FLIP_MS } from "./tokens";
 
 const slot = (name: string) => screen.getByRole("button", { name });
@@ -37,6 +40,12 @@ function openDarkMagicianAt(width: number) {
   return openResultsAt(width, "dark", /Dark Magician/);
 }
 
+/** The centre of [element] as pointer event coordinates. */
+function pointAt(element: Element) {
+  const { x, y } = centreOf(element);
+  return { clientX: x, clientY: y };
+}
+
 const catalogueAnnouncement = () =>
   document.querySelector(".catalogue__announcement")?.textContent?.trim();
 
@@ -46,9 +55,14 @@ const labelOf = (name: string) =>
     .getByRole("button", { name: new RegExp(`^${name}[:,]`) })
     .getAttribute("aria-label");
 
+let layout: Layout;
+
+beforeEach(() => {
+  layout = stubLayout();
+});
+
 afterEach(() => {
   vi.useRealTimers();
-  pointerIsOver(null);
 });
 
 describe("dragging a printing onto a slot", () => {
@@ -56,12 +70,10 @@ describe("dragging a printing onto a slot", () => {
     await openDarkMagicianAt(1200);
     const row = printing(/SDY-006/);
     const target = slot("Page 1, slot 2, empty");
-    document.elementFromPoint = (x, y) =>
-      x === 400 && y === 300 ? target : null;
 
     press(row);
-    moveTo(400, 300);
-    release(row, 400, 300);
+    moveOnto(target);
+    releaseOnto(row, target);
 
     expect(slot("Page 1, slot 2: Dark Magician")).toBeTruthy();
   });
@@ -69,11 +81,10 @@ describe("dragging a printing onto a slot", () => {
   it("files a printing dragged directly from a set", async () => {
     await openResultsAt(1200, "legend", /Legend of Blue Eyes White Dragon/);
     const row = await screen.findByRole("button", { name: /LOB-EN119/ });
-    pointerIsOver(slot("Page 1, slot 2, empty"));
 
     press(row);
-    moveTo(400, 300);
-    release(row, 400, 300);
+    moveOnto(slot("Page 1, slot 2, empty"));
+    releaseOnto(row, slot("Page 1, slot 2, empty"));
 
     expect(slot("Page 1, slot 2: Pot of Greed")).toBeTruthy();
   });
@@ -81,10 +92,9 @@ describe("dragging a printing onto a slot", () => {
   it("places the dragged printing, not another of the card", async () => {
     const user = await openDarkMagicianAt(1200);
     const row = printing(/SDY-006/);
-    pointerIsOver(slot("Page 1, slot 2, empty"));
     press(row);
-    moveTo(400, 300);
-    release(row, 400, 300);
+    moveOnto(slot("Page 1, slot 2, empty"));
+    releaseOnto(row, slot("Page 1, slot 2, empty"));
 
     await user.click(slot("Page 1, slot 2: Dark Magician"));
 
@@ -97,11 +107,10 @@ describe("dragging a printing onto a slot", () => {
   it("does not also pick the printing up when the drag ends", async () => {
     await openDarkMagicianAt(1200);
     const row = printing(/SDY-006/);
-    pointerIsOver(slot("Page 1, slot 2, empty"));
 
     press(row);
-    moveTo(400, 300);
-    release(row, 400, 300);
+    moveOnto(slot("Page 1, slot 2, empty"));
+    releaseOnto(row, slot("Page 1, slot 2, empty"));
 
     expect(row.getAttribute("aria-pressed")).toBe("false");
   });
@@ -109,20 +118,18 @@ describe("dragging a printing onto a slot", () => {
   it("lights the empty slot under the pointer", async () => {
     await openDarkMagicianAt(1200);
     const target = slot("Page 1, slot 4, empty");
-    document.elementFromPoint = (x, y) =>
-      x === 400 && y === 300 ? target : null;
 
     press(printing(/SDY-006/));
-    moveTo(400, 300);
+    moveOnto(target);
 
     expect(slot("Page 1, slot 4, empty").classList.contains("slot--drop")).toBe(
       true,
     );
   });
 
-  it("shows the card following the pointer", async () => {
+  it("shows the card at pocket size while dragging", async () => {
+    layout = stubLayout({ width: 120, height: 175 });
     await openDarkMagicianAt(1200);
-    pointerIsOver(null);
 
     press(printing(/SDY-006/));
     moveTo(420, 310);
@@ -130,19 +137,56 @@ describe("dragging a printing onto a slot", () => {
     const ghost = document.querySelector<HTMLImageElement>(".drag-ghost");
     expect([
       ghost?.getAttribute("src"),
-      ghost?.style.left,
-      ghost?.style.top,
-    ]).toEqual(["/images/46986414.jpg", "420px", "310px"]);
+      ghost?.style.width,
+      ghost?.style.height,
+    ]).toEqual(["/images/46986414.jpg", "120px", "175px"]);
+  });
+
+  it("holds the card where the row was grabbed", async () => {
+    await openDarkMagicianAt(1200);
+    const row = printing(/SDY-006/);
+    layout.place(row, { left: 900, top: 280, width: 320, height: 56 });
+    fireEvent.pointerDown(row, {
+      pointerType: "mouse",
+      pointerId: 1,
+      isPrimary: true,
+      button: 0,
+      buttons: 1,
+      clientX: 980,
+      clientY: 294,
+    });
+
+    moveTo(400, 300);
+
+    const ghost = document.querySelector<HTMLImageElement>(".drag-ghost");
+    expect([ghost?.style.left, ghost?.style.top]).toEqual(["375px", "263.5px"]);
+  });
+
+  it("shows no card while every page is turning", async () => {
+    const user = await openDarkMagicianAt(1200);
+    await user.click(slot("Next spread"));
+
+    press(printing(/SDY-006/));
+    moveTo(420, 310);
+
+    expect(document.querySelector(".drag-ghost")).toBeNull();
+  });
+
+  it("does not let the browser drag the row's thumbnail away instead", async () => {
+    await openDarkMagicianAt(1200);
+
+    const thumbnail = printing(/SDY-006/).querySelector("img");
+
+    expect(thumbnail?.draggable).toBe(false);
   });
 
   it("files a Near Mint copy of the printing dropped on a filled slot", async () => {
     const { user } = await openPotOfGreedOverDarkMagician();
     const row = printing(/LOB-EN119/);
-    pointerIsOver(slot("Page 1, slot 1: Dark Magician"));
 
     press(row);
-    moveTo(400, 300);
-    release(row, 400, 300);
+    moveOnto(slot("Page 1, slot 1: Dark Magician"));
+    releaseOnto(row, slot("Page 1, slot 1: Dark Magician"));
 
     expect(await detailOf(user, slot("Page 1, slot 1: Pot of Greed"))).toEqual({
       printing: "LOB-EN119",
@@ -153,11 +197,10 @@ describe("dragging a printing onto a slot", () => {
   it("says which copy a dropped printing replaced", async () => {
     await openPotOfGreedOverDarkMagician();
     const row = printing(/LOB-EN119/);
-    pointerIsOver(slot("Page 1, slot 1: Dark Magician"));
 
     press(row);
-    moveTo(400, 300);
-    release(row, 400, 300);
+    moveOnto(slot("Page 1, slot 1: Dark Magician"));
+    releaseOnto(row, slot("Page 1, slot 1: Dark Magician"));
 
     expect(catalogueAnnouncement()).toBe(
       "Placed LOB-EN119 in page 1, slot 1, replacing SDY-006.",
@@ -166,10 +209,9 @@ describe("dragging a printing onto a slot", () => {
 
   it("outlines the filled slot under the pointer", async () => {
     await openPotOfGreedOverDarkMagician();
-    pointerIsOver(slot("Page 1, slot 1: Dark Magician"));
 
     press(printing(/LOB-EN119/));
-    moveTo(400, 300);
+    moveOnto(slot("Page 1, slot 1: Dark Magician"));
 
     expect(
       slot("Page 1, slot 1: Dark Magician").classList.contains("slot--aimed"),
@@ -178,10 +220,9 @@ describe("dragging a printing onto a slot", () => {
 
   it("does not outline a filled slot away from the pointer", async () => {
     await openPotOfGreedOverDarkMagician();
-    pointerIsOver(slot("Page 1, slot 2, empty"));
 
     press(printing(/LOB-EN119/));
-    moveTo(400, 300);
+    moveOnto(slot("Page 1, slot 2, empty"));
 
     expect(
       slot("Page 1, slot 1: Dark Magician").classList.contains("slot--aimed"),
@@ -191,11 +232,10 @@ describe("dragging a printing onto a slot", () => {
   it("fills an empty slot with a printing dragged by touch", async () => {
     await openPotOfGreedOverDarkMagician();
     const row = printing(/LOB-EN119/);
-    pointerIsOver(slot("Page 1, slot 2, empty"));
 
     press(row, "touch");
-    moveTo(400, 300);
-    release(row, 400, 300);
+    moveOnto(slot("Page 1, slot 2, empty"));
+    releaseOnto(row, slot("Page 1, slot 2, empty"));
 
     expect(labelOf("Page 1, slot 2")).toBe("Page 1, slot 2: Pot of Greed");
   });
@@ -203,11 +243,10 @@ describe("dragging a printing onto a slot", () => {
   it("keeps a filled slot when a printing dragged by touch is released on it", async () => {
     await openPotOfGreedOverDarkMagician();
     const row = printing(/LOB-EN119/);
-    pointerIsOver(slot("Page 1, slot 1: Dark Magician"));
 
     press(row, "touch");
-    moveTo(400, 300);
-    release(row, 400, 300);
+    moveOnto(slot("Page 1, slot 1: Dark Magician"));
+    releaseOnto(row, slot("Page 1, slot 1: Dark Magician"));
 
     expect([labelOf("Page 1, slot 1"), catalogueAnnouncement()]).toEqual([
       "Page 1, slot 1: Dark Magician",
@@ -217,10 +256,9 @@ describe("dragging a printing onto a slot", () => {
 
   it("does not outline a filled slot under a printing dragged by touch", async () => {
     await openPotOfGreedOverDarkMagician();
-    pointerIsOver(slot("Page 1, slot 1: Dark Magician"));
 
     press(printing(/LOB-EN119/), "touch");
-    moveTo(400, 300);
+    moveOnto(slot("Page 1, slot 1: Dark Magician"));
 
     expect(
       slot("Page 1, slot 1: Dark Magician").classList.contains("slot--aimed"),
@@ -230,9 +268,8 @@ describe("dragging a printing onto a slot", () => {
   it("keeps a filled slot when the primary button was let go before a secondary click on it", async () => {
     await openPotOfGreedOverDarkMagician();
     const filled = slot("Page 1, slot 1: Dark Magician");
-    pointerIsOver(filled);
     press(printing(/LOB-EN119/));
-    moveTo(400, 300);
+    moveOnto(filled);
     moveTo(410, 300, 0);
 
     fireEvent.pointerDown(filled, {
@@ -252,11 +289,10 @@ describe("dragging a printing onto a slot", () => {
 
   it("keeps a filled slot when a drag ends on the secondary button", async () => {
     await openPotOfGreedOverDarkMagician();
-    pointerIsOver(slot("Page 1, slot 1: Dark Magician"));
     press(printing(/LOB-EN119/));
-    moveTo(400, 300);
-    moveTo(400, 300, 3);
-    moveTo(400, 300, 2);
+    moveOnto(slot("Page 1, slot 1: Dark Magician"));
+    moveOnto(slot("Page 1, slot 1: Dark Magician"), 3);
+    moveOnto(slot("Page 1, slot 1: Dark Magician"), 2);
 
     releaseSecondary(400, 300);
 
@@ -267,28 +303,27 @@ describe("dragging a printing onto a slot", () => {
   });
 
   it("drops nothing on a pocket the spread turned under a still pointer", async () => {
-    await openPotOfGreedOverDarkMagician(1200, { 18: savedDarkMagician });
-    pointerIsOver(slot("Page 1, slot 1: Dark Magician"));
-    press(printing(/LOB-EN119/));
-    moveTo(400, 300);
+    // Page 2, slot 1 sits where page 1, slot 1 was, so the still pointer is over a filled pocket after the turn.
+    await openPotOfGreedOverDarkMagician(1200, { 9: savedDarkMagician });
+    const row = printing(/LOB-EN119/);
+    press(row);
+    moveOnto(slot("Page 1, slot 1: Dark Magician"));
     vi.useFakeTimers();
     fireEvent.keyDown(document, { key: "ArrowRight" });
     act(() => vi.advanceTimersByTime(PAGE_FLIP_MS));
-    pointerIsOver(slot("Page 3, slot 1: Dark Magician"));
 
-    release(printing(/LOB-EN119/), 400, 300);
+    releaseOnto(row, slot("Page 2, slot 1: Dark Magician"));
 
-    expect([labelOf("Page 3, slot 1"), catalogueAnnouncement()]).toEqual([
-      "Page 3, slot 1: Dark Magician",
+    expect([labelOf("Page 2, slot 1"), catalogueAnnouncement()]).toEqual([
+      "Page 2, slot 1: Dark Magician",
       "",
     ]);
   });
 
   it("highlights no pocket after the spread turns away and back under a still pointer", async () => {
     await openPotOfGreedOverDarkMagician();
-    pointerIsOver(slot("Page 1, slot 1: Dark Magician"));
     press(printing(/LOB-EN119/));
-    moveTo(400, 300);
+    moveOnto(slot("Page 1, slot 1: Dark Magician"));
     vi.useFakeTimers();
 
     fireEvent.keyDown(document, { key: "ArrowRight" });
@@ -303,16 +338,15 @@ describe("dragging a printing onto a slot", () => {
 
   it("drops nothing when released after the spread turns away and back under a still pointer", async () => {
     await openPotOfGreedOverDarkMagician();
-    pointerIsOver(slot("Page 1, slot 1: Dark Magician"));
     press(printing(/LOB-EN119/));
-    moveTo(400, 300);
+    moveOnto(slot("Page 1, slot 1: Dark Magician"));
     vi.useFakeTimers();
     fireEvent.keyDown(document, { key: "ArrowRight" });
     act(() => vi.advanceTimersByTime(PAGE_FLIP_MS));
     fireEvent.keyDown(document, { key: "ArrowLeft" });
     act(() => vi.advanceTimersByTime(PAGE_FLIP_MS));
 
-    release(printing(/LOB-EN119/), 400, 300);
+    releaseOnto(printing(/LOB-EN119/), slot("Page 1, slot 1: Dark Magician"));
 
     expect([labelOf("Page 1, slot 1"), catalogueAnnouncement()]).toEqual([
       "Page 1, slot 1: Dark Magician",
@@ -322,9 +356,8 @@ describe("dragging a printing onto a slot", () => {
 
   it("ends a printing drag when a move comes without the primary button", async () => {
     await openPotOfGreedOverDarkMagician();
-    pointerIsOver(slot("Page 1, slot 1: Dark Magician"));
     press(printing(/LOB-EN119/));
-    moveTo(400, 300);
+    moveOnto(slot("Page 1, slot 1: Dark Magician"));
 
     moveTo(410, 300, 0);
 
@@ -336,9 +369,8 @@ describe("dragging a printing onto a slot", () => {
 
   it("drops nothing on a later primary click after the drag lost its primary button", async () => {
     await openPotOfGreedOverDarkMagician();
-    pointerIsOver(slot("Page 1, slot 1: Dark Magician"));
     press(printing(/LOB-EN119/));
-    moveTo(400, 300);
+    moveOnto(slot("Page 1, slot 1: Dark Magician"));
     moveTo(410, 300, 0);
 
     fireEvent.pointerDown(document.body, {
@@ -359,11 +391,10 @@ describe("dragging a printing onto a slot", () => {
   it("keeps a filled slot when a printing is released away from the binder", async () => {
     await openPotOfGreedOverDarkMagician();
     const row = printing(/LOB-EN119/);
-    pointerIsOver(document.body);
 
     press(row);
-    moveTo(400, 300);
-    release(row, 400, 300);
+    moveTo(awayFromBinder.x, awayFromBinder.y);
+    release(row, awayFromBinder.x, awayFromBinder.y);
 
     expect([labelOf("Page 1, slot 1"), catalogueAnnouncement()]).toEqual([
       "Page 1, slot 1: Dark Magician",
@@ -374,12 +405,11 @@ describe("dragging a printing onto a slot", () => {
   it("keeps a filled slot when Escape is pressed mid-drag", async () => {
     await openPotOfGreedOverDarkMagician();
     const row = printing(/LOB-EN119/);
-    pointerIsOver(slot("Page 1, slot 1: Dark Magician"));
     press(row);
-    moveTo(400, 300);
+    moveOnto(slot("Page 1, slot 1: Dark Magician"));
 
     fireEvent.keyDown(window, { key: "Escape" });
-    release(row, 400, 300);
+    releaseOnto(row, slot("Page 1, slot 1: Dark Magician"));
 
     expect([labelOf("Page 1, slot 1"), catalogueAnnouncement()]).toEqual([
       "Page 1, slot 1: Dark Magician",
@@ -390,11 +420,10 @@ describe("dragging a printing onto a slot", () => {
   it("drops nothing when released away from the binder", async () => {
     await openDarkMagicianAt(1200);
     const row = printing(/SDY-006/);
-    pointerIsOver(document.body);
 
     press(row);
-    moveTo(400, 300);
-    release(row, 400, 300);
+    moveTo(awayFromBinder.x, awayFromBinder.y);
+    release(row, awayFromBinder.x, awayFromBinder.y);
 
     expect(
       screen.queryAllByRole("button", { name: /: Dark Magician$/ }),
@@ -404,12 +433,11 @@ describe("dragging a printing onto a slot", () => {
   it("drops nothing when Escape is pressed mid-drag", async () => {
     await openDarkMagicianAt(1200);
     const row = printing(/SDY-006/);
-    pointerIsOver(slot("Page 1, slot 2, empty"));
     press(row);
-    moveTo(400, 300);
+    moveOnto(slot("Page 1, slot 2, empty"));
 
     fireEvent.keyDown(window, { key: "Escape" });
-    release(row, 400, 300);
+    releaseOnto(row, slot("Page 1, slot 2, empty"));
 
     expect(slot("Page 1, slot 2, empty")).toBeTruthy();
   });
@@ -417,7 +445,6 @@ describe("dragging a printing onto a slot", () => {
   it("does not pick up the printing when released after Escape", async () => {
     await openDarkMagicianAt(1200);
     const row = printing(/SDY-006/);
-    pointerIsOver(row);
     press(row);
     moveTo(890, 300);
 
@@ -430,12 +457,11 @@ describe("dragging a printing onto a slot", () => {
   it("keeps dragging when another pointer is canceled", async () => {
     await openDarkMagicianAt(1200);
     const row = printing(/SDY-006/);
-    pointerIsOver(slot("Page 1, slot 2, empty"));
     press(row);
-    moveTo(400, 300);
+    moveOnto(slot("Page 1, slot 2, empty"));
 
     fireEvent.pointerCancel(window, { pointerId: 2 });
-    release(row, 400, 300);
+    releaseOnto(row, slot("Page 1, slot 2, empty"));
 
     expect(slot("Page 1, slot 2: Dark Magician")).toBeTruthy();
   });
@@ -443,13 +469,15 @@ describe("dragging a printing onto a slot", () => {
   it("drops nothing when the catalogue closes during a drag", async () => {
     const user = await openDarkMagicianAt(1200);
     const row = printing(/SDY-006/);
-    pointerIsOver(slot("Page 1, slot 2, empty"));
     press(row);
-    moveTo(400, 300);
+    moveOnto(slot("Page 1, slot 2, empty"));
 
     screen.getByRole("button", { name: "Close catalogue" }).focus();
     await user.keyboard("{Enter}");
-    fireEvent.pointerUp(window, { pointerId: 1, clientX: 400, clientY: 300 });
+    fireEvent.pointerUp(window, {
+      pointerId: 1,
+      ...pointAt(slot("Page 1, slot 2, empty")),
+    });
 
     expect(slot("Page 1, slot 2, empty")).toBeTruthy();
   });
@@ -457,7 +485,6 @@ describe("dragging a printing onto a slot", () => {
   it("treats a press that moves less than the drag distance as a tap", async () => {
     await openDarkMagicianAt(1200);
     const row = printing(/SDY-006/);
-    pointerIsOver(slot("Page 1, slot 2, empty"));
 
     press(row);
     moveTo(904, 302);
@@ -472,13 +499,15 @@ describe("dragging a printing onto a slot", () => {
   it("is not offered while the panel is a bottom sheet", async () => {
     await openDarkMagicianAt(959);
     const row = printing(/SDY-006/);
-    pointerIsOver(slot("Page 1, slot 2, empty"));
 
     press(row);
-    moveTo(400, 300);
+    moveOnto(slot("Page 1, slot 2, empty"));
     expect(document.querySelector(".drag-ghost")).toBeNull();
 
-    fireEvent.pointerUp(window, { pointerId: 1, clientX: 400, clientY: 300 });
+    fireEvent.pointerUp(window, {
+      pointerId: 1,
+      ...pointAt(slot("Page 1, slot 2, empty")),
+    });
 
     expect(slot("Page 1, slot 2, empty")).toBeTruthy();
   });
@@ -486,11 +515,13 @@ describe("dragging a printing onto a slot", () => {
   it("does not replace a filled slot while the panel is a bottom sheet", async () => {
     await openPotOfGreedOverDarkMagician(959);
     const row = printing(/LOB-EN119/);
-    pointerIsOver(slot("Page 1, slot 1: Dark Magician"));
 
     press(row);
-    moveTo(400, 300);
-    fireEvent.pointerUp(window, { pointerId: 1, clientX: 400, clientY: 300 });
+    moveOnto(slot("Page 1, slot 1: Dark Magician"));
+    fireEvent.pointerUp(window, {
+      pointerId: 1,
+      ...pointAt(slot("Page 1, slot 1: Dark Magician")),
+    });
 
     expect([
       document.querySelector(".drag-ghost"),
@@ -498,6 +529,303 @@ describe("dragging a printing onto a slot", () => {
     ]).toEqual([null, "Page 1, slot 1: Dark Magician"]);
   });
 });
+
+/** Names of the empty pockets lit as the drop target. */
+function litPockets() {
+  return Array.from(document.querySelectorAll(".slot--drop"), (pocket) =>
+    pocket.getAttribute("aria-label"),
+  );
+}
+
+/** Names of the filled pockets outlined as the drop target. */
+function outlinedFilledPockets() {
+  return Array.from(
+    document.querySelectorAll(".slot--filled.slot--aimed"),
+    (pocket) => pocket.getAttribute("aria-label"),
+  );
+}
+
+/** Names of the pockets holding Dark Magician. */
+function darkMagicianPockets() {
+  return screen
+    .queryAllByRole("button", { name: /: Dark Magician$/ })
+    .map((pocket) => pocket.getAttribute("aria-label"));
+}
+
+/** Lets a page turn finish. */
+function finishTurn() {
+  return act(
+    () => new Promise((resolve) => setTimeout(resolve, PAGE_FLIP_MS + 50)),
+  );
+}
+
+// A printing row is pressed at its centre, so the card spans 50px either side of the pointer and 73px above and below.
+describe("the pocket a dragged printing lands in", () => {
+  it.each([
+    ["straddles a gap", 206, 173, "Page 1, slot 2"],
+    ["hangs over the page margin", 135, 173, "Page 1, slot 1"],
+    ["covers the corner of four pockets", 220, 273, "Page 1, slot 5"],
+    ["covers two pockets equally", 205, 173, "Page 1, slot 1"],
+  ])("is lit and filled when the card %s", async (_layout, x, y, expected) => {
+    await openDarkMagicianAt(1200);
+    const row = printing(/SDY-006/);
+    press(row);
+    moveTo(x, y);
+    const lit = litPockets();
+
+    release(row, x, y);
+
+    expect([lit, darkMagicianPockets()]).toEqual([
+      [`${expected}, empty`],
+      [`${expected}: Dark Magician`],
+    ]);
+  });
+
+  it("is none when the card covers no pocket", async () => {
+    await openDarkMagicianAt(1200);
+    const row = printing(/SDY-006/);
+    press(row);
+    moveTo(950, 173);
+    const lit = litPockets();
+
+    release(row, 950, 173);
+
+    expect([lit, darkMagicianPockets()]).toEqual([[], []]);
+  });
+
+  // At (190, 173) the card covers 60px of slot 1 and 30px of slot 2.
+  it("replaces the filed copy in the pocket the card covers most", async () => {
+    await openPotOfGreedOverDarkMagician();
+    const row = printing(/LOB-EN119/);
+    press(row);
+    moveTo(190, 173);
+    const outlined = outlinedFilledPockets();
+    const lit = litPockets();
+
+    release(row, 190, 173);
+
+    expect([outlined, lit, catalogueAnnouncement()]).toEqual([
+      ["Page 1, slot 1: Dark Magician"],
+      [],
+      "Placed LOB-EN119 in page 1, slot 1, replacing SDY-006.",
+    ]);
+  });
+
+  it("drops nothing by touch when the card covers a filed copy most", async () => {
+    await openPotOfGreedOverDarkMagician();
+    const row = printing(/LOB-EN119/);
+    press(row, "touch");
+    moveTo(190, 173);
+    const shown = [...outlinedFilledPockets(), ...litPockets()];
+
+    release(row, 190, 173);
+
+    expect([
+      shown,
+      labelOf("Page 1, slot 1"),
+      labelOf("Page 1, slot 2"),
+      catalogueAnnouncement(),
+    ]).toEqual([
+      [],
+      "Page 1, slot 1: Dark Magician",
+      "Page 1, slot 2, empty",
+      "",
+    ]);
+  });
+
+  it("drops nothing when released over a pocket other than the one shown", async () => {
+    await openDarkMagicianAt(1200);
+    const row = printing(/SDY-006/);
+    press(row);
+    moveOnto(slot("Page 1, slot 2, empty"));
+
+    releaseOnto(row, slot("Page 1, slot 5, empty"));
+
+    expect(darkMagicianPockets()).toEqual([]);
+  });
+
+  it("is filled and announced when released with the pointer in a gap", async () => {
+    await openDarkMagicianAt(1200);
+    const row = printing(/SDY-006/);
+    press(row);
+    moveTo(206, 173);
+
+    release(row, 206, 173);
+
+    expect(catalogueAnnouncement()).toBe("Placed SDY-006 in page 1, slot 2.");
+  });
+
+  it("follows the pockets when the desk scrolls under a still pointer", async () => {
+    await openDarkMagicianAt(1200);
+    const row = printing(/SDY-006/);
+    press(row);
+    moveTo(260, 173);
+    layout.shiftPockets(-110, 0);
+
+    fireEvent.scroll(window);
+    const lit = litPockets();
+    release(row, 260, 173);
+
+    expect([lit, darkMagicianPockets()]).toEqual([
+      ["Page 1, slot 3, empty"],
+      ["Page 1, slot 3: Dark Magician"],
+    ]);
+  });
+
+  it("follows the pockets when the window resizes under a still pointer", async () => {
+    await openDarkMagicianAt(1200);
+    const row = printing(/SDY-006/);
+    press(row);
+    moveTo(260, 173);
+    layout.shiftPockets(-110, 0);
+
+    fireEvent(window, new Event("resize"));
+    const lit = litPockets();
+    release(row, 260, 173);
+
+    expect([lit, darkMagicianPockets()]).toEqual([
+      ["Page 1, slot 3, empty"],
+      ["Page 1, slot 3: Dark Magician"],
+    ]);
+  });
+
+  it("is never on a page that is turning", async () => {
+    const user = await openDarkMagicianAt(1200);
+    await user.click(slot("Next spread"));
+    const row = printing(/SDY-006/);
+    press(row);
+    moveTo(150, 173);
+    const lit = litPockets();
+
+    release(row, 150, 173);
+
+    expect([lit, darkMagicianPockets()]).toEqual([[], []]);
+  });
+});
+
+// The pointer stays at (206, 173): over the gap between slots 1 and 2, nearer slot 2.
+describe("the pocket a dragged printing lands in when the spread turns under it", () => {
+  it("is none while the spread turns", async () => {
+    await openDarkMagicianAt(1200);
+    const row = printing(/SDY-006/);
+    press(row);
+    moveTo(206, 173);
+
+    fireEvent.keyDown(document, { key: "ArrowRight" });
+    const lit = litPockets();
+    release(row, 206, 173);
+    await finishTurn();
+
+    expect([lit, darkMagicianPockets()]).toEqual([[], []]);
+  });
+
+  it("is none after the turn until the pointer moves", async () => {
+    await openDarkMagicianAt(1200);
+    const row = printing(/SDY-006/);
+    press(row);
+    moveTo(206, 173);
+    fireEvent.keyDown(document, { key: "ArrowRight" });
+
+    await finishTurn();
+    const lit = litPockets();
+    release(row, 206, 173);
+
+    expect([lit, darkMagicianPockets()]).toEqual([[], []]);
+  });
+
+  it("is none after the turn when the desk scrolls before the pointer moves", async () => {
+    await openDarkMagicianAt(1200);
+    const row = printing(/SDY-006/);
+    press(row);
+    moveTo(206, 173);
+    fireEvent.keyDown(document, { key: "ArrowRight" });
+    await finishTurn();
+
+    fireEvent.scroll(window);
+    const lit = litPockets();
+    release(row, 206, 173);
+
+    expect([lit, darkMagicianPockets()]).toEqual([[], []]);
+  });
+
+  it("is the pocket under the card once the pointer moves after the turn", async () => {
+    await openDarkMagicianAt(1200);
+    const row = printing(/SDY-006/);
+    press(row);
+    moveTo(206, 173);
+    fireEvent.keyDown(document, { key: "ArrowRight" });
+    await finishTurn();
+
+    moveTo(206, 173);
+    const lit = litPockets();
+    release(row, 206, 173);
+
+    expect([lit, darkMagicianPockets()]).toEqual([
+      ["Page 2, slot 2, empty"],
+      ["Page 2, slot 2: Dark Magician"],
+    ]);
+  });
+
+  it("shows the card and the pocket under it once a drag begun mid-turn moves after the turn", async () => {
+    const user = await openDarkMagicianAt(1200);
+    await user.click(slot("Next spread"));
+    const row = printing(/SDY-006/);
+    press(row);
+    moveTo(206, 173);
+    await finishTurn();
+
+    moveTo(206, 173);
+    const lit = litPockets();
+    const ghost = document.querySelector(".drag-ghost");
+    release(row, 206, 173);
+
+    expect([lit, ghost !== null, darkMagicianPockets()]).toEqual([
+      ["Page 2, slot 2, empty"],
+      true,
+      ["Page 2, slot 2: Dark Magician"],
+    ]);
+  });
+
+  it("is none at once when reduced motion cuts to the next spread", async () => {
+    await openDarkMagicianAt(1200);
+    viewportWidth(1200, true);
+    const row = printing(/SDY-006/);
+    press(row);
+    moveTo(206, 173);
+
+    fireEvent.keyDown(document, { key: "ArrowRight" });
+    const lit = litPockets();
+    release(row, 206, 173);
+
+    expect([lit, darkMagicianPockets()]).toEqual([[], []]);
+  });
+});
+
+/** Files Dark Magician in slot 1 by tapping at 959px, where the catalogue is a bottom sheet whose top edge is at y 300. */
+async function fileDarkMagicianUnderSheet() {
+  const user = await openDarkMagicianAt(959);
+  await user.click(slot("Page 1, slot 1, empty"));
+  await user.click(printing(/SDY-006/));
+  layout.place(screen.getByRole("complementary", { name: "Catalogue" }), {
+    left: 0,
+    top: 300,
+    width: 1024,
+    height: 468,
+  });
+}
+
+/** Presses a filed copy at (x, y) with the mouse. */
+function pressCopyAt(source: Element, x: number, y: number) {
+  fireEvent.pointerDown(source, {
+    pointerType: "mouse",
+    pointerId: 1,
+    isPrimary: true,
+    button: 0,
+    buttons: 1,
+    clientX: x,
+    clientY: y,
+  });
+}
 
 async function fileDarkMagician() {
   const user = await openDarkMagicianAt(1200);
@@ -530,6 +858,101 @@ function openSavedBinder(copies: Record<number, unknown>) {
 }
 
 describe("moving a filed copy", () => {
+  it("starts the card over the pocket it was pressed in", async () => {
+    const user = await fileDarkMagician();
+    await user.click(slot("Close catalogue"));
+    pressCopyAt(slot("Page 1, slot 1: Dark Magician"), 130, 150);
+
+    moveTo(180, 150);
+
+    const ghost = document.querySelector<HTMLImageElement>(".drag-ghost");
+    expect([
+      ghost?.getAttribute("src"),
+      ghost?.style.left,
+      ghost?.style.top,
+      ghost?.style.width,
+      ghost?.style.height,
+    ]).toEqual(["/images/46986414.jpg", "150px", "100px", "100px", "146px"]);
+  });
+
+  // Pressed at its centre, a copy's card at (220, 173) covers 30px of its own pocket and 60px of slot 2.
+  it("swaps with the filed copy in the pocket the card covers most", async () => {
+    openSavedBinder({ 0: savedDarkMagician, 1: savedPotOfGreed });
+    const source = slot("Page 1, slot 1: Dark Magician");
+    pressCopyAt(source, 150, 173);
+    moveTo(220, 173);
+    const outlined = outlinedFilledPockets();
+
+    fireEvent.pointerUp(window, {
+      pointerId: 1,
+      button: 0,
+      clientX: 220,
+      clientY: 173,
+    });
+
+    expect([outlined, binderAnnouncement()]).toEqual([
+      ["Page 1, slot 2: Pot of Greed"],
+      "Swapped LOB-EN005 to page 1, slot 2 and LOB-EN119 to page 1, slot 1.",
+    ]);
+  });
+
+  // At (190, 173) the card covers 60px of its own pocket and 30px of empty slot 2.
+  it("drops nothing while the card still covers its own pocket most", async () => {
+    openSavedBinder({ 0: savedDarkMagician });
+    const source = slot("Page 1, slot 1: Dark Magician");
+    pressCopyAt(source, 150, 173);
+    moveTo(190, 173);
+    const shown = [...outlinedFilledPockets(), ...litPockets()];
+
+    fireEvent.pointerUp(window, {
+      pointerId: 1,
+      button: 0,
+      clientX: 190,
+      clientY: 173,
+    });
+
+    expect([shown, darkMagicianPockets()]).toEqual([
+      [],
+      ["Page 1, slot 1: Dark Magician"],
+    ]);
+  });
+
+  it("does not move a copy into a pocket the bottom sheet hides", async () => {
+    await fileDarkMagicianUnderSheet();
+    const source = slot("Page 1, slot 1: Dark Magician");
+    const hidden = slot("Page 1, slot 7, empty");
+
+    dragCopy(source, hidden);
+    const lit = litPockets();
+    releaseCopy(source, hidden);
+
+    expect([lit, darkMagicianPockets()]).toEqual([
+      [],
+      ["Page 1, slot 1: Dark Magician"],
+    ]);
+  });
+
+  // The card spans x 210–310 and y 200–346: 46px of slot 2, and 90px of slot 5 of which 44px shows above the sheet.
+  it("moves a copy by the part of each pocket showing above the bottom sheet", async () => {
+    await fileDarkMagicianUnderSheet();
+    const source = slot("Page 1, slot 1: Dark Magician");
+    pressCopyAt(source, 150, 173);
+    moveTo(260, 273);
+    const lit = litPockets();
+
+    fireEvent.pointerUp(window, {
+      pointerId: 1,
+      button: 0,
+      clientX: 260,
+      clientY: 273,
+    });
+
+    expect([lit, darkMagicianPockets()]).toEqual([
+      ["Page 1, slot 2, empty"],
+      ["Page 1, slot 2: Dark Magician"],
+    ]);
+  });
+
   it("opens the copy on the first mouse click after a touch swipe without a click", async () => {
     const user = await fileDarkMagician();
     await user.click(slot("Close catalogue"));
@@ -559,7 +982,6 @@ describe("moving a filed copy", () => {
     await user.click(slot("Close catalogue"));
     const source = slot("Page 1, slot 1: Dark Magician");
     const target = slot("Page 1, slot 2, empty");
-    pointerIsOver(target);
 
     // A vertical press-and-move, so the binder does not take it as a page swipe.
     fireEvent.pointerDown(source, {
@@ -567,10 +989,10 @@ describe("moving a filed copy", () => {
       pointerType: "touch",
       isPrimary: true,
       button: 0,
-      clientX: 400,
+      clientX: 260,
       clientY: 0,
     });
-    moveTo(400, 300);
+    moveOnto(target);
     const ghost = document.querySelector(".drag-ghost");
     releaseCopy(source, target);
 
@@ -848,7 +1270,7 @@ describe("moving a filed copy", () => {
 
     fireEvent.click(slot("Page 1, slot 3: Dark Magician"), { detail: 0 });
     expect(document.querySelector(".drag-ghost")).toBeNull();
-    fireEvent.pointerUp(target, { pointerId: 1, clientX: 400, clientY: 300 });
+    fireEvent.pointerUp(target, { pointerId: 1, ...pointAt(target) });
 
     expect([
       source.getAttribute("aria-label"),
@@ -858,7 +1280,7 @@ describe("moving a filed copy", () => {
 
   it("cancels a drag when reduced motion immediately cuts to a new spread", async () => {
     const user = await fileDarkMagician();
-    prefersReducedMotion(true);
+    viewportWidth(1200, true);
     const source = slot("Page 1, slot 1: Dark Magician");
     const target = slot("Page 1, slot 2, empty");
     dragCopy(source, target);
@@ -867,8 +1289,7 @@ describe("moving a filed copy", () => {
     fireEvent.keyDown(document, { key: "ArrowRight" });
     expect(document.querySelector(".drag-ghost")).toBeNull();
     const nextSpread = slot("Page 2, slot 1, empty");
-    pointerIsOver(nextSpread);
-    fireEvent.pointerUp(nextSpread, { pointerId: 1 });
+    fireEvent.pointerUp(nextSpread, { pointerId: 1, ...pointAt(nextSpread) });
 
     expect(nextSpread.getAttribute("aria-label")).toBe("Page 2, slot 1, empty");
     await user.click(slot("Previous spread"));
@@ -905,7 +1326,6 @@ describe("a cancelled drag onto a filled pocket", () => {
     const source = slot("Page 1, slot 1: Dark Magician");
     dragCopy(source, slot("Page 1, slot 2: Pot of Greed"));
 
-    pointerIsOver(document.body);
     releaseCopy(source, document.body);
 
     expectNothingSwapped();
@@ -957,7 +1377,7 @@ describe("a cancelled drag onto a filled pocket", () => {
     dragCopy(source, occupied);
 
     fireEvent.click(slot("Page 1, slot 3: Pot of Greed"), { detail: 0 });
-    fireEvent.pointerUp(occupied, { pointerId: 1, clientX: 400, clientY: 300 });
+    fireEvent.pointerUp(occupied, { pointerId: 1, ...pointAt(occupied) });
 
     expectNothingSwapped();
   });
@@ -973,8 +1393,7 @@ describe("a cancelled drag onto a filled pocket", () => {
     fireEvent.keyDown(document, { key: "ArrowRight" });
     fireEvent.keyDown(document, { key: "ArrowLeft" });
     const occupied = slot("Page 1, slot 2: Pot of Greed");
-    pointerIsOver(occupied);
-    fireEvent.pointerUp(occupied, { pointerId: 1, clientX: 400, clientY: 300 });
+    fireEvent.pointerUp(occupied, { pointerId: 1, ...pointAt(occupied) });
 
     expectNothingSwapped();
   });
@@ -983,7 +1402,6 @@ describe("a cancelled drag onto a filled pocket", () => {
     openSavedBinder({ 0: savedDarkMagician, 1: savedPotOfGreed });
     const source = slot("Page 1, slot 1: Dark Magician");
     const occupied = slot("Page 1, slot 2: Pot of Greed");
-    pointerIsOver(occupied);
 
     // A vertical press-and-move, so the binder does not take it as a page swipe.
     fireEvent.pointerDown(source, {
@@ -991,10 +1409,10 @@ describe("a cancelled drag onto a filled pocket", () => {
       pointerType: "touch",
       isPrimary: true,
       button: 0,
-      clientX: 400,
+      clientX: 260,
       clientY: 0,
     });
-    moveTo(400, 300);
+    moveOnto(occupied);
     releaseCopy(source, occupied);
 
     expectNothingSwapped();

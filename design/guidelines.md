@@ -9,7 +9,7 @@ Blue-Eyes-inspired sapphire and ice blue mark primary actions and selections, wi
 | Token | Use |
 | --- | --- |
 | `primary`, `onPrimary` | A filled action and its label. |
-| `primaryContainer`, `onPrimaryContainer` | A held printing, the pocket under a drag, and their contents. |
+| `primaryContainer`, `onPrimaryContainer` | A held printing, the pocket a drag would drop into, and their contents. |
 | `secondaryContainer`, `onSecondaryContainer` | Tonal controls and their labels. |
 | `surface`, `surfaceContainer*` | The desk, dialogs, and the distinct layers within them. |
 | `onSurface`, `onSurfaceVariant` | Main and supporting content on surfaces. |
@@ -85,30 +85,33 @@ Printing rows and pockets are buttons, so each step works by tapping, by clickin
 
 ## Dragging
 
+### Both
+
+- While dragging, the card's full image follows the pointer at the size of a pocket on the open spread, with `radius.cardPx`, at `layout.dragGhostOpacity` so the pocket beneath shows through. It stays held at the point where it was grabbed, so a copy's card starts exactly over its pocket.
+- The drop target is the pocket the card covers most, empty or filled, on the open spread; on equal cover the earlier page and slot win. Only the part of a pocket you can see counts. If the pocket covered most cannot take the drag (below), there is no target: a neighbouring pocket never wins instead.
+- An empty target fills with `primaryContainer`. A filled target shows the `primary` outline `layout.aimStrokePx` wide, inside its edge. Other filled pockets show nothing.
+- A release drops only on the pocket shown as the target at that moment. When the spread turns mid-drag, no pocket is a target until the pointer moves again.
+- A drag does not turn the spread. Turning stays on its controls, the arrow keys, and a swipe.
+
 ### Dragging a printing
 
 - Dragging a printing is offered only while the panel is beside the binder. In the bottom sheet, pick up and place is the way to add a card.
 - A press on a printing becomes a drag once the pointer moves `motion.dragStartPx`. A shorter movement is a tap.
-- While dragging, the card's thumbnail follows the pointer, `layout.dragGhostWidthPx` wide at `layout.pocketAspect`, with `radius.cardPx`, at `layout.dragGhostOpacity` so the pocket beneath shows through. Every empty pocket shows the `primary` outline, as when holding.
-- An empty pocket under the pointer also fills with `primaryContainer`. In a mouse or pen drag, a filled pocket under the pointer shows the `primary` outline `layout.aimStrokePx` wide, inside its edge. Other filled pockets show nothing, and in a touch drag no filled pocket does.
-- Releasing over an empty pocket places the printing there and announces it.
-- Releasing a mouse or pen drag over a filled pocket files a new Near Mint copy of the printing there, and the copy that was there leaves the binder, as with Remove. There is no confirmation. The replace is announced as "Placed LOB-EN119 in page 1, slot 1, replacing SDY-006". A touch drag never replaces a copy: released over a filled pocket, it drops nothing.
-- A release drops only on the pocket shown as the drop target. When the spread turns mid-drag, no pocket is a target until the pointer moves again.
-- Releasing outside the binder, pressing Escape, letting go of the primary button, or releasing another button drops nothing. There is no animation back to the panel.
+- While dragging, every empty pocket shows the `primary` outline, as when holding.
+- Any pocket can be the target of a mouse or pen drag. In a touch drag, a filled pocket covered most is no target, so it shows nothing.
+- Releasing on an empty target places the printing there and announces it.
+- Releasing a mouse or pen drag on a filled target files a new Near Mint copy of the printing there, and the copy that was there leaves the binder, as with Remove. There is no confirmation. The replace is announced as "Placed LOB-EN119 in page 1, slot 1, replacing SDY-006". A touch drag never replaces a copy.
+- Releasing with no target, pressing Escape, letting go of the primary button, or releasing another button drops nothing. There is no animation back to the panel.
 
 ### Dragging a filed copy
 
 - A filed copy can be dragged with a mouse or pen, with the panel open or closed. Touch never drags a copy: a touch press opens its detail, and a touch swipe turns the spread.
 - A press on a copy becomes a drag once the pointer moves `motion.dragStartPx`. A shorter movement is a tap, which opens its detail.
-- While dragging, the card's thumbnail follows the pointer as for a printing, and every empty pocket on the open spread shows the `primary` outline. An empty pocket under the pointer also fills with `primaryContainer`.
-- Releasing over an empty pocket on either visible page moves the copy there. The original pocket becomes empty, the copy keeps its printing and condition, and the move is announced as "Moved SDY-006 to page 1, slot 3".
-- Releasing over another filled pocket on the open spread swaps the two. Each keeps its printing and condition. The swap is announced as "Swapped SDY-006 to page 1, slot 2 and LOB-EN005 to page 1, slot 1".
-- While dragging a copy, a filled pocket under the pointer shows the `primary` outline `layout.aimStrokePx` wide, inside its edge. Other filled pockets and the source show nothing.
-- Releasing on the copy's own pocket or outside the binder, pressing Escape, letting go of the primary button, or opening a copy's detail changes nothing. Turning the spread mid-drag cancels the drag: a copy does not leave its spread.
-
-### Both
-
-- A drag does not turn the spread. Turning stays on its controls, the arrow keys, and a swipe.
+- While dragging, every empty pocket on the open spread shows the `primary` outline.
+- The copy's own pocket is never a target: while the card covers it most, nothing is lit and a release changes nothing.
+- Releasing on an empty target on either visible page moves the copy there. The original pocket becomes empty, the copy keeps its printing and condition, and the move is announced as "Moved SDY-006 to page 1, slot 3".
+- Releasing on a filled target swaps the two. Each keeps its printing and condition. The swap is announced as "Swapped SDY-006 to page 1, slot 2 and LOB-EN005 to page 1, slot 1".
+- Releasing with no target, pressing Escape, letting go of the primary button, or opening a copy's detail changes nothing. Turning the spread mid-drag cancels the drag: a copy does not leave its spread.
 
 ## What clients must not do
 

@@ -9,7 +9,7 @@ import {
   type Copy,
   type SlotAddress,
 } from "./binder";
-import { dropSlotTarget } from "./pocketHitTest";
+import { pocketMarker } from "./pocketsOnPage";
 import type { Catalogue } from "./catalogue";
 import { SWIPE_THRESHOLD_PX } from "./tokens";
 import type { Turn } from "./useSpreadTurns";
@@ -207,7 +207,7 @@ function PageSide({
               key={position}
               type="button"
               className={className}
-              {...(inert ? undefined : dropSlotTarget(address, copy !== null))}
+              {...(inert ? undefined : pocketMarker(address, copy !== null))}
               aria-label={
                 copy ? `${label}: ${copy.card.name}` : `${label}, empty`
               }
