@@ -30,11 +30,7 @@ type Press = {
  * Slots are found by their `data-empty-slot` attribute.
  */
 export function useDragToPocket(
-  {
-    canDragPrinting,
-    canMoveCopy,
-    spread,
-  }: { canDragPrinting: boolean; canMoveCopy: boolean; spread: number },
+  { canDragPrinting, canMoveCopy, spread }: Allowed,
   onDrop: (address: SlotAddress, origin: DragOrigin) => void,
 ) {
   const [drag, setDrag] = useState<Drag | null>(null);
@@ -54,14 +50,8 @@ export function useDragToPocket(
       }
     };
     const active = press.current;
-    if (
-      active &&
-      (active.origin.kind === "copy"
-        ? !canMoveCopy || active.spread !== spread
-        : !canDragPrinting)
-    ) {
+    if (active && !mayDrag(active, { canDragPrinting, canMoveCopy, spread }))
       cancel();
-    }
 
     const end = () => {
       press.current = null;
@@ -132,10 +122,10 @@ export function useDragToPocket(
     if (event.button !== 0 || !event.isPrimary) return false;
     if (press.current && press.current.pointerId !== event.pointerId)
       return false;
-    if (origin.kind === "copy") {
-      if (!canMoveCopy || !["mouse", "pen"].includes(event.pointerType))
-        return false;
-    } else if (!canDragPrinting) return false;
+    if (!mayDrag({ origin, spread }, { canDragPrinting, canMoveCopy, spread }))
+      return false;
+    if (origin.kind === "copy" && !["mouse", "pen"].includes(event.pointerType))
+      return false;
     press.current = {
       origin,
       spread,
@@ -149,6 +139,22 @@ export function useDragToPocket(
   };
 
   return { drag, start };
+}
+
+type Allowed = {
+  canDragPrinting: boolean;
+  canMoveCopy: boolean;
+  spread: number;
+};
+
+/** Whether a press on its origin, begun on its spread, may drag now. */
+function mayDrag(
+  { origin, spread }: Pick<Press, "origin" | "spread">,
+  allowed: Allowed,
+): boolean {
+  return origin.kind === "copy"
+    ? allowed.canMoveCopy && spread === allowed.spread
+    : allowed.canDragPrinting;
 }
 
 // A release can produce a click on the drag source, even after Escape.

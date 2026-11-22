@@ -7,7 +7,7 @@ import {
 } from "react";
 import { chooseSlot, choosePrinting, isTarget, type Aim } from "./aim";
 import { BinderSpread } from "./BinderSpread";
-import { CataloguePanel, type Announcement } from "./CataloguePanel";
+import { CataloguePanel } from "./CataloguePanel";
 import { CopyDetail } from "./CopyDetail";
 import { loadBinder, saveBinder } from "./savedBinder";
 import {
@@ -20,9 +20,17 @@ import {
   slotName,
   spreadPages,
   type Binder,
+  type Copy,
   type SlotAddress,
 } from "./binder";
 import type { Card, Catalogue, Printing } from "./catalogue";
+import {
+  announced,
+  silence,
+  silenced,
+  type Announcement,
+} from "./announcement";
+import { LiveRegion } from "./LiveRegion";
 import { PANEL_BESIDE_FROM_PX, STACK_BELOW_PX } from "./tokens";
 import { useMediaQuery } from "./useMediaQuery";
 import { useDragToPocket } from "./useDragToPocket";
@@ -39,14 +47,11 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
     useState<BinderState>(() => ({
       binder: loadBinder(),
       aim: null,
-      moveAnnouncement: { text: "", count: 0 },
+      moveAnnouncement: silence,
     }));
   const [detail, setDetail] = useState<SlotAddress | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
-  const [announcement, setAnnouncement] = useState<Announcement>({
-    text: "",
-    count: 0,
-  });
+  const [announcement, setAnnouncement] = useState<Announcement>(silence);
   const [panelFocus, setPanelFocus] = useState(0);
   const closeDetail = useCallback(() => setDetail(null), []);
   const opener = useRef<HTMLButtonElement>(null);
@@ -79,7 +84,7 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setAim(null);
-        setAnnouncement((current) => ({ ...current, text: "" }));
+        setAnnouncement(silenced);
       }
       if (isTextField(event.target)) return;
       if (event.key === "ArrowRight") go("forward");
@@ -90,7 +95,7 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
   }, [detail, go, setAim]);
 
   const announce = (text: string) =>
-    setAnnouncement((current) => ({ text, count: current.count + 1 }));
+    setAnnouncement((current) => announced(current, text));
 
   const openPanel = (nextAim: Aim | null) => {
     setPanelOpen(true);
@@ -101,7 +106,7 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
   const closePanel = () => {
     setPanelOpen(false);
     setAim(null);
-    setAnnouncement((current) => ({ ...current, text: "" }));
+    setAnnouncement(silenced);
     addCards.current?.focus();
   };
 
@@ -120,40 +125,31 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
 
   const canDragPrinting = panelOpen && beside && detail === null;
   const canMoveCopy = turn === null && detail === null;
+
+  const moveAt = (to: SlotAddress, from: SlotAddress, copy: Copy) => {
+    const visible = (page: number) => page === left || page === right;
+    if (!canMoveCopy || !visible(from.page) || !visible(to.page)) return;
+
+    setBinderState((current) => {
+      const binder = moveCopy(current.binder, from, to, copy);
+      if (binder === current.binder) return current;
+      return {
+        binder,
+        aim: isTarget(current.aim, to) ? null : current.aim,
+        moveAnnouncement: announced(
+          current.moveAnnouncement,
+          `Moved ${copy.printing.setCode} to ${slotNameInSentence(to)}.`,
+        ),
+      };
+    });
+  };
+
   const { drag, start: startDrag } = useDragToPocket(
     { canDragPrinting, canMoveCopy, spread },
-    (address, origin) => {
-      if (origin.kind === "printing") {
-        placeAt(address, origin.card, origin.printing);
-        return;
-      }
-      const visible = (page: number) => page === left || page === right;
-      if (
-        !canMoveCopy ||
-        !visible(origin.from.page) ||
-        !visible(address.page)
-      ) {
-        return;
-      }
-
-      setBinderState((current) => {
-        const binder = moveCopy(
-          current.binder,
-          origin.from,
-          address,
-          origin.copy,
-        );
-        if (binder === current.binder) return current;
-        return {
-          binder,
-          aim: isTarget(current.aim, address) ? null : current.aim,
-          moveAnnouncement: {
-            text: `Moved ${origin.copy.printing.setCode} to ${slotNameInSentence(address)}.`,
-            count: current.moveAnnouncement.count + 1,
-          },
-        };
-      });
-    },
+    (address, origin) =>
+      origin.kind === "printing"
+        ? placeAt(address, origin.card, origin.printing)
+        : moveAt(address, origin.from, origin.copy),
   );
   const origin = drag?.origin;
   const shownAim: Aim | null =
@@ -275,10 +271,10 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
           onClose={closePanel}
         />
       )}
-      <p className="binder__announcement" role="status">
-        {moveAnnouncement.text}
-        {moveAnnouncement.count % 2 === 1 && "\u00a0"}
-      </p>
+      <LiveRegion
+        className="binder__announcement"
+        announcement={moveAnnouncement}
+      />
       {drag && origin && (
         <img
           className="drag-ghost"

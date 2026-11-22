@@ -18,6 +18,8 @@ import {
   type Printing,
   type SetPrinting,
 } from "./catalogue";
+import type { Announcement } from "./announcement";
+import { LiveRegion } from "./LiveRegion";
 
 type Props = {
   catalogue: Catalogue;
@@ -38,9 +40,6 @@ type Props = {
   onChoose: (card: Card, printing: Printing) => void;
   onClose: () => void;
 };
-
-/** What the panel says aloud. Each new message counts up, so a repeated one is read again. */
-export type Announcement = { readonly text: string; readonly count: number };
 
 type SearchResult<T> = T[] | "pending" | "failed";
 type Result = { cards: SearchResult<Card>; sets: SearchResult<CardSet> };
@@ -171,11 +170,10 @@ export function CataloguePanel({
           <span className="close-icon" aria-hidden="true" />
         </button>
       </header>
-      <p className="catalogue__announcement" role="status">
-        {announcement.text}
-        {/* A repeated message must still change the text for a screen reader to say it again. */}
-        {announcement.text && announcement.count % 2 === 1 && "\u00a0"}
-      </p>
+      <LiveRegion
+        className="catalogue__announcement"
+        announcement={announcement}
+      />
       {opened?.kind === "card" && (
         <PrintingList
           card={opened.card}
