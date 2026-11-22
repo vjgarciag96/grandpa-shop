@@ -2,7 +2,7 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it } from "vitest";
 import App from "./App";
-import { darkMagician, fakeCatalogue } from "./test/fakeCatalogue";
+import { darkMagician, fakeCatalogue, potOfGreed } from "./test/fakeCatalogue";
 import { prefersReducedMotion, viewportWidth } from "./test/media";
 
 const slot = (name: string) => screen.getByRole("button", { name });
@@ -682,5 +682,198 @@ describe("moving a filed copy", () => {
     expect(nextSpread.getAttribute("aria-label")).toBe("Page 2, slot 1, empty");
     await user.click(slot("Previous spread"));
     expect(slot("Page 1, slot 1: Dark Magician")).toBeTruthy();
+  });
+});
+
+const savedDarkMagician = {
+  card: darkMagician,
+  printing: darkMagician.printings[1],
+  condition: "Lightly Played",
+};
+const savedPotOfGreed = {
+  card: potOfGreed,
+  printing: potOfGreed.printings[0],
+  condition: "Near Mint",
+};
+
+/** The label of the pocket whose name starts with `name`, filled or empty. */
+const labelOf = (name: string) =>
+  screen
+    .getByRole("button", { name: new RegExp(`^${name}[:,]`) })
+    .getAttribute("aria-label");
+
+describe("a cancelled drag onto a filled pocket", () => {
+  it("swaps nothing when released on the copy's own pocket", () => {
+    openSavedBinder({ 0: savedDarkMagician, 1: savedPotOfGreed });
+    const source = slot("Page 1, slot 1: Dark Magician");
+
+    dragCopy(source, source);
+    releaseCopy(source, source);
+
+    expect([
+      labelOf("Page 1, slot 1"),
+      labelOf("Page 1, slot 2"),
+      binderAnnouncement(),
+    ]).toEqual([
+      "Page 1, slot 1: Dark Magician",
+      "Page 1, slot 2: Pot of Greed",
+      "",
+    ]);
+  });
+
+  it("swaps nothing when released outside the binder", () => {
+    openSavedBinder({ 0: savedDarkMagician, 1: savedPotOfGreed });
+    const source = slot("Page 1, slot 1: Dark Magician");
+    dragCopy(source, slot("Page 1, slot 2: Pot of Greed"));
+
+    pointerIsOver(document.body);
+    releaseCopy(source, document.body);
+
+    expect([
+      labelOf("Page 1, slot 1"),
+      labelOf("Page 1, slot 2"),
+      binderAnnouncement(),
+    ]).toEqual([
+      "Page 1, slot 1: Dark Magician",
+      "Page 1, slot 2: Pot of Greed",
+      "",
+    ]);
+  });
+
+  it("swaps nothing when Escape is pressed mid-drag", () => {
+    openSavedBinder({ 0: savedDarkMagician, 1: savedPotOfGreed });
+    const source = slot("Page 1, slot 1: Dark Magician");
+    const occupied = slot("Page 1, slot 2: Pot of Greed");
+    dragCopy(source, occupied);
+
+    fireEvent.keyDown(occupied, { key: "Escape" });
+    releaseCopy(source, occupied);
+
+    expect([
+      labelOf("Page 1, slot 1"),
+      labelOf("Page 1, slot 2"),
+      binderAnnouncement(),
+    ]).toEqual([
+      "Page 1, slot 1: Dark Magician",
+      "Page 1, slot 2: Pot of Greed",
+      "",
+    ]);
+  });
+
+  it("swaps nothing on a secondary button release", () => {
+    openSavedBinder({ 0: savedDarkMagician, 1: savedPotOfGreed });
+    const source = slot("Page 1, slot 1: Dark Magician");
+    const occupied = slot("Page 1, slot 2: Pot of Greed");
+    dragCopy(source, occupied);
+
+    fireEvent.pointerUp(occupied, { pointerId: 1, button: 2 });
+
+    expect([
+      labelOf("Page 1, slot 1"),
+      labelOf("Page 1, slot 2"),
+      binderAnnouncement(),
+    ]).toEqual([
+      "Page 1, slot 1: Dark Magician",
+      "Page 1, slot 2: Pot of Greed",
+      "",
+    ]);
+  });
+
+  it("swaps nothing when the primary button is no longer held", () => {
+    openSavedBinder({ 0: savedDarkMagician, 1: savedPotOfGreed });
+    const source = slot("Page 1, slot 1: Dark Magician");
+    const occupied = slot("Page 1, slot 2: Pot of Greed");
+    dragCopy(source, occupied);
+
+    moveTo(410, 300, 0);
+    releaseCopy(source, occupied);
+
+    expect([
+      labelOf("Page 1, slot 1"),
+      labelOf("Page 1, slot 2"),
+      binderAnnouncement(),
+    ]).toEqual([
+      "Page 1, slot 1: Dark Magician",
+      "Page 1, slot 2: Pot of Greed",
+      "",
+    ]);
+  });
+
+  it("swaps nothing after another copy's detail opens mid-drag", () => {
+    openSavedBinder({
+      0: savedDarkMagician,
+      1: savedPotOfGreed,
+      2: savedPotOfGreed,
+    });
+    const source = slot("Page 1, slot 1: Dark Magician");
+    const occupied = slot("Page 1, slot 2: Pot of Greed");
+    dragCopy(source, occupied);
+
+    fireEvent.click(slot("Page 1, slot 3: Pot of Greed"), { detail: 0 });
+    fireEvent.pointerUp(occupied, { pointerId: 1, clientX: 400, clientY: 300 });
+
+    expect([
+      labelOf("Page 1, slot 1"),
+      labelOf("Page 1, slot 2"),
+      binderAnnouncement(),
+    ]).toEqual([
+      "Page 1, slot 1: Dark Magician",
+      "Page 1, slot 2: Pot of Greed",
+      "",
+    ]);
+  });
+
+  it("swaps nothing when the spread turns mid-drag", () => {
+    prefersReducedMotion(true);
+    openSavedBinder({ 0: savedDarkMagician, 1: savedPotOfGreed });
+    dragCopy(
+      slot("Page 1, slot 1: Dark Magician"),
+      slot("Page 1, slot 2: Pot of Greed"),
+    );
+
+    fireEvent.keyDown(document, { key: "ArrowRight" });
+    fireEvent.keyDown(document, { key: "ArrowLeft" });
+    const occupied = slot("Page 1, slot 2: Pot of Greed");
+    pointerIsOver(occupied);
+    fireEvent.pointerUp(occupied, { pointerId: 1, clientX: 400, clientY: 300 });
+
+    expect([
+      labelOf("Page 1, slot 1"),
+      labelOf("Page 1, slot 2"),
+      binderAnnouncement(),
+    ]).toEqual([
+      "Page 1, slot 1: Dark Magician",
+      "Page 1, slot 2: Pot of Greed",
+      "",
+    ]);
+  });
+
+  it("swaps nothing when a copy is pressed and moved by touch", () => {
+    openSavedBinder({ 0: savedDarkMagician, 1: savedPotOfGreed });
+    const source = slot("Page 1, slot 1: Dark Magician");
+    const occupied = slot("Page 1, slot 2: Pot of Greed");
+    pointerIsOver(occupied);
+
+    // A vertical press-and-move, so the binder does not take it as a page swipe.
+    fireEvent.pointerDown(source, {
+      pointerId: 1,
+      pointerType: "touch",
+      isPrimary: true,
+      button: 0,
+      clientX: 400,
+      clientY: 0,
+    });
+    moveTo(400, 300);
+    releaseCopy(source, occupied);
+
+    expect([
+      labelOf("Page 1, slot 1"),
+      labelOf("Page 1, slot 2"),
+      binderAnnouncement(),
+    ]).toEqual([
+      "Page 1, slot 1: Dark Magician",
+      "Page 1, slot 2: Pot of Greed",
+      "",
+    ]);
   });
 });
