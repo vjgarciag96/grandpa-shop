@@ -1,6 +1,7 @@
 package com.vjgarciag96.grandpashop.server
 
 import com.vjgarciag96.grandpashop.server.catalogue.CardCatalogue
+import com.vjgarciag96.grandpashop.server.catalogue.CardImages
 import com.vjgarciag96.grandpashop.server.catalogue.Ygoprodeck
 import com.vjgarciag96.grandpashop.server.catalogue.cachedText
 import com.vjgarciag96.grandpashop.server.catalogue.catalogueModule
@@ -19,5 +20,7 @@ fun main() {
     val catalogueJson = cachedText(cacheDir.resolve("cardinfo.json"), Ygoprodeck::cardInfo)
     val catalogue = CardCatalogue.fromYgoprodeckJson(catalogueJson)
 
-    embeddedServer(Netty, host = host, port = port) { catalogueModule(catalogue) }.start(wait = true)
+    val images = CardImages(cacheDir.resolve("images"), catalogue, Ygoprodeck::smallImage)
+
+    embeddedServer(Netty, host = host, port = port) { catalogueModule(catalogue, images) }.start(wait = true)
 }

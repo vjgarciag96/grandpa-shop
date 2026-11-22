@@ -4,6 +4,9 @@ class CardCatalogue(
     cards: List<Card>,
 ) {
     private val entries = cards.map(::SearchEntry)
+    private val passcodes = cards.map { it.passcode }.toSet()
+
+    fun contains(passcode: Passcode): Boolean = passcode in passcodes
 
     fun search(
         query: String,
