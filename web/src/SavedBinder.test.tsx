@@ -65,6 +65,25 @@ function moveCopyWithMouse(source: HTMLElement, destination: HTMLElement) {
   fireEvent.click(source, { detail: 1 });
 }
 
+/** Opens a pocket's detail, reads its printing and condition, and closes it again. */
+async function detailOf(
+  user: ReturnType<typeof userEvent.setup>,
+  pocket: string,
+) {
+  await user.click(slot(pocket));
+  const dialog = within(screen.getByRole("dialog"));
+  const shown = {
+    printing: within(
+      dialog.getByRole("list", { name: "Printing" }),
+    ).getAllByRole("listitem")[0].textContent,
+    condition: dialog.getByRole<HTMLSelectElement>("combobox", {
+      name: "Condition",
+    }).value,
+  };
+  await user.click(dialog.getByRole("button", { name: "Close" }));
+  return shown;
+}
+
 afterEach(() => {
   vi.restoreAllMocks();
   document.elementFromPoint = () => null;
@@ -139,6 +158,52 @@ describe("the binder across reloads", () => {
       (screen.getByRole("combobox", { name: "Condition" }) as HTMLSelectElement)
         .value,
     ).toBe("Lightly Played");
+  });
+
+  it("keeps swapped copies in their new pockets when the app is opened again", async () => {
+    const slots: unknown[] = Array(360).fill(null);
+    slots[0] = {
+      ...savedDarkMagician,
+      printing: darkMagician.printings[1],
+      condition: "Lightly Played",
+    };
+    slots[1] = savedDarkMagician;
+    localStorage.setItem(SAVED_BINDER_KEY, JSON.stringify({ slots }));
+    const first = openApp();
+    moveCopyWithMouse(
+      slot("Page 1, slot 1: Dark Magician"),
+      slot("Page 1, slot 2: Dark Magician"),
+    );
+    first.close();
+
+    const second = openApp();
+
+    expect([
+      await detailOf(second.user, "Page 1, slot 1: Dark Magician"),
+      await detailOf(second.user, "Page 1, slot 2: Dark Magician"),
+    ]).toEqual([
+      { printing: "LOB-EN005", condition: "Near Mint" },
+      { printing: "SDY-006", condition: "Lightly Played" },
+    ]);
+  });
+
+  it("leaves the other 358 pockets as they were after a swap", () => {
+    const slots: unknown[] = Array(360).fill(null);
+    slots[0] = savedDarkMagician;
+    slots[1] = { ...savedDarkMagician, condition: "Damaged" };
+    slots[200] = { ...savedDarkMagician, condition: "Heavily Played" };
+    localStorage.setItem(SAVED_BINDER_KEY, JSON.stringify({ slots }));
+    const first = openApp();
+
+    moveCopyWithMouse(
+      slot("Page 1, slot 1: Dark Magician"),
+      slot("Page 1, slot 2: Dark Magician"),
+    );
+    first.close();
+
+    const saved = JSON.parse(localStorage.getItem(SAVED_BINDER_KEY) ?? "null");
+    expect(saved.slots).toHaveLength(360);
+    expect(saved.slots.slice(2)).toEqual(slots.slice(2));
   });
 
   it("starts with an empty binder when the saved binder is unreadable", () => {
