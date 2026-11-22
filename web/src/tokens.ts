@@ -43,6 +43,8 @@ export function applyTokens(root: HTMLElement) {
     "--aim-stroke": `${tokens.layout.aimStrokePx}px`,
     "--panel-width": `${tokens.layout.panelWidthPx}px`,
     "--sheet-height": `${tokens.layout.sheetHeightPercent}dvh`,
+    "--drag-ghost-width": `${tokens.layout.dragGhostWidthPx}px`,
+    "--drag-ghost-opacity": String(tokens.layout.dragGhostOpacity),
     "--page-flip": `${tokens.motion.pageFlipMs}ms`,
     "--easing": tokens.motion.easing,
   };
@@ -62,3 +64,6 @@ export const PAGE_FLIP_MS = tokens.motion.pageFlipMs;
 
 /** How far a horizontal swipe on the spread travels before it turns the binder. */
 export const SWIPE_THRESHOLD_PX = tokens.motion.swipeThresholdPx;
+
+/** How far a press on a printing moves before it becomes a drag rather than a tap. */
+export const DRAG_START_PX = tokens.motion.dragStartPx;

@@ -19,6 +19,8 @@ type Props = {
   stacked: boolean;
   turn: Turn | null;
   aim: Aim | null;
+  /** The empty slot a dragged printing would drop into. */
+  dropTarget: SlotAddress | null;
   catalogue: Catalogue;
   onSlot: OpenSlot;
   onSwipe: (direction: Turn["direction"]) => void;
@@ -30,6 +32,7 @@ export function BinderSpread({
   stacked,
   turn,
   aim,
+  dropTarget,
   catalogue,
   onSlot,
   onSwipe,
@@ -40,7 +43,14 @@ export function BinderSpread({
   const right = turn?.direction === "back" ? leaving.right : arriving.right;
   const swipeStart = useRef<{ id: number; x: number; y: number } | null>(null);
   const suppressPointerClick = useRef(false);
-  const sides = { binder, aim, catalogue, onSlot, inert: turn !== null };
+  const sides = {
+    binder,
+    aim,
+    dropTarget,
+    catalogue,
+    onSlot,
+    inert: turn !== null,
+  };
   const stopTracking = (event: PointerEvent) => {
     if (swipeStart.current?.id === event.pointerId) swipeStart.current = null;
   };
@@ -129,6 +139,7 @@ type SideProps = {
   side: "left" | "right";
   binder: Binder;
   aim: Aim | null;
+  dropTarget: SlotAddress | null;
   catalogue: Catalogue;
   onSlot: OpenSlot;
   inert: boolean;
@@ -139,6 +150,7 @@ function PageSide({
   side,
   binder,
   aim,
+  dropTarget,
   catalogue,
   onSlot,
   inert,
@@ -158,12 +170,21 @@ function PageSide({
           const aimed =
             isTarget(aim, { page, position }) ||
             (aim?.kind === "holding" && !copy);
-          const className = copy ? "slot slot--filled" : "slot slot--empty";
+          const dropping =
+            dropTarget?.page === page && dropTarget.position === position;
+          const className = [
+            copy ? "slot slot--filled" : "slot slot--empty",
+            aimed && "slot--aimed",
+            dropping && "slot--drop",
+          ]
+            .filter(Boolean)
+            .join(" ");
           return (
             <button
               key={position}
               type="button"
-              className={aimed ? `${className} slot--aimed` : className}
+              className={className}
+              data-empty-slot={copy ? undefined : `${page}:${position}`}
               aria-label={
                 copy ? `${label}: ${copy.card.name}` : `${label}, empty`
               }

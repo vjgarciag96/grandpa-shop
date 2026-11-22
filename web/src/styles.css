@@ -316,6 +316,10 @@ body {
   outline-offset: calc(var(--aim-stroke) * -1);
 }
 
+.slot--empty.slot--drop {
+  background: var(--color-primary-container);
+}
+
 .slot:focus-visible {
   outline: var(--aim-stroke) solid var(--color-on-surface);
   outline-offset: var(--aim-stroke);
@@ -972,4 +976,22 @@ html:has(.dialog-backdrop) {
   .detail__image {
     width: calc(var(--space-slot) * 11);
   }
+}
+
+.catalogue__printing[data-draggable] {
+  touch-action: pan-y;
+  user-select: none;
+}
+
+/* The thumbnail that follows the pointer while a printing is dragged. */
+.drag-ghost {
+  position: fixed;
+  z-index: 3;
+  width: var(--drag-ghost-width);
+  aspect-ratio: var(--pocket-aspect);
+  border-radius: var(--radius-card);
+  opacity: var(--drag-ghost-opacity);
+  object-fit: cover;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
 }

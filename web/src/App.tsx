@@ -23,6 +23,7 @@ import {
 import type { Card, Catalogue, Printing } from "./catalogue";
 import { PANEL_BESIDE_FROM_PX, STACK_BELOW_PX } from "./tokens";
 import { useMediaQuery } from "./useMediaQuery";
+import { useDragToPocket } from "./useDragToPocket";
 import { useSpreadTurns } from "./useSpreadTurns";
 
 export default function App({ catalogue }: { catalogue: Catalogue }) {
@@ -92,6 +93,12 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
     setAim(null);
     announce(`Placed ${printing.setCode} in ${slotNameInSentence(address)}.`);
   };
+
+  const { drag, start: startDrag } = useDragToPocket(placeAt);
+  // While a printing is dragged, the binder and the panel show it as held.
+  const shownAim: Aim | null = drag
+    ? { kind: "holding", card: drag.card, printing: drag.printing }
+    : aim;
 
   const onSlot = (address: SlotAddress, button: HTMLButtonElement) => {
     const choice = chooseSlot(aim, slotAt(binder, address) !== null);
@@ -175,7 +182,8 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
               spread={spread}
               stacked={stacked}
               turn={turn}
-              aim={aim}
+              aim={shownAim}
+              dropTarget={drag?.over ?? null}
               catalogue={catalogue}
               onSlot={onSlot}
               onSwipe={go}
@@ -186,7 +194,7 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
       {panelOpen && (
         <CataloguePanel
           catalogue={catalogue}
-          aim={aim}
+          aim={shownAim}
           replacing={
             aim?.kind === "target" ? slotAt(binder, aim.address) : null
           }
@@ -194,8 +202,17 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
           beside={beside}
           inert={detail !== null}
           focusRequest={panelFocus}
+          onDragStart={beside ? startDrag : undefined}
           onChoose={onPrinting}
           onClose={closePanel}
+        />
+      )}
+      {drag && (
+        <img
+          className="drag-ghost"
+          src={catalogue.imageUrl(drag.card.passcode)}
+          alt=""
+          style={{ left: drag.x, top: drag.y }}
         />
       )}
       {detail && copy && (
