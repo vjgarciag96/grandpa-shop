@@ -8,7 +8,10 @@ import {
 } from "./binder";
 
 // Temporary: keeps the binder in this browser until milestone 1 saves copies
-// on the server. Delete this file and its use in App then.
+// on the server. Delete this file, its test, and its use in App then.
+// Change the key's version whenever Card, Printing, or Copy changes shape.
+// Each tab reads the binder once on load, so with two tabs open the last one
+// to change the binder wins.
 const KEY = "grandpa-shop.dev-binder.v1";
 
 /** The binder saved in this browser, or an empty one when there is none to trust. */
@@ -51,13 +54,27 @@ function isCopy(value: unknown): value is Copy {
     isObject(value) &&
     isObject(value.card) &&
     typeof value.card.passcode === "number" &&
-    typeof value.card.name === "string" &&
+    hasStrings(value.card, ["name", "kind", "type", "text"]) &&
+    (value.card.monster === undefined || isMonsterStats(value.card.monster)) &&
     Array.isArray(value.card.printings) &&
     isObject(value.printing) &&
-    typeof value.printing.setCode === "string" &&
-    typeof value.printing.rarity === "string" &&
+    hasStrings(value.printing, ["setCode", "setName", "rarity"]) &&
     CONDITIONS.some((condition) => condition === value.condition)
   );
+}
+
+// The copy detail shows every stat, so each must be text or a number.
+function isMonsterStats(value: unknown): boolean {
+  return (
+    isObject(value) &&
+    Object.values(value).every(
+      (stat) => typeof stat === "string" || typeof stat === "number",
+    )
+  );
+}
+
+function hasStrings(value: Record<string, unknown>, keys: string[]): boolean {
+  return keys.every((key) => typeof value[key] === "string");
 }
 
 function isObject(value: unknown): value is Record<string, unknown> {
