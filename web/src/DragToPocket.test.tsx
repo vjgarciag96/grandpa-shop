@@ -19,7 +19,7 @@ async function openDarkMagicianAt(width: number) {
   const user = userEvent.setup();
   await user.click(screen.getByRole("button", { name: "Add cards" }));
   await user.type(
-    screen.getByRole("searchbox", { name: "Search cards" }),
+    screen.getByRole("searchbox", { name: "Search cards and sets" }),
     "dark",
   );
   await user.click(
@@ -131,9 +131,11 @@ describe("dragging a printing onto a slot", () => {
     await user.click(
       screen.getByRole("button", { name: /Pot of Greed|Back to results/ }),
     );
-    await user.clear(screen.getByRole("searchbox", { name: "Search cards" }));
+    await user.clear(
+      screen.getByRole("searchbox", { name: "Search cards and sets" }),
+    );
     await user.type(
-      screen.getByRole("searchbox", { name: "Search cards" }),
+      screen.getByRole("searchbox", { name: "Search cards and sets" }),
       "pot",
     );
     await user.click(

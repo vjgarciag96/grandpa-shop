@@ -13,8 +13,10 @@ import { slotName, slotNameInSentence, type Copy } from "./binder";
 import {
   MIN_QUERY_LENGTH,
   type Card,
+  type CardSet,
   type Catalogue,
   type Printing,
+  type SetPrinting,
 } from "./catalogue";
 
 type Props = {
@@ -40,7 +42,11 @@ type Props = {
 /** What the panel says aloud. Each new message counts up, so a repeated one is read again. */
 export type Announcement = { readonly text: string; readonly count: number };
 
-type Result = { cards: Card[] } | { failed: true };
+type Result = { cards: Card[] | null; sets: CardSet[] | null };
+/** What the panel shows in place of the search: one card's printings, or one set's. */
+type Opened =
+  | { readonly kind: "card"; readonly card: Card }
+  | { readonly kind: "set"; readonly set: CardSet };
 type Answer = {
   catalogue: Catalogue;
   query: string;
@@ -49,7 +55,7 @@ type Answer = {
 };
 const SEARCH_DELAY_MS = 180;
 
-/** The catalogue beside the binder: search it, open a card, and choose one of its printings. */
+/** The catalogue beside the binder: search it, open a card or a set, and choose one of its printings. */
 export function CataloguePanel({
   catalogue,
   aim,
@@ -65,7 +71,7 @@ export function CataloguePanel({
   const [query, setQuery] = useState("");
   const [answer, setAnswer] = useState<Answer | null>(null);
   const [attempt, setAttempt] = useState(0);
-  const [opened, setOpened] = useState<Card | null>(null);
+  const [opened, setOpened] = useState<Opened | null>(null);
   const results = useRef<HTMLDivElement>(null);
   const searchInput = useRef<HTMLInputElement>(null);
   const backButton = useRef<HTMLButtonElement>(null);
@@ -89,9 +95,14 @@ export function CataloguePanel({
       }
     };
     const timeout = window.setTimeout(() => {
-      catalogue.search(trimmed, request.signal).then(
-        (cards) => receive({ cards }),
-        () => receive({ failed: true }),
+      Promise.allSettled([
+        catalogue.search(trimmed, request.signal),
+        catalogue.searchSets(trimmed, request.signal),
+      ]).then(([cards, sets]) =>
+        receive({
+          cards: cards.status === "fulfilled" ? cards.value : null,
+          sets: sets.status === "fulfilled" ? sets.value : null,
+        }),
       );
     }, SEARCH_DELAY_MS);
     return () => {
@@ -150,18 +161,30 @@ export function CataloguePanel({
         {/* A repeated message must still change the text for a screen reader to say it again. */}
         {announcement.text && announcement.count % 2 === 1 && "\u00a0"}
       </p>
-      {opened ? (
+      {opened?.kind === "card" && (
         <PrintingList
-          card={opened}
+          card={opened.card}
           catalogue={catalogue}
           query={trimmed}
           aim={aim}
           backButton={backButton}
           onBack={() => setOpened(null)}
           onPrintingPress={onPrintingPress}
-          onChoose={(printing) => onChoose(opened, printing)}
+          onChoose={onChoose}
         />
-      ) : (
+      )}
+      {opened?.kind === "set" && (
+        <SetPrintingList
+          set={opened.set}
+          catalogue={catalogue}
+          aim={aim}
+          backButton={backButton}
+          onBack={() => setOpened(null)}
+          onPrintingPress={onPrintingPress}
+          onChoose={onChoose}
+        />
+      )}
+      {!opened && (
         <>
           <div className="catalogue__controls">
             <div className="catalogue__field">
@@ -169,9 +192,9 @@ export function CataloguePanel({
               <input
                 ref={searchInput}
                 type="search"
-                aria-label="Search cards"
+                aria-label="Search cards and sets"
                 autoComplete="off"
-                placeholder="Card name or set code"
+                placeholder="Card, set, or set code"
                 value={query}
                 onChange={(event) => updateQuery(event.target.value)}
               />
@@ -202,12 +225,12 @@ export function CataloguePanel({
                 setAnswer(null);
                 setAttempt((current) => current + 1);
               }}
-              onOpen={(card, id) => {
+              onOpen={(next, id) => {
                 lastResult.current = {
                   id,
                   scrollTop: results.current?.scrollTop ?? 0,
                 };
-                setOpened(card);
+                setOpened(next);
               }}
             />
           </div>
@@ -260,17 +283,17 @@ function Results({
   catalogue: Catalogue;
   resultId: string;
   onRetry: () => void;
-  onOpen: (card: Card, id: string) => void;
+  onOpen: (opened: Opened, id: string) => void;
 }) {
   if (!canSearch) {
     return (
       <div className="catalogue__message">
         <SearchIcon />
         <div>
-          <strong>Find a card in the catalogue</strong>
+          <strong>Find a card or a set in the catalogue</strong>
           <p>
-            Enter at least {MIN_QUERY_LENGTH} characters, such as Dark Magician
-            or LOB-EN005.
+            Enter at least {MIN_QUERY_LENGTH} characters, such as Dark Magician,
+            The Lost Millennium, or LOB-EN005.
           </p>
         </div>
       </div>
@@ -283,68 +306,116 @@ function Results({
       </div>
     );
   }
-  if ("failed" in answer) {
-    return (
-      <div className="catalogue__message">
-        <strong role="alert">The card catalogue did not answer.</strong>
-        <button
-          type="button"
-          className="control control--tonal"
-          onClick={onRetry}
-        >
-          Try again
-        </button>
-      </div>
-    );
-  }
-  if (answer.cards.length === 0) {
+  const { cards, sets } = answer;
+  if (cards?.length === 0 && sets?.length === 0) {
     return (
       <div className="catalogue__message" role="status">
-        <strong>No card matches “{query}”.</strong>
-        <p>Try another card name or check the set code.</p>
+        <strong>Nothing matches “{query}”.</strong>
+        <p>Try another card or set name, or check the set code.</p>
       </div>
     );
   }
-  const count = answer.cards.length;
+  const searchError = cards
+    ? "Set search did not answer."
+    : sets
+      ? "Card search did not answer."
+      : "The card catalogue did not answer.";
+  const counts = [
+    sets && countOf(sets.length, "set"),
+    cards && countOf(cards.length, "card"),
+  ].filter(Boolean);
   return (
     <>
-      <p className="catalogue__result-count" role="status">
-        {count} {count === 1 ? "card found" : "cards found"}
-      </p>
-      <ul className="catalogue__results" aria-label="Matching cards">
-        {answer.cards.map((card) => {
-          const id = `${resultId}-${card.passcode}`;
-          const printingCount = card.printings.length;
-          return (
-            <li key={card.passcode}>
-              <button
-                id={id}
-                type="button"
-                className="catalogue__card"
-                onClick={() => onOpen(card, id)}
-              >
-                <img
-                  className="catalogue__thumb"
-                  src={catalogue.imageUrl(card.passcode)}
-                  alt=""
-                  loading="lazy"
-                />
-                <span className="catalogue__card-label">
-                  <strong>{card.name}</strong>
-                  <span>
-                    {card.kind} · {printingCount}{" "}
-                    {printingCount === 1 ? "printing" : "printings"}
-                  </span>
-                </span>
-                <span className="chevron" aria-hidden="true" />
-              </button>
-            </li>
-          );
-        })}
-      </ul>
+      {(!cards || !sets) && (
+        <RetryMessage message={searchError} onRetry={onRetry} />
+      )}
+      {counts.length > 0 && (
+        <p className="catalogue__result-count" role="status">
+          {counts.join(" and ")} found
+        </p>
+      )}
+      {sets && sets.length > 0 && (
+        <>
+          <h3 className="catalogue__group">Sets</h3>
+          <ul className="catalogue__results" aria-label="Matching sets">
+            {sets.map((set, index) => {
+              const id = `${resultId}-set-${index}`;
+              return (
+                <li key={set.name}>
+                  <button
+                    id={id}
+                    type="button"
+                    className="catalogue__card catalogue__card--set"
+                    onClick={() => onOpen({ kind: "set", set }, id)}
+                  >
+                    <span className="catalogue__card-label">
+                      <strong>{set.name}</strong>
+                      <span>
+                        {set.prefix} · {countOf(set.printings, "printing")}
+                      </span>
+                    </span>
+                    <span className="chevron" aria-hidden="true" />
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </>
+      )}
+      {cards && cards.length > 0 && (
+        <>
+          <h3 className="catalogue__group">Cards</h3>
+          <ul className="catalogue__results" aria-label="Matching cards">
+            {cards.map((card) => {
+              const id = `${resultId}-${card.passcode}`;
+              return (
+                <li key={card.passcode}>
+                  <button
+                    id={id}
+                    type="button"
+                    className="catalogue__card"
+                    onClick={() => onOpen({ kind: "card", card }, id)}
+                  >
+                    <img
+                      className="catalogue__thumb"
+                      src={catalogue.imageUrl(card.passcode)}
+                      alt=""
+                      loading="lazy"
+                    />
+                    <span className="catalogue__card-label">
+                      <strong>{card.name}</strong>
+                      <span>
+                        {card.kind} ·{" "}
+                        {countOf(card.printings.length, "printing")}
+                      </span>
+                    </span>
+                    <span className="chevron" aria-hidden="true" />
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </>
+      )}
     </>
   );
 }
+
+function countOf(count: number, noun: string): string {
+  return `${count} ${count === 1 ? noun : `${noun}s`}`;
+}
+
+type ChooseProps = {
+  aim: Aim | null;
+  backButton: RefObject<HTMLButtonElement | null>;
+  onBack: () => void;
+  onPrintingPress?: (
+    card: Card,
+    printing: Printing,
+    event: PointerEvent,
+  ) => void;
+  onChoose: (card: Card, printing: Printing) => void;
+};
 
 function PrintingList({
   card,
@@ -355,20 +426,7 @@ function PrintingList({
   onBack,
   onPrintingPress,
   onChoose,
-}: {
-  card: Card;
-  catalogue: Catalogue;
-  query: string;
-  aim: Aim | null;
-  backButton: RefObject<HTMLButtonElement | null>;
-  onPrintingPress?: (
-    card: Card,
-    printing: Printing,
-    event: PointerEvent,
-  ) => void;
-  onBack: () => void;
-  onChoose: (printing: Printing) => void;
-}) {
+}: { card: Card; catalogue: Catalogue; query: string } & ChooseProps) {
   const needle = query.toLowerCase();
   const matches = (printing: Printing) =>
     printing.setCode.toLowerCase() === needle;
@@ -380,15 +438,7 @@ function PrintingList({
   return (
     <>
       <div className="catalogue__controls catalogue__controls--printings">
-        <button
-          ref={backButton}
-          type="button"
-          className="control control--text catalogue__back"
-          onClick={onBack}
-          autoFocus
-        >
-          <span aria-hidden="true">←</span> Back to results
-        </button>
+        <BackToResults backButton={backButton} onBack={onBack} />
         <div className="catalogue__card-summary">
           <img
             className="catalogue__thumb"
@@ -404,35 +454,181 @@ function PrintingList({
       <div className="catalogue__scroll">
         <ul className="catalogue__printings" aria-label="Printings">
           {printings.map((printing) => (
-            <li
+            <PrintingRow
               key={`${printing.setCode} ${printing.rarity} ${printing.setName}`}
-            >
-              <button
-                type="button"
-                className="catalogue__printing"
-                aria-pressed={isHeld(aim, card, printing)}
-                data-draggable={onPrintingPress ? "" : undefined}
-                onPointerDown={(event) =>
-                  onPrintingPress?.(card, printing, event)
-                }
-                onClick={() => onChoose(printing)}
-              >
-                <img
-                  className="catalogue__thumb"
-                  src={catalogue.imageUrl(card.passcode)}
-                  alt=""
-                  loading="lazy"
-                />
-                <span className="catalogue__printing-label">
-                  <strong>{printing.setCode}</strong>
-                  <span className="catalogue__rarity">{printing.rarity}</span>
-                  <span className="catalogue__set">{printing.setName}</span>
-                </span>
-              </button>
-            </li>
+              entry={{ card, printing }}
+              detail={printing.setName}
+              catalogue={catalogue}
+              aim={aim}
+              onPrintingPress={onPrintingPress}
+              onChoose={onChoose}
+            />
           ))}
         </ul>
       </div>
     </>
+  );
+}
+
+type SetAnswer = {
+  catalogue: Catalogue;
+  set: CardSet;
+  result: SetPrinting[] | "failed";
+};
+
+function SetPrintingList({
+  set,
+  catalogue,
+  aim,
+  backButton,
+  onBack,
+  onPrintingPress,
+  onChoose,
+}: { set: CardSet; catalogue: Catalogue } & ChooseProps) {
+  const [answer, setAnswer] = useState<SetAnswer | null>(null);
+  const [attempt, setAttempt] = useState(0);
+  const result =
+    answer?.catalogue === catalogue && answer.set === set
+      ? answer.result
+      : null;
+
+  useEffect(() => {
+    const request = new AbortController();
+    catalogue.setPrintings(set.name, request.signal).then(
+      (printings) => {
+        if (!request.signal.aborted)
+          setAnswer({ catalogue, set, result: printings });
+      },
+      () => {
+        if (!request.signal.aborted)
+          setAnswer({ catalogue, set, result: "failed" });
+      },
+    );
+    return () => request.abort();
+  }, [attempt, catalogue, set]);
+
+  return (
+    <>
+      <div className="catalogue__controls catalogue__controls--printings">
+        <BackToResults backButton={backButton} onBack={onBack} />
+        <div className="catalogue__card-summary catalogue__card-summary--set">
+          <div className="catalogue__card-label">
+            <h3>{set.name}</h3>
+            <span>
+              {set.prefix} · {countOf(set.printings, "printing")}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div className="catalogue__scroll">
+        {result === null && (
+          <div className="catalogue__message" role="status">
+            <strong>Opening the set…</strong>
+          </div>
+        )}
+        {result === "failed" && (
+          <RetryMessage
+            message="The set did not load."
+            onRetry={() => {
+              backButton.current?.focus();
+              setAnswer(null);
+              setAttempt((current) => current + 1);
+            }}
+          />
+        )}
+        {Array.isArray(result) && (
+          <ul className="catalogue__printings" aria-label="Printings">
+            {result.map((entry) => (
+              <PrintingRow
+                key={`${entry.card.passcode} ${entry.printing.setCode} ${entry.printing.rarity}`}
+                entry={entry}
+                detail={entry.card.name}
+                catalogue={catalogue}
+                aim={aim}
+                onPrintingPress={onPrintingPress}
+                onChoose={onChoose}
+              />
+            ))}
+          </ul>
+        )}
+      </div>
+    </>
+  );
+}
+
+function RetryMessage({
+  message,
+  onRetry,
+}: {
+  message: string;
+  onRetry: () => void;
+}) {
+  return (
+    <div className="catalogue__message">
+      <strong role="alert">{message}</strong>
+      <button
+        type="button"
+        className="control control--tonal"
+        onClick={onRetry}
+      >
+        Try again
+      </button>
+    </div>
+  );
+}
+
+function BackToResults({
+  backButton,
+  onBack,
+}: Pick<ChooseProps, "backButton" | "onBack">) {
+  return (
+    <button
+      ref={backButton}
+      type="button"
+      className="control control--text catalogue__back"
+      onClick={onBack}
+      autoFocus
+    >
+      <span aria-hidden="true">←</span> Back to results
+    </button>
+  );
+}
+
+/** A printing that can be chosen or dragged: the card's image, the set code over the rarity, and [detail]. */
+function PrintingRow({
+  entry: { card, printing },
+  detail,
+  catalogue,
+  aim,
+  onPrintingPress,
+  onChoose,
+}: {
+  entry: SetPrinting;
+  detail: string;
+  catalogue: Catalogue;
+} & Pick<ChooseProps, "aim" | "onPrintingPress" | "onChoose">) {
+  return (
+    <li>
+      <button
+        type="button"
+        className="catalogue__printing"
+        aria-pressed={isHeld(aim, card, printing)}
+        data-draggable={onPrintingPress ? "" : undefined}
+        onPointerDown={(event) => onPrintingPress?.(card, printing, event)}
+        onClick={() => onChoose(card, printing)}
+      >
+        <img
+          className="catalogue__thumb"
+          src={catalogue.imageUrl(card.passcode)}
+          alt=""
+          loading="lazy"
+        />
+        <span className="catalogue__printing-label">
+          <strong>{printing.setCode}</strong>
+          <span className="catalogue__rarity">{printing.rarity}</span>
+          <span className="catalogue__set">{detail}</span>
+        </span>
+      </button>
+    </li>
   );
 }

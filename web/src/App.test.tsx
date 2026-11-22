@@ -25,7 +25,7 @@ const isAimed = (name: string) => slot(name).classList.contains("slot--aimed");
 
 async function search(user: User, query: string) {
   await user.type(
-    screen.getByRole("searchbox", { name: "Search cards" }),
+    screen.getByRole("searchbox", { name: "Search cards and sets" }),
     query,
   );
 }
@@ -420,12 +420,12 @@ describe("searching the catalogue panel", () => {
     expect([field.value, document.activeElement === field]).toEqual(["", true]);
   });
 
-  it("says so when no card matches", async () => {
+  it("says so when neither cards nor sets match", async () => {
     const user = renderApp();
 
     await searchFromFirstSlot(user, "zzz");
 
-    expect(await screen.findByText("No card matches “zzz”.")).toBeTruthy();
+    expect(await screen.findByText("Nothing matches “zzz”.")).toBeTruthy();
   });
 
   it("says so when the catalogue cannot be reached", async () => {
