@@ -2,7 +2,13 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it } from "vitest";
 import App from "./App";
-import { fakeCatalogue } from "./test/fakeCatalogue";
+import {
+  detailOf,
+  saveBinderWith,
+  savedDarkMagician,
+  savedPotOfGreed,
+} from "./test/binder";
+import { darkMagician, fakeCatalogue } from "./test/fakeCatalogue";
 import { prefersReducedMotion, viewportWidth } from "./test/media";
 
 const slot = (name: string) => screen.getByRole("button", { name });
@@ -274,10 +280,14 @@ async function fileDarkMagician() {
   return user;
 }
 
-function dragCopy(source: HTMLElement, target: HTMLElement | null) {
+function dragCopy(
+  source: HTMLElement,
+  target: HTMLElement | null,
+  pointerType = "mouse",
+) {
   pointerIsOver(target);
   fireEvent.pointerDown(source, {
-    pointerType: "mouse",
+    pointerType,
     pointerId: 1,
     isPrimary: true,
     button: 0,
@@ -294,6 +304,30 @@ function releaseCopy(source: HTMLElement, target = source) {
     clientY: 300,
   });
   fireEvent.click(source, { detail: 1 });
+}
+
+/** Files SDY-006 in page 1, slot 1 in Lightly Played and LOB-EN005 in page 1, slot 2 in Near Mint, with the catalogue still open. */
+async function fileTwoDarkMagicians() {
+  const user = await fileDarkMagician();
+  await user.click(slot("Page 1, slot 2, empty"));
+  await user.click(printing(/LOB-EN005/));
+  await user.click(slot("Page 1, slot 1: Dark Magician"));
+  await user.selectOptions(
+    screen.getByRole("combobox", { name: "Condition" }),
+    "Lightly Played",
+  );
+  await user.click(slot("Close"));
+  return user;
+}
+
+const binderAnnouncement = () =>
+  document.querySelector(".binder__announcement")?.textContent?.trim();
+
+/** Opens the app on a saved binder holding the given copies, keyed by slot index from 0. */
+function openSavedBinder(copies: Record<number, unknown>) {
+  saveBinderWith(copies);
+  render(<App catalogue={fakeCatalogue().catalogue} />);
+  return userEvent.setup();
 }
 
 describe("moving a filed copy", () => {
@@ -380,10 +414,9 @@ describe("moving a filed copy", () => {
     ).toBe("Lightly Played");
   });
 
-  it("leaves both copies in place on a filled destination", async () => {
-    const user = await fileDarkMagician();
-    await user.click(slot("Page 1, slot 2, empty"));
-    await user.click(printing(/LOB-EN005/));
+  it("swaps two filed copies with their printings and conditions", async () => {
+    const user = await fileTwoDarkMagicians();
+    await user.click(slot("Close catalogue"));
     const source = slot("Page 1, slot 1: Dark Magician");
     const occupied = slot("Page 1, slot 2: Dark Magician");
 
@@ -391,15 +424,135 @@ describe("moving a filed copy", () => {
     releaseCopy(source, occupied);
 
     expect(screen.queryByRole("dialog")).toBeNull();
-    expect(source.getAttribute("aria-label")).toBe(
-      "Page 1, slot 1: Dark Magician",
+    expect(binderAnnouncement()).toBe(
+      "Swapped SDY-006 to page 1, slot 2 and LOB-EN005 to page 1, slot 1.",
     );
-    await user.click(occupied);
+    expect(await detailOf(user, source)).toEqual({
+      printing: "LOB-EN005",
+      condition: "Near Mint",
+    });
+    expect(await detailOf(user, occupied)).toEqual({
+      printing: "SDY-006",
+      condition: "Lightly Played",
+    });
+  });
+
+  it("swaps across the gutter with a pen", async () => {
+    prefersReducedMotion(true);
+    const user = openSavedBinder({
+      17: {
+        ...savedDarkMagician,
+        printing: darkMagician.printings[1],
+        condition: "Lightly Played",
+      },
+      18: savedDarkMagician,
+    });
+    await user.click(slot("Next spread"));
+    const source = slot("Page 2, slot 9: Dark Magician");
+    const occupied = slot("Page 3, slot 1: Dark Magician");
+
+    dragCopy(source, occupied, "pen");
+    releaseCopy(source, occupied);
+
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(binderAnnouncement()).toBe(
+      "Swapped SDY-006 to page 3, slot 1 and LOB-EN005 to page 2, slot 9.",
+    );
+    expect(await detailOf(user, source)).toEqual({
+      printing: "LOB-EN005",
+      condition: "Near Mint",
+    });
+    expect(await detailOf(user, occupied)).toEqual({
+      printing: "SDY-006",
+      condition: "Lightly Played",
+    });
+  });
+
+  it("keeps a catalogue target on the pocket a copy moves out of to an empty pocket", async () => {
+    const user = await fileDarkMagician();
+    const source = slot("Page 1, slot 1: Dark Magician");
+    await user.click(source);
+    await user.click(screen.getByRole("button", { name: "Replace" }));
+    const panel = within(
+      screen.getByRole("complementary", { name: "Catalogue" }),
+    );
+
+    dragCopy(source, slot("Page 1, slot 3, empty"));
+    releaseCopy(source, slot("Page 1, slot 3, empty"));
+
+    expect(panel.getByRole("heading", { level: 2 }).textContent).toBe(
+      "Adding to page 1, slot 1",
+    );
+  });
+
+  it("outlines the filled pocket under the pointer", async () => {
+    const user = await fileTwoDarkMagicians();
+    await user.click(slot("Close catalogue"));
+    const occupied = slot("Page 1, slot 2: Dark Magician");
+
+    dragCopy(slot("Page 1, slot 1: Dark Magician"), occupied);
+
+    expect(occupied.classList.contains("slot--aimed")).toBe(true);
+  });
+
+  it("does not outline a filled pocket away from the pointer", async () => {
+    const user = await fileTwoDarkMagicians();
+    await user.click(slot("Page 1, slot 3, empty"));
+    await user.click(printing(/SDY-006/));
+    await user.click(slot("Close catalogue"));
+
+    dragCopy(
+      slot("Page 1, slot 1: Dark Magician"),
+      slot("Page 1, slot 2: Dark Magician"),
+    );
+
     expect(
-      within(screen.getByRole("list", { name: "Printing" })).getByText(
-        "LOB-EN005",
-      ),
-    ).toBeTruthy();
+      slot("Page 1, slot 3: Dark Magician").classList.contains("slot--aimed"),
+    ).toBe(false);
+  });
+
+  it("never outlines the pocket the copy is dragged from", async () => {
+    const user = await fileTwoDarkMagicians();
+    await user.click(slot("Close catalogue"));
+    const source = slot("Page 1, slot 1: Dark Magician");
+
+    dragCopy(source, source);
+
+    expect(source.classList.contains("slot--aimed")).toBe(false);
+  });
+
+  it("clears a catalogue target that a swap moves away", async () => {
+    const user = await fileTwoDarkMagicians();
+    const occupied = slot("Page 1, slot 2: Dark Magician");
+    await user.click(occupied);
+    await user.click(screen.getByRole("button", { name: "Replace" }));
+    const panel = within(
+      screen.getByRole("complementary", { name: "Catalogue" }),
+    );
+
+    dragCopy(slot("Page 1, slot 1: Dark Magician"), occupied);
+    releaseCopy(slot("Page 1, slot 1: Dark Magician"), occupied);
+
+    expect(panel.getByRole("heading", { level: 2 }).textContent).toBe(
+      "Add cards",
+    );
+  });
+
+  it("clears a catalogue target on the copy that is dragged into a swap", async () => {
+    const user = await fileTwoDarkMagicians();
+    const source = slot("Page 1, slot 1: Dark Magician");
+    await user.click(source);
+    await user.click(screen.getByRole("button", { name: "Replace" }));
+    const panel = within(
+      screen.getByRole("complementary", { name: "Catalogue" }),
+    );
+
+    dragCopy(source, slot("Page 1, slot 2: Dark Magician"));
+    releaseCopy(source, slot("Page 1, slot 2: Dark Magician"));
+
+    expect(panel.getByRole("heading", { level: 2 }).textContent).toBe(
+      "Add cards",
+    );
   });
 
   it("keeps a catalogue target when Escape cancels an active drag", async () => {
@@ -525,5 +678,136 @@ describe("moving a filed copy", () => {
     expect(nextSpread.getAttribute("aria-label")).toBe("Page 2, slot 1, empty");
     await user.click(slot("Previous spread"));
     expect(slot("Page 1, slot 1: Dark Magician")).toBeTruthy();
+  });
+});
+
+/** The label of the pocket whose name starts with `name`, filled or empty. */
+const labelOf = (name: string) =>
+  screen
+    .getByRole("button", { name: new RegExp(`^${name}[:,]`) })
+    .getAttribute("aria-label");
+
+/** Dark Magician is still in page 1, slot 1, Pot of Greed in slot 2, and the binder said nothing. */
+function expectNothingSwapped() {
+  expect([
+    labelOf("Page 1, slot 1"),
+    labelOf("Page 1, slot 2"),
+    binderAnnouncement(),
+  ]).toEqual([
+    "Page 1, slot 1: Dark Magician",
+    "Page 1, slot 2: Pot of Greed",
+    "",
+  ]);
+}
+
+describe("a cancelled drag onto a filled pocket", () => {
+  it("swaps nothing when released on the copy's own pocket", () => {
+    openSavedBinder({ 0: savedDarkMagician, 1: savedPotOfGreed });
+    const source = slot("Page 1, slot 1: Dark Magician");
+
+    dragCopy(source, source);
+    releaseCopy(source, source);
+
+    expectNothingSwapped();
+  });
+
+  it("swaps nothing when released outside the binder", () => {
+    openSavedBinder({ 0: savedDarkMagician, 1: savedPotOfGreed });
+    const source = slot("Page 1, slot 1: Dark Magician");
+    dragCopy(source, slot("Page 1, slot 2: Pot of Greed"));
+
+    pointerIsOver(document.body);
+    releaseCopy(source, document.body);
+
+    expectNothingSwapped();
+  });
+
+  it("swaps nothing when Escape is pressed mid-drag", () => {
+    openSavedBinder({ 0: savedDarkMagician, 1: savedPotOfGreed });
+    const source = slot("Page 1, slot 1: Dark Magician");
+    const occupied = slot("Page 1, slot 2: Pot of Greed");
+    dragCopy(source, occupied);
+
+    fireEvent.keyDown(occupied, { key: "Escape" });
+    releaseCopy(source, occupied);
+
+    expectNothingSwapped();
+  });
+
+  it("swaps nothing on a secondary button release", () => {
+    openSavedBinder({ 0: savedDarkMagician, 1: savedPotOfGreed });
+    const source = slot("Page 1, slot 1: Dark Magician");
+    const occupied = slot("Page 1, slot 2: Pot of Greed");
+    dragCopy(source, occupied);
+
+    fireEvent.pointerUp(occupied, { pointerId: 1, button: 2 });
+
+    expectNothingSwapped();
+  });
+
+  it("swaps nothing when the primary button is no longer held", () => {
+    openSavedBinder({ 0: savedDarkMagician, 1: savedPotOfGreed });
+    const source = slot("Page 1, slot 1: Dark Magician");
+    const occupied = slot("Page 1, slot 2: Pot of Greed");
+    dragCopy(source, occupied);
+
+    moveTo(410, 300, 0);
+    releaseCopy(source, occupied);
+
+    expectNothingSwapped();
+  });
+
+  it("swaps nothing after another copy's detail opens mid-drag", () => {
+    openSavedBinder({
+      0: savedDarkMagician,
+      1: savedPotOfGreed,
+      2: savedPotOfGreed,
+    });
+    const source = slot("Page 1, slot 1: Dark Magician");
+    const occupied = slot("Page 1, slot 2: Pot of Greed");
+    dragCopy(source, occupied);
+
+    fireEvent.click(slot("Page 1, slot 3: Pot of Greed"), { detail: 0 });
+    fireEvent.pointerUp(occupied, { pointerId: 1, clientX: 400, clientY: 300 });
+
+    expectNothingSwapped();
+  });
+
+  it("swaps nothing when the spread turns mid-drag", () => {
+    prefersReducedMotion(true);
+    openSavedBinder({ 0: savedDarkMagician, 1: savedPotOfGreed });
+    dragCopy(
+      slot("Page 1, slot 1: Dark Magician"),
+      slot("Page 1, slot 2: Pot of Greed"),
+    );
+
+    fireEvent.keyDown(document, { key: "ArrowRight" });
+    fireEvent.keyDown(document, { key: "ArrowLeft" });
+    const occupied = slot("Page 1, slot 2: Pot of Greed");
+    pointerIsOver(occupied);
+    fireEvent.pointerUp(occupied, { pointerId: 1, clientX: 400, clientY: 300 });
+
+    expectNothingSwapped();
+  });
+
+  it("swaps nothing when a copy is pressed and moved by touch", () => {
+    openSavedBinder({ 0: savedDarkMagician, 1: savedPotOfGreed });
+    const source = slot("Page 1, slot 1: Dark Magician");
+    const occupied = slot("Page 1, slot 2: Pot of Greed");
+    pointerIsOver(occupied);
+
+    // A vertical press-and-move, so the binder does not take it as a page swipe.
+    fireEvent.pointerDown(source, {
+      pointerId: 1,
+      pointerType: "touch",
+      isPrimary: true,
+      button: 0,
+      clientX: 400,
+      clientY: 0,
+    });
+    moveTo(400, 300);
+    releaseCopy(source, occupied);
+
+    expectNothingSwapped();
   });
 });

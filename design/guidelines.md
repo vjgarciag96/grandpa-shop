@@ -83,15 +83,30 @@ Printing rows and pockets are buttons, so each step works by tapping, by clickin
 - A filled pocket never takes a printing from the panel, except the one being replaced. While holding, choosing a filled pocket keeps holding, opens nothing, and says "Page 1, slot 2 is filled". A filled pocket shows no outline, except the one being replaced.
 - Every placement is announced in words, such as "Placed TLM-EN001 in page 1, slot 3".
 
-## Dragging a printing
+## Dragging
 
-- Dragging is offered only while the panel is beside the binder. In the bottom sheet, pick up and place is the way to add a card.
+### Dragging a printing
+
+- Dragging a printing is offered only while the panel is beside the binder. In the bottom sheet, pick up and place is the way to add a card.
 - A press on a printing becomes a drag once the pointer moves `motion.dragStartPx`. A shorter movement is a tap.
 - While dragging, the card's thumbnail follows the pointer, `layout.dragGhostWidthPx` wide at `layout.pocketAspect`, with `radius.cardPx`, at `layout.dragGhostOpacity` so the pocket beneath shows through. Every empty pocket shows the `primary` outline, as when holding.
-- An empty pocket under the pointer also fills with `primaryContainer`. A filled pocket does not change.
+- An empty pocket under the pointer also fills with `primaryContainer`. A filled pocket does not change while a printing is dragged.
 - Releasing over an empty pocket places the printing there and announces it. Releasing anywhere else, or pressing Escape, drops nothing. There is no animation back to the panel.
-- A drag only fills an empty pocket. Replacing a copy stays a tap, from its detail.
-- The drag does not turn the spread. Turning stays on its controls, the arrow keys, and a swipe.
+- A dragged printing only fills an empty pocket. Replacing a copy stays a tap, from its detail.
+
+### Dragging a filed copy
+
+- A filed copy can be dragged with a mouse or pen, with the panel open or closed. Touch never drags a copy: a touch press opens its detail, and a touch swipe turns the spread.
+- A press on a copy becomes a drag once the pointer moves `motion.dragStartPx`. A shorter movement is a tap, which opens its detail.
+- While dragging, the card's thumbnail follows the pointer as for a printing, and every empty pocket on the open spread shows the `primary` outline. An empty pocket under the pointer also fills with `primaryContainer`.
+- Releasing over an empty pocket on either visible page moves the copy there. The original pocket becomes empty, the copy keeps its printing and condition, and the move is announced as "Moved SDY-006 to page 1, slot 3".
+- Releasing over another filled pocket on the open spread swaps the two. Each keeps its printing and condition. The swap is announced as "Swapped SDY-006 to page 1, slot 2 and LOB-EN005 to page 1, slot 1".
+- While dragging a copy, a filled pocket under the pointer shows the `primary` outline `layout.aimStrokePx` wide, inside its edge. Other filled pockets and the source show nothing.
+- Releasing on the copy's own pocket or outside the binder, pressing Escape, letting go of the primary button, or opening a copy's detail changes nothing. Turning the spread mid-drag cancels the drag: a copy does not leave its spread.
+
+### Both
+
+- A drag does not turn the spread. Turning stays on its controls, the arrow keys, and a swipe.
 
 ## What clients must not do
 

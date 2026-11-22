@@ -132,14 +132,21 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
     if (!canMoveCopy || !visible(from.page) || !visible(to.page)) return;
 
     setBinderState((current) => {
-      const binder = moveCopy(current.binder, from, to, copy);
-      if (binder === current.binder) return current;
+      const move = moveCopy(current.binder, from, to, copy);
+      if (move.kind === "refused") return current;
+      const swapped = move.kind === "swapped";
+      const moved = `${copy.printing.setCode} to ${slotNameInSentence(to)}`;
       return {
-        binder,
-        aim: isTarget(current.aim, to) ? null : current.aim,
+        binder: move.binder,
+        aim:
+          isTarget(current.aim, to) || (swapped && isTarget(current.aim, from))
+            ? null
+            : current.aim,
         moveAnnouncement: announced(
           current.moveAnnouncement,
-          `Moved ${copy.printing.setCode} to ${slotNameInSentence(to)}.`,
+          swapped
+            ? `Swapped ${moved} and ${move.displaced.printing.setCode} to ${slotNameInSentence(from)}.`
+            : `Moved ${moved}.`,
         ),
       };
     });

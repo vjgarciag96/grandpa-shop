@@ -25,6 +25,11 @@ export const SPREADS = PAGES / 2 + 1;
 /** A page is numbered from 1; a position on it runs 0 to 8, left to right, top to bottom. */
 export type SlotAddress = { readonly page: number; readonly position: number };
 
+/** Whether two addresses name the same slot. */
+export function sameSlot(a: SlotAddress, b: SlotAddress): boolean {
+  return a.page === b.page && a.position === b.position;
+}
+
 /** How a slot is named to the person using the binder, such as "Page 1, slot 3". */
 export function slotName({ page, position }: SlotAddress): string {
   return `Page ${page}, slot ${position + 1}`;
@@ -57,21 +62,35 @@ export function remove(binder: Binder, address: SlotAddress): Binder {
   return { slots };
 }
 
+/** What moving a copy did: nothing, a move into an empty slot, or a swap with the copy that was there. */
+export type CopyMove =
+  | { readonly kind: "refused" }
+  | { readonly kind: "moved"; readonly binder: Binder }
+  | {
+      readonly kind: "swapped";
+      readonly binder: Binder;
+      readonly displaced: Copy;
+    };
+
+/** Moves `copy` from `from` to `to`. A copy already in `to` takes `from`. Refused if `from` no longer holds `copy` or `from` is `to`. */
 export function moveCopy(
   binder: Binder,
   from: SlotAddress,
   to: SlotAddress,
   copy: Copy,
-): Binder {
+): CopyMove {
   const source = indexOf(from);
   const destination = indexOf(to);
-  if (binder.slots[source] !== copy || binder.slots[destination] !== null) {
-    return binder;
+  if (binder.slots[source] !== copy || source === destination) {
+    return { kind: "refused" };
   }
+  const displaced = binder.slots[destination];
   const slots = [...binder.slots];
-  slots[source] = null;
+  slots[source] = displaced;
   slots[destination] = copy;
-  return { slots };
+  return displaced
+    ? { kind: "swapped", binder: { slots }, displaced }
+    : { kind: "moved", binder: { slots } };
 }
 
 export function changeCondition(
