@@ -183,10 +183,14 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
   );
   const { drag, start: startDrag } = useDragToPocket(
     allowedDrags,
-    (address, origin) =>
-      origin.kind === "printing"
-        ? placeAt(address, origin.card, origin.printing)
-        : moveAt(address, origin.from, origin.copy),
+    (target, origin) => {
+      if (target.kind === "off-binder") return;
+      if (origin.kind === "printing") {
+        placeAt(target.address, origin.card, origin.printing);
+      } else {
+        moveAt(target.address, origin.from, origin.copy);
+      }
+    },
   );
   const origin = drag?.origin;
   const shownAim: Aim | null =
@@ -275,7 +279,9 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
               stacked={stacked}
               turn={turn}
               aim={shownAim}
-              dropTarget={drag?.target ?? null}
+              dropTarget={
+                drag?.target?.kind === "pocket" ? drag.target.address : null
+              }
               movingCopy={origin?.kind === "copy"}
               catalogue={catalogue}
               onSlot={onSlot}

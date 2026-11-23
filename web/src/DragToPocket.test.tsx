@@ -1384,7 +1384,8 @@ describe("a cancelled drag onto a filled pocket", () => {
     expectNothingSwapped();
   });
 
-  it("swaps nothing when released outside the binder", () => {
+  // The pocket is the shown target, but a release at (0, 0) holds the card off the binder.
+  it("swaps nothing when released off the binder while a pocket is the target", () => {
     openSavedBinder({ 0: savedDarkMagician, 1: savedPotOfGreed });
     const source = slot("Page 1, slot 1: Dark Magician");
     dragCopy(source, slot("Page 1, slot 2: Pot of Greed"));
@@ -1479,5 +1480,62 @@ describe("a cancelled drag onto a filled pocket", () => {
     releaseCopy(source, occupied);
 
     expectNothingSwapped();
+  });
+});
+
+/** Releases the primary button at (x, y) without a click, as after a drag. */
+function releaseAt(x: number, y: number) {
+  fireEvent.pointerUp(window, {
+    pointerId: 1,
+    button: 0,
+    clientX: x,
+    clientY: y,
+  });
+}
+
+// The spread spans x 88–782 and y 88–570. A copy pressed at its centre holds the card 50px either side of the pointer and 73px above and below.
+describe("a filed copy released with its card still on the binder", () => {
+  // The card spans x 405–505: 15px of slot 3, under a fifth of the card, and the empty page beyond.
+  it("keeps the copy when released in the gap beside a pocket", () => {
+    openSavedBinder({ 0: savedPlayedSdyDarkMagician });
+    pressAt(slot("Page 1, slot 1: Dark Magician"), 150, 173);
+    moveTo(455, 173);
+
+    releaseAt(455, 173);
+
+    expect([labelOf("Page 1, slot 1"), binderAnnouncement()]).toEqual([
+      "Page 1, slot 1: Dark Magician",
+      "",
+    ]);
+  });
+
+  // The card spans x 385–485 over the spine at x 420–450: 35px of its own pocket and 35px of page 3, slot 1.
+  it("keeps the copy when released over the spine", async () => {
+    prefersReducedMotion(true);
+    const user = openSavedBinder({ 11: savedPlayedSdyDarkMagician });
+    await user.click(slot("Next spread"));
+    pressAt(slot("Page 2, slot 3: Dark Magician"), 370, 173);
+    moveTo(435, 173);
+
+    releaseAt(435, 173);
+
+    expect([labelOf("Page 2, slot 3"), binderAnnouncement()]).toEqual([
+      "Page 2, slot 3: Dark Magician",
+      "",
+    ]);
+  });
+
+  // The card spans y 569–715, so its top 1px still overlaps the spread's bottom edge at y 570.
+  it("keeps the copy when the card still overlaps the spread by 1px", () => {
+    openSavedBinder({ 0: savedPlayedSdyDarkMagician });
+    pressAt(slot("Page 1, slot 1: Dark Magician"), 150, 173);
+    moveTo(150, 642);
+
+    releaseAt(150, 642);
+
+    expect([labelOf("Page 1, slot 1"), binderAnnouncement()]).toEqual([
+      "Page 1, slot 1: Dark Magician",
+      "",
+    ]);
   });
 });

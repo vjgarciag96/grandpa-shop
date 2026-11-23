@@ -4,12 +4,17 @@ import {
   coveredMost,
   ghostAt,
   grabFraction,
+  overlaps,
   type Pocket,
   type Point,
   type Rect,
   type Size,
 } from "./pocketGeometry";
-import { pocketSizeOnScreen, pocketsOnScreen } from "./pocketsOnPage";
+import {
+  binderOnScreen,
+  pocketSizeOnScreen,
+  pocketsOnScreen,
+} from "./pocketsOnPage";
 import type { Card, Printing } from "./catalogue";
 import { DRAG_START_PX, DROP_MIN_COVER_SHARE } from "./tokens";
 
@@ -17,12 +22,17 @@ export type DragOrigin =
   | { kind: "printing"; card: Card; printing: Printing }
   | { kind: "copy"; from: SlotAddress; copy: Copy };
 
+/** Where a release would drop the card: in a pocket, or off the binder, which only a filed copy can be. */
+export type DropTarget =
+  | { readonly kind: "pocket"; readonly address: SlotAddress }
+  | { readonly kind: "off-binder" };
+
 type Drag = {
   readonly origin: DragOrigin;
   /** The card under the pointer, or null until a pocket on screen gives it a size. */
   readonly ghost: Rect | null;
-  /** The pocket a release now would drop into. */
-  readonly target: SlotAddress | null;
+  /** Where a release now would drop the card. */
+  readonly target: DropTarget | null;
 };
 
 type Press = {
@@ -42,18 +52,19 @@ type Press = {
   pointer: Point;
   /** False from a spread turn until the pointer moves again: a turn never arms a drop. */
   armed: boolean;
-  /** The pocket shown as the drop target; a release drops only there. */
-  target: SlotAddress | null;
+  /** The drop target shown; a release drops only there. */
+  target: DropTarget | null;
 };
 
 /**
  * A press becomes a drag once it moves `motion.dragStartPx`; a shorter press stays a tap.
  * The card is a pocket-sized rectangle held where the press grabbed it; it drops into the pocket it covers most, when that pocket takes it.
+ * A filed copy whose card touches no part of the binder is off the binder instead.
  * Pass a memoized `allowed`: each new object rechecks the active press and rebinds the listeners.
  */
 export function useDragToPocket(
   allowed: Allowed,
-  onDrop: (address: SlotAddress, origin: DragOrigin) => void,
+  onDrop: (target: DropTarget, origin: DragOrigin) => void,
 ) {
   const [drag, setDrag] = useState<Drag | null>(null);
   const press = useRef<Press | null>(null);
@@ -127,7 +138,7 @@ export function useDragToPocket(
         current.pointer = { x: event.clientX, y: event.clientY };
         sizeGhost(current);
         const { target } = hold(current);
-        if (target && current.target && sameSlot(target, current.target)) {
+        if (target && current.target && sameTarget(target, current.target)) {
           drop.current(target, current.origin);
         }
       }
@@ -206,12 +217,28 @@ function sizeGhost(press: Press) {
   press.size ??= pocketSizeOnScreen();
 }
 
-/** The card [press] holds under its pointer, and the pocket on screen a release there would drop into. */
-function hold(press: Press) {
+/** The card [press] holds under its pointer, and where on screen a release there would drop it. */
+function hold(press: Press): { ghost: Rect | null; target: DropTarget | null } {
   const ghost = press.size && ghostAt(press.pointer, press.grab, press.size);
-  const covered =
-    ghost && coveredMost(ghost, pocketsOnScreen(), DROP_MIN_COVER_SHARE);
-  return { ghost, target: covered && dropAddress(press, covered) };
+  if (!ghost) return { ghost, target: null };
+  if (press.origin.kind === "copy" && isOffBinder(ghost)) {
+    return { ghost, target: { kind: "off-binder" } };
+  }
+  const covered = coveredMost(ghost, pocketsOnScreen(), DROP_MIN_COVER_SHARE);
+  const address = covered && dropAddress(press, covered);
+  return { ghost, target: address && { kind: "pocket", address } };
+}
+
+/** Whether [ghost] touches no part of the binder you can see. */
+function isOffBinder(ghost: Rect): boolean {
+  const binder = binderOnScreen();
+  return !binder || !overlaps(ghost, binder);
+}
+
+function sameTarget(a: DropTarget, b: DropTarget): boolean {
+  return a.kind === "pocket" && b.kind === "pocket"
+    ? sameSlot(a.address, b.address)
+    : a.kind === b.kind;
 }
 
 /**
