@@ -16,6 +16,7 @@ import {
   moveCopy,
   place,
   remove,
+  removeCopy,
   slotAt,
   slotNameInSentence,
   slotName,
@@ -151,8 +152,9 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
   const canDragPrinting = panelOpen && beside && detail === null;
   const canMoveCopy = turn === null && detail === null;
 
+  const visible = (page: number) => page === left || page === right;
+
   const moveAt = (to: SlotAddress, from: SlotAddress, copy: Copy) => {
-    const visible = (page: number) => page === left || page === right;
     if (!canMoveCopy || !visible(from.page) || !visible(to.page)) return;
 
     setBinderState((current) => {
@@ -177,6 +179,24 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
     });
   };
 
+  /** Takes a dragged copy out of the binder. A catalogue target on its pocket stays, now empty. */
+  const removeAt = (from: SlotAddress, copy: Copy) => {
+    if (!canMoveCopy || !visible(from.page)) return;
+
+    setBinderState((current) => {
+      const removal = removeCopy(current.binder, from, copy);
+      if (removal.kind === "refused") return current;
+      return {
+        ...current,
+        binder: removal.binder,
+        moveAnnouncement: announced(
+          current.moveAnnouncement,
+          `Removed ${copy.printing.setCode} from ${slotNameInSentence(from)}.`,
+        ),
+      };
+    });
+  };
+
   const allowedDrags = useMemo(
     () => ({ canDragPrinting, canMoveCopy, spread }),
     [canDragPrinting, canMoveCopy, spread],
@@ -184,15 +204,23 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
   const { drag, start: startDrag } = useDragToPocket(
     allowedDrags,
     (target, origin) => {
-      if (target.kind === "off-binder") return;
       if (origin.kind === "printing") {
-        placeAt(target.address, origin.card, origin.printing);
+        if (target.kind === "pocket") {
+          placeAt(target.address, origin.card, origin.printing);
+        }
+      } else if (target.kind === "off-binder") {
+        removeAt(origin.from, origin.copy);
       } else {
         moveAt(target.address, origin.from, origin.copy);
       }
     },
   );
   const origin = drag?.origin;
+  /** The pocket of a copy whose card is off the binder, which a release now would empty. */
+  const removing =
+    origin?.kind === "copy" && drag?.target?.kind === "off-binder"
+      ? origin.from
+      : null;
   const shownAim: Aim | null =
     origin?.kind === "printing"
       ? { kind: "holding", card: origin.card, printing: origin.printing }
@@ -283,6 +311,7 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
                 drag?.target?.kind === "pocket" ? drag.target.address : null
               }
               movingCopy={origin?.kind === "copy"}
+              removing={removing}
               catalogue={catalogue}
               onSlot={onSlot}
               onCopyPress={(from, copy, event) =>
@@ -320,7 +349,9 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
       />
       {drag?.ghost && origin && (
         <img
-          className="drag-ghost"
+          className={
+            removing ? "drag-ghost drag-ghost--removing" : "drag-ghost"
+          }
           src={catalogue.imageUrl(
             (origin.kind === "printing" ? origin.card : origin.copy.card)
               .passcode,

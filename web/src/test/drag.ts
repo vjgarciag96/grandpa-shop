@@ -109,3 +109,9 @@ export function moveCopyWithMouse(source: HTMLElement, destination: Element) {
   dragCopy(source, destination);
   releaseCopy(source, destination);
 }
+
+/** Drags a filed copy with the mouse away from the binder and releases it there. */
+export function removeCopyWithMouse(source: HTMLElement) {
+  dragCopy(source, null);
+  release(source, awayFromBinder.x, awayFromBinder.y);
+}

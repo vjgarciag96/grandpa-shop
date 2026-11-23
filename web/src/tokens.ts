@@ -44,6 +44,9 @@ export function applyTokens(root: HTMLElement) {
     "--panel-width": `${tokens.layout.panelWidthPx}px`,
     "--sheet-height": `${tokens.layout.sheetHeightPercent}dvh`,
     "--drag-ghost-opacity": String(tokens.layout.dragGhostOpacity),
+    "--drag-ghost-removing-opacity": String(
+      tokens.layout.dragGhostRemovingOpacity,
+    ),
     "--page-flip": `${tokens.motion.pageFlipMs}ms`,
     "--easing": tokens.motion.easing,
   };
