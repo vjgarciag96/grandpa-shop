@@ -50,15 +50,17 @@ export function pocketSizeOnScreen(): Size | null {
   return { width, height };
 }
 
-/** Attributes that let a drag find the open spread. */
+/** Attributes that let a drag find an open page or the spine. An inside cover is not binder. */
 export function binderMarker(): Record<string, string> {
   return { [binderAttribute]: "" };
 }
 
-/** The part of the open spread you can see now: both pages, the spine, and an inside cover. Null when none of it shows. */
-export function binderOnScreen(): Rect | null {
-  const binder = document.querySelector(`[${binderAttribute}]`);
-  return binder && visiblePart(binder.getBoundingClientRect(), visibleArea());
+/** The parts of the open pages and the spine you can see now. A hidden part is left out. */
+export function binderOnScreen(): Rect[] {
+  const area = visibleArea();
+  return Array.from(document.querySelectorAll(`[${binderAttribute}]`)).flatMap(
+    (element) => visiblePart(element.getBoundingClientRect(), area) ?? [],
+  );
 }
 
 /** The window, above the catalogue's bottom sheet when it is open. */

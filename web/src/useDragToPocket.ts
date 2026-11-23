@@ -229,10 +229,9 @@ function hold(press: Press): { ghost: Rect | null; target: DropTarget | null } {
   return { ghost, target: address && { kind: "pocket", address } };
 }
 
-/** Whether [ghost] touches no part of the binder you can see. */
+/** Whether [ghost] touches no part of the open pages or the spine you can see. */
 function isOffBinder(ghost: Rect): boolean {
-  const binder = binderOnScreen();
-  return !binder || !overlaps(ghost, binder);
+  return !binderOnScreen().some((part) => overlaps(ghost, part));
 }
 
 function sameTarget(a: DropTarget, b: DropTarget): boolean {

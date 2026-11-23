@@ -77,7 +77,6 @@ export function BinderSpread({
     <div
       className={stacked ? "spread spread--stacked" : "spread"}
       data-testid="spread"
-      {...binderMarker()}
       onPointerDownCapture={(event) => {
         if (event.button === 0 && event.isPrimary !== false) {
           suppressPointerClick.current = false;
@@ -113,7 +112,7 @@ export function BinderSpread({
       }}
     >
       <PageSide page={left} side="left" {...sides} />
-      <div className="spine" aria-hidden="true" />
+      <div className="spine" aria-hidden="true" {...binderMarker()} />
       <PageSide page={right} side="right" {...sides} />
       {turn && (
         <TurningPage
@@ -192,6 +191,7 @@ function PageSide({
       className={`page-side page-side--${side} page`}
       aria-label={`Page ${page}`}
       inert={inert}
+      {...(inert ? undefined : binderMarker())}
     >
       <div className="page__grid">
         {pageSlots(binder, page).map((copy, position) => {

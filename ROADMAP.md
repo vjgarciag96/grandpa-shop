@@ -54,4 +54,4 @@ Done when typing "lost" lists The Lost Millennium, opening it lists all 85 of it
 
 ## 8. Move a copy within a binder spread
 
-Drag a filed copy with a mouse or pen to an empty pocket on either visible page. The original pocket becomes empty, and the copy keeps its printing and condition. Dropping it on another filed copy swaps the two, and each keeps its printing and condition. Dragging it until the card no longer touches the open spread and releasing it there takes the copy out of the binder, as Remove does, with no confirmation; a release in a gap between pockets or over the spine changes nothing. Owner: web.
+Drag a filed copy with a mouse or pen to an empty pocket on either visible page. The original pocket becomes empty, and the copy keeps its printing and condition. Dropping it on another filed copy swaps the two, and each keeps its printing and condition. Dragging it until the card no longer touches the open pages or the spine and releasing it there takes the copy out of the binder, as Remove does, with no confirmation; a release in a gap between pockets or over the spine changes nothing. Owner: web.

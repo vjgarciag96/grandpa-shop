@@ -1494,7 +1494,7 @@ function releaseAt(x: number, y: number) {
   });
 }
 
-// The spread spans x 88–782 and y 88–570. A copy pressed at its centre holds the card 50px either side of the pointer and 73px above and below.
+// The pages span x 88–432 and 438–782 and y 88–570, with the spine between. A copy pressed at its centre holds the card 50px either side of the pointer and 73px above and below.
 describe("a filed copy released with its card still on the binder", () => {
   // The card spans x 405–505: 15px of slot 3, under a fifth of the card, and the empty page beyond.
   it("keeps the copy when released in the gap beside a pocket", () => {
@@ -1526,7 +1526,7 @@ describe("a filed copy released with its card still on the binder", () => {
     ]);
   });
 
-  // The card spans y 569–715, so its top 1px still overlaps the spread's bottom edge at y 570.
+  // The card spans y 569–715, so its top 1px still overlaps the page's bottom edge at y 570.
   it("keeps the copy when the card still overlaps the spread by 1px", () => {
     openSavedBinder({ 0: savedPlayedSdyDarkMagician });
     pressAt(slot("Page 1, slot 1: Dark Magician"), 150, 173);
@@ -1589,13 +1589,24 @@ describe("removing a filed copy by dragging it off the binder", () => {
     expect(labelOf("Page 1, slot 1")).toBe("Page 1, slot 1, empty");
   });
 
-  // The card spans y 570–716, so it only touches the spread's bottom edge at y 570.
-  it("removes the copy once the card only touches the spread's edge", () => {
+  // The card spans y 570–716, so it only touches the page's bottom edge at y 570.
+  it("removes the copy once the card only touches the page's edge", () => {
     openSavedBinder({ 0: savedPlayedSdyDarkMagician });
     pressAt(slot("Page 1, slot 1: Dark Magician"), 150, 173);
     moveTo(150, 643);
 
     releaseAt(150, 643);
+
+    expect(labelOf("Page 1, slot 1")).toBe("Page 1, slot 1, empty");
+  });
+
+  // On the first spread the inside cover takes x 438–782: the card at x 560–660 is wholly over it.
+  it("removes a copy dragged wholly over the inside cover", () => {
+    openSavedBinder({ 0: savedPlayedSdyDarkMagician });
+    pressAt(slot("Page 1, slot 1: Dark Magician"), 150, 173);
+    moveTo(610, 173);
+
+    releaseAt(610, 173);
 
     expect(labelOf("Page 1, slot 1")).toBe("Page 1, slot 1, empty");
   });
