@@ -8,6 +8,7 @@ import {
 
 const pocketAttribute = "data-pocket";
 const filledAttribute = "data-filled";
+const binderAttribute = "data-binder";
 
 /** Attributes that let a drag find this pocket. */
 export function pocketMarker(
@@ -47,6 +48,17 @@ export function pocketSizeOnScreen(): Size | null {
   if (!pocket) return null;
   const { width, height } = pocket.getBoundingClientRect();
   return { width, height };
+}
+
+/** Attributes that let a drag find the open spread. */
+export function binderMarker(): Record<string, string> {
+  return { [binderAttribute]: "" };
+}
+
+/** The part of the open spread you can see now: both pages, the spine, and an inside cover. Null when none of it shows. */
+export function binderOnScreen(): Rect | null {
+  const binder = document.querySelector(`[${binderAttribute}]`);
+  return binder && visiblePart(binder.getBoundingClientRect(), visibleArea());
 }
 
 /** The window, above the catalogue's bottom sheet when it is open. */

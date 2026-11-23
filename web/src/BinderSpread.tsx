@@ -9,7 +9,7 @@ import {
   type Copy,
   type SlotAddress,
 } from "./binder";
-import { pocketMarker } from "./pocketsOnPage";
+import { binderMarker, pocketMarker } from "./pocketsOnPage";
 import type { Catalogue } from "./catalogue";
 import { SWIPE_THRESHOLD_PX } from "./tokens";
 import type { Turn } from "./useSpreadTurns";
@@ -73,6 +73,7 @@ export function BinderSpread({
     <div
       className={stacked ? "spread spread--stacked" : "spread"}
       data-testid="spread"
+      {...binderMarker()}
       onPointerDownCapture={(event) => {
         if (event.button === 0 && event.isPrimary !== false) {
           suppressPointerClick.current = false;

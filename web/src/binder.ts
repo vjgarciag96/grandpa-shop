@@ -93,6 +93,22 @@ export function moveCopy(
     : { kind: "moved", binder: { slots } };
 }
 
+/** What removing a copy did: nothing, or took it out of its slot. */
+export type CopyRemoval =
+  | { readonly kind: "refused" }
+  | { readonly kind: "removed"; readonly binder: Binder };
+
+/** Takes `copy` out of `from`. Refused if `from` no longer holds `copy`. */
+export function removeCopy(
+  binder: Binder,
+  from: SlotAddress,
+  copy: Copy,
+): CopyRemoval {
+  return binder.slots[indexOf(from)] === copy
+    ? { kind: "removed", binder: remove(binder, from) }
+    : { kind: "refused" };
+}
+
 export function changeCondition(
   binder: Binder,
   address: SlotAddress,

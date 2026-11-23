@@ -3,6 +3,7 @@ import {
   coveredMost,
   ghostAt,
   grabFraction,
+  overlaps,
   visiblePart,
   type Pocket,
   type Rect,
@@ -216,6 +217,27 @@ describe("the part of a pocket you can see", () => {
         screenAboveSheet,
       ),
     ).toBeNull();
+  });
+});
+
+describe("whether a card touches the binder", () => {
+  // The binder spans x 88–782 and y 88–570.
+  const binder = { left: 88, top: 88, width: 694, height: 482 };
+
+  it("is true when the card lies on it", () => {
+    expect(overlaps(ghost(156, 100), binder)).toBe(true);
+  });
+
+  it("is true when only a 1px strip of the card is on it", () => {
+    expect(overlaps(ghost(781, 300), binder)).toBe(true);
+  });
+
+  it("is false when the card only touches its edge", () => {
+    expect(overlaps(ghost(782, 300), binder)).toBe(false);
+  });
+
+  it("is false when the card is wholly below it", () => {
+    expect(overlaps(ghost(750, 627), binder)).toBe(false);
   });
 });
 

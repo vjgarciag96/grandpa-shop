@@ -12,8 +12,10 @@ export type Layout = {
  * jsdom does no layout, so this lays the binder out in fixed numbers. Pockets are [pocket] in size,
  * 100×146 unless given, with 10px gaps, in a grid whose top is at y 100. Page 1 and every left
  * (even) page start their grid at x 100; a right (odd) page after page 1 starts at x 450.
+ * The open spread is the box around both grids with a 12px page padding: x 88 to 12px past the right
+ * page's grid, and y 88 to 12px below the grid; x 88–782 and y 88–570 with the default pockets.
  * A catalogue printing row is 320×56 centred on (900, 300), at the panel's side of the screen.
- * Elements given a box with `place` keep it; everything else is 0×0.
+ * Elements given a box with `place` keep it; everything else is 0×0. Shifting the pockets shifts the spread too.
  * The shared test setup restores the real method after each test.
  */
 export function stubLayout(pocket: Size = { width: 100, height: 146 }): Layout {
@@ -30,6 +32,15 @@ export function stubLayout(pocket: Size = { width: 100, height: 146 }): Layout {
           slot.top + shift.dy,
           slot.width,
           slot.height,
+        );
+      }
+      if (this.hasAttribute("data-binder")) {
+        const spread = spreadRect(pocket);
+        return new DOMRect(
+          spread.left + shift.dx,
+          spread.top + shift.dy,
+          spread.width,
+          spread.height,
         );
       }
       if (this.classList.contains("catalogue__printing")) {
@@ -67,5 +78,18 @@ function pocketRect(element: Element, { width, height }: Size): Rect | null {
     top: 100 + Math.floor(index / 3) * (height + 10),
     width,
     height,
+  };
+}
+
+/** The open spread around both pages' grids of pockets of [size], with a 12px page padding. */
+function spreadRect({ width, height }: Size): Rect {
+  const padding = 12;
+  const gridWidth = 3 * width + 2 * 10;
+  const gridHeight = 3 * height + 2 * 10;
+  return {
+    left: 100 - padding,
+    top: 100 - padding,
+    width: 450 + gridWidth + padding - (100 - padding),
+    height: gridHeight + 2 * padding,
   };
 }
