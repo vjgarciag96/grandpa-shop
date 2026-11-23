@@ -88,7 +88,7 @@ Printing rows and pockets are buttons, so each step works by tapping, by clickin
 ### Both
 
 - While dragging, the card's full image follows the pointer at the size of a pocket on the open spread, with `radius.cardPx`, at `layout.dragGhostOpacity` so the pocket beneath shows through. It stays held at the point where it was grabbed, so a copy's card starts exactly over its pocket.
-- The drop target is the pocket the card covers most, empty or filled, on the open spread; on equal cover the earlier page and slot win. Only the part of a pocket you can see counts. If the pocket covered most cannot take the drag (below), there is no target: a neighbouring pocket never wins instead.
+- The drop target is the pocket the card covers most, empty or filled, on the open spread; on equal cover the earlier page and slot win. Only the part of a pocket you can see counts, and a pocket counts only when that part covers at least `layout.dropMinCoverShare` of the card, so a graze never arms a drop. If the pocket covered most cannot take the drag (below), there is no target: a neighbouring pocket never wins instead.
 - An empty target fills with `primaryContainer`. A filled target shows the `primary` outline `layout.aimStrokePx` wide, inside its edge. Other filled pockets show nothing.
 - A release drops only on the pocket shown as the target at that moment. When the spread turns mid-drag, no pocket is a target until the pointer moves again.
 - A drag does not turn the spread. Turning stays on its controls, the arrow keys, and a swipe.

@@ -12,15 +12,20 @@ export type Pocket = {
   readonly rect: Rect;
 };
 
-/** The pocket [ghost] covers most, filled or empty, the earlier page and slot on a tie; null when it covers none. */
+/**
+ * The pocket [ghost] covers most by area, filled or empty, the earlier page and slot on a tie.
+ * A pocket counts only when it covers at least [minShare] of the ghost's area; null when none does.
+ */
 export function coveredMost(
   ghost: Rect,
   pockets: readonly Pocket[],
+  minShare: number,
 ): Pocket | null {
+  const least = minShare * ghost.width * ghost.height;
   let best: { pocket: Pocket; area: number } | null = null;
   for (const pocket of pockets) {
     const area = overlap(ghost, pocket.rect);
-    if (area <= 0) continue;
+    if (area <= 0 || area < least) continue;
     if (
       !best ||
       area > best.area ||

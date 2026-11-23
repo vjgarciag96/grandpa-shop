@@ -11,7 +11,7 @@ import {
 } from "./pocketGeometry";
 import { pocketSizeOnScreen, pocketsOnScreen } from "./pocketsOnPage";
 import type { Card, Printing } from "./catalogue";
-import { DRAG_START_PX } from "./tokens";
+import { DRAG_START_PX, DROP_MIN_COVER_SHARE } from "./tokens";
 
 export type DragOrigin =
   | { kind: "printing"; card: Card; printing: Printing }
@@ -209,7 +209,8 @@ function sizeGhost(press: Press) {
 /** The card [press] holds under its pointer, and the pocket on screen a release there would drop into. */
 function hold(press: Press) {
   const ghost = press.size && ghostAt(press.pointer, press.grab, press.size);
-  const covered = ghost && coveredMost(ghost, pocketsOnScreen());
+  const covered =
+    ghost && coveredMost(ghost, pocketsOnScreen(), DROP_MIN_COVER_SHARE);
   return { ghost, target: covered && dropAddress(press, covered) };
 }
 

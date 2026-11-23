@@ -43,8 +43,11 @@ function ghost(left: number, top: number): Rect {
 }
 
 /** The address of the pocket [card] covers most among [pockets]. */
+// A pocket counts only when the card covers at least a fifth of the card's own area with it: 2920px² of 14600.
+const minShare = 0.2;
+
 function coveredBy(card: Rect, pockets: Pocket[]) {
-  return coveredMost(card, pockets)?.address ?? null;
+  return coveredMost(card, pockets, minShare)?.address ?? null;
 }
 
 describe("the pocket a dragged card covers most", () => {
@@ -70,7 +73,7 @@ describe("the pocket a dragged card covers most", () => {
   });
 
   it("is a filled pocket when the card covers it most", () => {
-    expect(coveredMost(ghost(140, 100), pageOne(1))).toEqual(
+    expect(coveredMost(ghost(140, 100), pageOne(1), minShare)).toEqual(
       pocket(1, 1, true),
     );
   });
@@ -90,21 +93,63 @@ describe("the pocket a dragged card covers most", () => {
   });
 
   it("is the earlier slot on a tie even when that pocket is filled", () => {
-    expect(coveredMost(ghost(155, 100), pageOne(1))).toEqual(
+    expect(coveredMost(ghost(155, 100), pageOne(1), minShare)).toEqual(
       pocket(1, 1, true),
     );
   });
 
   it("is none when the card covers no pocket", () => {
-    expect(coveredMost(ghost(900, 100), pageOne())).toBeNull();
+    expect(coveredMost(ghost(900, 100), pageOne(), minShare)).toBeNull();
   });
 
   it("is none when there are no pockets", () => {
-    expect(coveredMost(ghost(156, 100), [])).toBeNull();
+    expect(coveredMost(ghost(156, 100), [], minShare)).toBeNull();
   });
 
   it("is none when the card only touches a pocket's edge", () => {
-    expect(coveredMost(ghost(420, 100), pageOne())).toBeNull();
+    expect(coveredMost(ghost(420, 100), pageOne(), minShare)).toBeNull();
+  });
+});
+
+describe("a pocket the card only grazes", () => {
+  // Slot 3 is the right-hand column, x 320–420, with nothing beyond it.
+  it("is none when the card covers it by 19px, under a fifth of the card", () => {
+    expect(coveredBy(ghost(401, 100), pageOne())).toBeNull();
+  });
+
+  it("counts once the card covers it by 20px, a fifth of the card", () => {
+    expect(coveredBy(ghost(400, 100), pageOne())).toEqual({
+      page: 1,
+      position: 2,
+    });
+  });
+
+  it("still leaves a pocket when the card is centred on a crossing of four gaps", () => {
+    expect(coveredBy(ghost(155, 178), pageOne())).toEqual({
+      page: 1,
+      position: 0,
+    });
+  });
+});
+
+describe("how much a card covers a pocket", () => {
+  it("is measured by area, not by the overlap's width and height", () => {
+    const card = { left: 0, top: 0, width: 100, height: 146 };
+    const narrowAndTall = {
+      address: { page: 1, position: 0 },
+      filled: false,
+      rect: { left: 78, top: 0, width: 100, height: 146 },
+    };
+    const square = {
+      address: { page: 1, position: 1 },
+      filled: false,
+      rect: { left: -70, top: 76, width: 140, height: 100 },
+    };
+
+    expect(coveredBy(card, [narrowAndTall, square])).toEqual({
+      page: 1,
+      position: 1,
+    });
   });
 });
 

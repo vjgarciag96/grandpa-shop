@@ -6,17 +6,28 @@ import { centreOf } from "./layout";
 /** A point well away from the binder and the panel. */
 export const awayFromBinder = { x: 800, y: 700 } as const;
 
-/** Presses the primary button on a catalogue printing row at its centre, (900, 300), so the card is held by its centre. */
-export function press(row: Element, pointerType = "mouse") {
-  fireEvent.pointerDown(row, {
+/** Presses the primary button on [element] at (x, y). */
+export function pressAt(
+  element: Element,
+  x: number,
+  y: number,
+  pointerType = "mouse",
+) {
+  fireEvent.pointerDown(element, {
     pointerType,
     pointerId: 1,
     isPrimary: true,
     button: 0,
     buttons: 1,
-    clientX: 900,
-    clientY: 300,
+    clientX: x,
+    clientY: y,
   });
+}
+
+/** Presses the primary button on a catalogue printing row at the centre of its box, so the card is held by its centre. */
+export function press(row: Element, pointerType = "mouse") {
+  const { x, y } = centreOf(row);
+  pressAt(row, x, y, pointerType);
 }
 
 /** Moves the pointer; `buttons` is the set of buttons still held, the primary one by default. */
@@ -76,15 +87,7 @@ export function dragCopy(
   pointerType = "mouse",
 ) {
   const from = centreOf(source);
-  fireEvent.pointerDown(source, {
-    pointerType,
-    pointerId: 1,
-    isPrimary: true,
-    button: 0,
-    buttons: 1,
-    clientX: from.x,
-    clientY: from.y,
-  });
+  pressAt(source, from.x, from.y, pointerType);
   if (target) moveOnto(target);
   else moveTo(awayFromBinder.x, awayFromBinder.y);
 }
