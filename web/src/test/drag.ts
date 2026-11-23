@@ -57,6 +57,19 @@ export function release(row: Element, x: number, y: number) {
   fireEvent.click(row, { detail: 1 });
 }
 
+/**
+ * Releases the primary button at (x, y) with no click after it. A browser clicks the pressed copy after a drag,
+ * but the drag swallows that click, so a test of what the release itself does can leave it out.
+ */
+export function releaseAt(x: number, y: number) {
+  fireEvent.pointerUp(window, {
+    pointerId: 1,
+    button: 0,
+    clientX: x,
+    clientY: y,
+  });
+}
+
 /** Releases the primary button over the centre of [pocket]. */
 export function releaseOnto(row: Element, pocket: Element) {
   const { x, y } = centreOf(pocket);

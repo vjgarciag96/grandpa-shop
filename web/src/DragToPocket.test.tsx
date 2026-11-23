@@ -22,6 +22,7 @@ import {
   release,
   releaseCopy,
   releaseOnto,
+  releaseAt,
   releaseSecondary,
   removeCopyWithMouse,
 } from "./test/drag";
@@ -1484,14 +1485,12 @@ describe("a cancelled drag onto a filled pocket", () => {
   });
 });
 
-/** Releases the primary button at (x, y) without a click, as after a drag. */
-function releaseAt(x: number, y: number) {
-  fireEvent.pointerUp(window, {
-    pointerId: 1,
-    button: 0,
-    clientX: x,
-    clientY: y,
-  });
+/** SDY-006 is still in [pocket], page 1, slot 1 unless given, and the binder said nothing. */
+function expectCopyKept(pocket = "Page 1, slot 1") {
+  expect([labelOf(pocket), binderAnnouncement()]).toEqual([
+    `${pocket}: Dark Magician`,
+    "",
+  ]);
 }
 
 // The pages span x 88–432 and 438–782 and y 88–570, with the spine between. A copy pressed at its centre holds the card 50px either side of the pointer and 73px above and below.
@@ -1504,10 +1503,7 @@ describe("a filed copy released with its card still on the binder", () => {
 
     releaseAt(455, 173);
 
-    expect([labelOf("Page 1, slot 1"), binderAnnouncement()]).toEqual([
-      "Page 1, slot 1: Dark Magician",
-      "",
-    ]);
+    expectCopyKept();
   });
 
   // The card spans x 385–485 over the spine at x 420–450: 35px of its own pocket and 35px of page 3, slot 1.
@@ -1520,10 +1516,7 @@ describe("a filed copy released with its card still on the binder", () => {
 
     releaseAt(435, 173);
 
-    expect([labelOf("Page 2, slot 3"), binderAnnouncement()]).toEqual([
-      "Page 2, slot 3: Dark Magician",
-      "",
-    ]);
+    expectCopyKept("Page 2, slot 3");
   });
 
   // The card spans y 569–715, so its top 1px still overlaps the page's bottom edge at y 570.
@@ -1534,10 +1527,7 @@ describe("a filed copy released with its card still on the binder", () => {
 
     releaseAt(150, 642);
 
-    expect([labelOf("Page 1, slot 1"), binderAnnouncement()]).toEqual([
-      "Page 1, slot 1: Dark Magician",
-      "",
-    ]);
+    expectCopyKept();
   });
 });
 
@@ -1552,14 +1542,6 @@ function removalCue() {
         .querySelector(".drag-ghost")
         ?.classList.contains("drag-ghost--removing") ?? false,
   };
-}
-
-/** SDY-006 is still in page 1, slot 1, and the binder said nothing. */
-function expectCopyKept() {
-  expect([labelOf("Page 1, slot 1"), binderAnnouncement()]).toEqual([
-    "Page 1, slot 1: Dark Magician",
-    "",
-  ]);
 }
 
 describe("removing a filed copy by dragging it off the binder", () => {
