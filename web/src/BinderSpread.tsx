@@ -31,7 +31,7 @@ type Props = {
   dropTarget: SlotAddress | null;
   movingCopy: boolean;
   /** The slot of a copy dragged off the binder: it looks empty until the copy leaves on release. */
-  removing: SlotAddress | null;
+  pocketBeingEmptied: SlotAddress | null;
   catalogue: Catalogue;
   onSlot: OpenSlot;
   onCopyPress: PressCopy;
@@ -46,7 +46,7 @@ export function BinderSpread({
   aim,
   dropTarget,
   movingCopy,
-  removing,
+  pocketBeingEmptied,
   catalogue,
   onSlot,
   onCopyPress,
@@ -63,7 +63,7 @@ export function BinderSpread({
     aim,
     dropTarget,
     movingCopy,
-    removing,
+    pocketBeingEmptied,
     catalogue,
     onSlot,
     onCopyPress,
@@ -163,7 +163,7 @@ type SideProps = {
   aim: Aim | null;
   dropTarget: SlotAddress | null;
   movingCopy: boolean;
-  removing: SlotAddress | null;
+  pocketBeingEmptied: SlotAddress | null;
   catalogue: Catalogue;
   onSlot: OpenSlot;
   onCopyPress: PressCopy;
@@ -177,7 +177,7 @@ function PageSide({
   aim,
   dropTarget,
   movingCopy,
-  removing,
+  pocketBeingEmptied,
   catalogue,
   onSlot,
   onCopyPress,
@@ -198,14 +198,16 @@ function PageSide({
           const address = { page, position };
           const label = slotName(address);
           const dropping = dropTarget !== null && sameSlot(dropTarget, address);
-          const shown =
-            removing !== null && sameSlot(removing, address) ? null : copy;
+          const shownCopy =
+            pocketBeingEmptied !== null && sameSlot(pocketBeingEmptied, address)
+              ? null
+              : copy;
           const aimed =
             isTarget(aim, address) ||
             ((movingCopy || aim?.kind === "holding") && !copy) ||
             (dropping && copy !== null);
           const className = [
-            shown ? "slot slot--filled" : "slot slot--empty",
+            shownCopy ? "slot slot--filled" : "slot slot--empty",
             aimed && "slot--aimed",
             dropping && !copy && "slot--drop",
           ]
@@ -227,10 +229,10 @@ function PageSide({
               }}
               onClick={(event) => onSlot(address, event.currentTarget)}
             >
-              {shown && (
+              {shownCopy && (
                 <img
-                  src={catalogue.imageUrl(shown.card.passcode)}
-                  alt={shown.card.name}
+                  src={catalogue.imageUrl(shownCopy.card.passcode)}
+                  alt={shownCopy.card.name}
                   draggable={false}
                 />
               )}

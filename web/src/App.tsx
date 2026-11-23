@@ -201,26 +201,20 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
     () => ({ canDragPrinting, canMoveCopy, spread }),
     [canDragPrinting, canMoveCopy, spread],
   );
-  const { drag, start: startDrag } = useDragToPocket(
-    allowedDrags,
-    (target, origin) => {
-      if (origin.kind === "printing") {
-        if (target.kind === "pocket") {
-          placeAt(target.address, origin.card, origin.printing);
-        }
-      } else if (target.kind === "off-binder") {
-        removeAt(origin.from, origin.copy);
-      } else {
-        moveAt(target.address, origin.from, origin.copy);
-      }
-    },
-  );
+  const { drag, start: startDrag } = useDragToPocket(allowedDrags, (drop) => {
+    switch (drop.kind) {
+      case "place":
+        return placeAt(drop.to, drop.card, drop.printing);
+      case "move":
+        return moveAt(drop.to, drop.from, drop.copy);
+      case "remove":
+        return removeAt(drop.from, drop.copy);
+    }
+  });
   const origin = drag?.origin;
   /** The pocket of a copy whose card is off the binder, which a release now would empty. */
-  const removing =
-    origin?.kind === "copy" && drag?.target?.kind === "off-binder"
-      ? origin.from
-      : null;
+  const pocketBeingEmptied =
+    drag?.drop?.kind === "remove" ? drag.drop.from : null;
   const shownAim: Aim | null =
     origin?.kind === "printing"
       ? { kind: "holding", card: origin.card, printing: origin.printing }
@@ -308,10 +302,10 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
               turn={turn}
               aim={shownAim}
               dropTarget={
-                drag?.target?.kind === "pocket" ? drag.target.address : null
+                drag?.drop && drag.drop.kind !== "remove" ? drag.drop.to : null
               }
               movingCopy={origin?.kind === "copy"}
-              removing={removing}
+              pocketBeingEmptied={pocketBeingEmptied}
               catalogue={catalogue}
               onSlot={onSlot}
               onCopyPress={(from, copy, event) =>
@@ -350,7 +344,9 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
       {drag?.ghost && origin && (
         <img
           className={
-            removing ? "drag-ghost drag-ghost--removing" : "drag-ghost"
+            pocketBeingEmptied
+              ? "drag-ghost drag-ghost--removing"
+              : "drag-ghost"
           }
           src={catalogue.imageUrl(
             (origin.kind === "printing" ? origin.card : origin.copy.card)

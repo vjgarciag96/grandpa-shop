@@ -22,17 +22,35 @@ export type DragOrigin =
   | { kind: "printing"; card: Card; printing: Printing }
   | { kind: "copy"; from: SlotAddress; copy: Copy };
 
-/** Where a release would drop the card: in a pocket, or off the binder, which only a filed copy can be. */
-export type DropTarget =
-  | { readonly kind: "pocket"; readonly address: SlotAddress }
-  | { readonly kind: "off-binder" };
+/**
+ * What a release would do: place a printing in a pocket, move a filed copy to another pocket,
+ * or remove a filed copy whose card is off the binder. A printing is never removed.
+ */
+export type Drop =
+  | {
+      readonly kind: "place";
+      readonly card: Card;
+      readonly printing: Printing;
+      readonly to: SlotAddress;
+    }
+  | {
+      readonly kind: "move";
+      readonly from: SlotAddress;
+      readonly copy: Copy;
+      readonly to: SlotAddress;
+    }
+  | {
+      readonly kind: "remove";
+      readonly from: SlotAddress;
+      readonly copy: Copy;
+    };
 
 type Drag = {
   readonly origin: DragOrigin;
   /** The card under the pointer, or null until a pocket on screen gives it a size. */
   readonly ghost: Rect | null;
-  /** Where a release now would drop the card. */
-  readonly target: DropTarget | null;
+  /** What a release now would do. */
+  readonly drop: Drop | null;
 };
 
 type Press = {
@@ -52,8 +70,8 @@ type Press = {
   pointer: Point;
   /** False from a spread turn until the pointer moves again: a turn never arms a drop. */
   armed: boolean;
-  /** The drop target shown; a release drops only there. */
-  target: DropTarget | null;
+  /** The drop shown; a release does only that. */
+  drop: Drop | null;
 };
 
 /**
@@ -64,15 +82,15 @@ type Press = {
  */
 export function useDragToPocket(
   allowed: Allowed,
-  onDrop: (target: DropTarget, origin: DragOrigin) => void,
+  onDrop: (drop: Drop) => void,
 ) {
   const [drag, setDrag] = useState<Drag | null>(null);
   const press = useRef<Press | null>(null);
   const escapeCanceledCopyDrag = useRef(false);
-  const drop = useRef(onDrop);
+  const handleDrop = useRef(onDrop);
 
   useLayoutEffect(() => {
-    drop.current = onDrop;
+    handleDrop.current = onDrop;
   }, [onDrop]);
 
   useLayoutEffect(() => {
@@ -93,15 +111,15 @@ export function useDragToPocket(
       // The spread turned under a still pointer: nothing is a target until it moves.
       active.spread = allowed.spread;
       active.armed = false;
-      active.target = null;
-      setDrag((current) => current && { ...current, target: null });
+      active.drop = null;
+      setDrag((current) => current && { ...current, drop: null });
     }
 
     const follow = (current: Press) => {
       sizeGhost(current);
-      const { ghost, target } = hold(current);
-      current.target = current.armed ? target : null;
-      setDrag({ origin: current.origin, ghost, target: current.target });
+      const { ghost, drop } = hold(current);
+      current.drop = current.armed ? drop : null;
+      setDrag({ origin: current.origin, ghost, drop: current.drop });
     };
     const end = () => {
       press.current = null;
@@ -137,9 +155,9 @@ export function useDragToPocket(
       if (current.phase === "dragging" && event.button === 0) {
         current.pointer = { x: event.clientX, y: event.clientY };
         sizeGhost(current);
-        const { target } = hold(current);
-        if (target && current.target && sameTarget(target, current.target)) {
-          drop.current(target, current.origin);
+        const { drop } = hold(current);
+        if (drop && current.drop && sameDrop(drop, current.drop)) {
+          handleDrop.current(drop);
         }
       }
       end();
@@ -198,7 +216,7 @@ export function useDragToPocket(
       size: null,
       pointer: { x: event.clientX, y: event.clientY },
       armed: true,
-      target: null,
+      drop: null,
     };
     return true;
   };
@@ -217,16 +235,27 @@ function sizeGhost(press: Press) {
   press.size ??= pocketSizeOnScreen();
 }
 
-/** The card [press] holds under its pointer, and where on screen a release there would drop it. */
-function hold(press: Press): { ghost: Rect | null; target: DropTarget | null } {
+/** The card [press] holds under its pointer, and what a release there would do. */
+function hold(press: Press): { ghost: Rect | null; drop: Drop | null } {
   const ghost = press.size && ghostAt(press.pointer, press.grab, press.size);
-  if (!ghost) return { ghost, target: null };
-  if (press.origin.kind === "copy" && isOffBinder(ghost)) {
-    return { ghost, target: { kind: "off-binder" } };
+  if (!ghost) return { ghost, drop: null };
+  const { origin } = press;
+  if (origin.kind === "copy" && isOffBinder(ghost)) {
+    return {
+      ghost,
+      drop: { kind: "remove", from: origin.from, copy: origin.copy },
+    };
   }
   const covered = coveredMost(ghost, pocketsOnScreen(), DROP_MIN_COVER_SHARE);
-  const address = covered && dropAddress(press, covered);
-  return { ghost, target: address && { kind: "pocket", address } };
+  const to = covered && dropAddress(press, covered);
+  return { ghost, drop: to && dropInto(origin, to) };
+}
+
+/** Dropping [origin] into the pocket at [to]: a printing is placed, a copy moved. */
+function dropInto(origin: DragOrigin, to: SlotAddress): Drop {
+  return origin.kind === "printing"
+    ? { kind: "place", card: origin.card, printing: origin.printing, to }
+    : { kind: "move", from: origin.from, copy: origin.copy, to };
 }
 
 /** Whether [ghost] touches no part of the open pages or the spine you can see. */
@@ -234,10 +263,10 @@ function isOffBinder(ghost: Rect): boolean {
   return !binderOnScreen().some((part) => overlaps(ghost, part));
 }
 
-function sameTarget(a: DropTarget, b: DropTarget): boolean {
-  return a.kind === "pocket" && b.kind === "pocket"
-    ? sameSlot(a.address, b.address)
-    : a.kind === b.kind;
+/** Whether two drops of the same press do the same: a removal, or a drop into the same pocket. */
+function sameDrop(a: Drop, b: Drop): boolean {
+  if (a.kind === "remove" || b.kind === "remove") return a.kind === b.kind;
+  return sameSlot(a.to, b.to);
 }
 
 /**
