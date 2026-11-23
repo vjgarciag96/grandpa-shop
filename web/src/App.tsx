@@ -275,7 +275,7 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
               stacked={stacked}
               turn={turn}
               aim={shownAim}
-              dropTarget={drag?.over ?? null}
+              dropTarget={drag?.target ?? null}
               movingCopy={origin?.kind === "copy"}
               catalogue={catalogue}
               onSlot={onSlot}
@@ -312,7 +312,7 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
         className="binder__announcement"
         announcement={moveAnnouncement}
       />
-      {drag && origin && (
+      {drag?.ghost && origin && (
         <img
           className="drag-ghost"
           src={catalogue.imageUrl(
@@ -320,7 +320,12 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
               .passcode,
           )}
           alt=""
-          style={{ left: drag.x, top: drag.y }}
+          style={{
+            left: drag.ghost.left,
+            top: drag.ghost.top,
+            width: drag.ghost.width,
+            height: drag.ghost.height,
+          }}
         />
       )}
       {detail && copy && (

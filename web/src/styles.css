@@ -992,17 +992,14 @@ html:has(.dialog-backdrop) {
   user-select: none;
 }
 
-/* The thumbnail that follows the pointer while a printing is dragged. */
+/* The card that follows the pointer while dragging. Its box, a pocket's size where it was grabbed, is set inline. */
 .drag-ghost {
   position: fixed;
   z-index: 3;
-  width: var(--drag-ghost-width);
-  aspect-ratio: var(--pocket-aspect);
   border-radius: var(--radius-card);
   opacity: var(--drag-ghost-opacity);
   object-fit: cover;
   pointer-events: none;
-  transform: translate(-50%, -50%);
 }
 
 .catalogue__group {

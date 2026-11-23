@@ -1,5 +1,5 @@
 import { screen, within } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { openApp, openPotOfGreedOverDarkMagician } from "./test/app";
 import {
   SAVED_BINDER_KEY,
@@ -10,6 +10,7 @@ import {
 } from "./test/binder";
 import { dragPrintingWithMouse, moveCopyWithMouse } from "./test/drag";
 import { darkMagician } from "./test/fakeCatalogue";
+import { stubLayout } from "./test/layout";
 
 const slot = (name: string) => screen.getByRole("button", { name });
 
@@ -27,9 +28,8 @@ async function placeDarkMagicianInFirstSlot(
   await user.click(screen.getByRole("button", { name: /LOB-EN005/ }));
 }
 
-afterEach(() => {
-  vi.restoreAllMocks();
-  document.elementFromPoint = () => null;
+beforeEach(() => {
+  stubLayout();
 });
 
 describe("the binder across reloads", () => {
