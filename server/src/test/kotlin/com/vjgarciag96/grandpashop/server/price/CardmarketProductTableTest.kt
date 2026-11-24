@@ -187,6 +187,57 @@ class CardmarketProductTableTest {
     }
 
     @Test
+    fun pairs_three_rarities_from_the_middle_of_the_rank_list_by_trend() {
+        val cards =
+            listOf(
+                card(
+                    1,
+                    "Jinzo",
+                    Printing("JUSH-EN057", "Justice Hunters", "Ultra Rare"),
+                    Printing("JUSH-EN057", "Justice Hunters", "Rare"),
+                    Printing("JUSH-EN057", "Justice Hunters", "Super Rare"),
+                ),
+            )
+        val products =
+            listOf(
+                product(11, "Jinzo", expansion = 1),
+                product(12, "Jinzo", expansion = 1),
+                product(13, "Jinzo", expansion = 1),
+            )
+        val guide = guide(11 to 500, 12 to 5, 13 to 50)
+
+        val generation = CardmarketProductTable.generate(cards, products, guide, noRows)
+
+        assertEquals(
+            listOf(
+                row("JUSH-EN057", "Rare", 12, Resolution.Inferred),
+                row("JUSH-EN057", "Super Rare", 13, Resolution.Inferred),
+                row("JUSH-EN057", "Ultra Rare", 11, Resolution.Inferred),
+            ),
+            generation.table.rows,
+        )
+    }
+
+    @Test
+    fun gives_no_row_when_two_products_to_pair_share_a_trend() {
+        val cards =
+            listOf(
+                card(
+                    1,
+                    "Jinzo",
+                    Printing("JUSH-EN057", "Justice Hunters", "Rare"),
+                    Printing("JUSH-EN057", "Justice Hunters", "Super Rare"),
+                ),
+            )
+        val products = listOf(product(837608, "Jinzo", expansion = 1), product(840049, "Jinzo", expansion = 1))
+        val guide = guide(837608 to 18, 840049 to 18)
+
+        val generation = CardmarketProductTable.generate(cards, products, guide, noRows)
+
+        assertEquals(emptyList<ProductRow>(), generation.table.rows)
+    }
+
+    @Test
     fun ranks_a_rarity_regardless_of_its_case() {
         val cards =
             listOf(

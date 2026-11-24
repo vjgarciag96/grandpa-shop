@@ -172,8 +172,9 @@ object CardmarketProductTable {
         }
 
     /**
-     * Products in trend order against rarities in rank order.
-     * Nothing when a rarity has no rank or a product has no trend. */
+     * Products in trend order against rarities in rank order. Nothing when a rarity has no rank, a product has
+     * no trend, or two products share a trend, since the price then says nothing about which is which.
+     */
     private fun pairByPrice(
         printings: List<SetPrinting>,
         products: List<CardmarketProduct>,
@@ -182,9 +183,12 @@ object CardmarketProductTable {
     ): List<ProductRow> {
         val rankByRarity = rarities.associateWith { rankOf[it.lowercase()] }
         val trendByProduct = products.associateWith { guide.trend(it.id)?.cents }
-        if (rankByRarity.values.any { it == null } || trendByProduct.values.any { it == null }) return emptyList()
+        val trends = trendByProduct.values
+        if (rankByRarity.values.any { it == null } || trends.any { it == null } || trends.toSet().size < trends.size) {
+            return emptyList()
+        }
         val byRank = rarities.sortedBy { rankByRarity.getValue(it) }
-        val byTrend = products.sortedWith(compareBy({ trendByProduct.getValue(it) }, { it.id.value }))
+        val byTrend = products.sortedBy { trendByProduct.getValue(it) }
         val productOf = byRank.zip(byTrend).toMap()
         return printings.map { it.row(productOf.getValue(it.printing.rarity), Resolution.Inferred) }
     }
