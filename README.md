@@ -26,17 +26,9 @@ Open, and not to be built as if they were closed:
 - [Real-time transport](docs/decisions/0009-realtime-transport.md)
 - [Sync and conflict model](docs/decisions/0010-sync-and-conflict-model.md)
 
-## Team
+## Working on it
 
-Six bots share the work. Lead frames a request and assigns it. Backend, web, Android, and design build only what they own. Quality reviews, and it does not build features. No bot grades its own work.
-
-The roster, the ownership map, and the routing rules are in [team/README.md](team/README.md).
-
-## Pipeline
-
-frame, model, slice, implement (tests first, and an end-to-end check of the real artifact inside that step), review, adversarial-review, code-quality, mutate. A bug comes back through debug and then implement, and the same reviews run again. Review steps do not edit code.
-
-The chain, and who runs each step, is [pipeline/README.md](pipeline/README.md). The skills are vendored from [vjgarciag96/skills](https://github.com/vjgarciag96/skills). Agents start at [AGENTS.md](AGENTS.md). The domain words are in [CONTEXT.md](CONTEXT.md). The first milestones, none of them built, are in [ROADMAP.md](ROADMAP.md).
+Agents start at [AGENTS.md](AGENTS.md). The domain words are in [CONTEXT.md](CONTEXT.md). The milestones are in [ROADMAP.md](ROADMAP.md).
 
 ## Checks
 

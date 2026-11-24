@@ -1,26 +1,6 @@
 # Agents
 
-Grandpa Shop is a public Yu-Gi-Oh collection tracker. The modules are empty on purpose. Read this file, then [CONTEXT.md](CONTEXT.md), [ROADMAP.md](ROADMAP.md), [team/README.md](team/README.md), and [pipeline/README.md](pipeline/README.md) before changing the repo.
-
-## Pipeline
-
-Every change follows [pipeline/README.md](pipeline/README.md):
-
-frame, then model, then slice, then implement (test-first, and end-to-end against the real artifact inside implement), then review, then adversarial-review, then code-quality, then mutate.
-
-A bug takes debug, then implement, then those same four grade steps.
-
-Load each skill from `skills/<name>/SKILL.md`. The files are vendored from [vjgarciag96/skills](https://github.com/vjgarciag96/skills) at `5362e0384daa01e7abf41147b3b908f602aaf0a0`. A skill that mentions `~/.agents/skills` means `skills/` in this repo. Cursor also sees them at `.cursor/skills/`. The two copies must match.
-
-## No bot grades its own work
-
-The bot that implemented a change never runs review, adversarial-review, code-quality, or mutate on it. A peer runs review. Quality runs the other three, except when quality authored the change. Then lead reviews and backend runs the three grade steps. The full table is in the pipeline doc.
-
-Review steps never edit code. They write a report under `.work/` and stop. Findings go back to the author.
-
-## Who works where
-
-Lead frames and assigns. Lead does not write feature code. Backend owns `server/`. Web owns `web/`. Android owns `android/`. Design owns `design/`. Quality owns `quality/` and the CI workflow, and it does not build features. Paths and routing are in [team/README.md](team/README.md).
+Grandpa Shop is a public Yu-Gi-Oh collection tracker. Read this file, then [CONTEXT.md](CONTEXT.md) and [ROADMAP.md](ROADMAP.md), before changing the repo.
 
 ## Practices
 
