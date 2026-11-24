@@ -55,3 +55,9 @@ Done when typing "lost" lists The Lost Millennium, opening it lists all 85 of it
 ## 8. Move a copy within a binder spread
 
 Drag a filed copy with a mouse or pen to an empty pocket on either visible page. The original pocket becomes empty, and the copy keeps its printing and condition. Dropping it on another filed copy swaps the two, and each keeps its printing and condition. Dragging it until the card no longer touches the open pages or the spine and releasing it there takes the copy out of the binder, as Remove does, with no confirmation; a release in a gap between pockets or over the spine changes nothing. Owner: web.
+
+## 9. Show a filed copy's Cardmarket price
+
+A copy's detail on the web shows the price of its printing, as "40.06 € · Cardmarket, 23 Nov 2026". The server downloads Cardmarket's price guide once and keeps it under a name carrying the guide's date, and finds a printing's Cardmarket product in the product table. Ties in the table are settled when it is generated, and a wrong row is fixed by editing the table. Framed in `.work/cardmarket-price/agreement.md` under autonomous delivery. See [0013](docs/decisions/0013-prices-come-from-cardmarket-price-guide.md). Owners: lead (glossary and decision), backend (generator, product table, price route), web (the detail line).
+
+Done when the generated product table maps SRL-029 Ultra Rare to Cardmarket product 579386 and at least 35,000 printings in all; the kept guide file is named with the guide's date; the server answers the price of SRL-029 Ultra Rare from the kept guide, 404 for a printing with no price, and 400 for a missing set code or rarity; and a filed Spell Ruler Relinquished shows that price in its detail while a copy with no price shows no price line. History, totals, refresh cadence, and corrections from the client are not in this item. In progress.

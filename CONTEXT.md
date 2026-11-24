@@ -2,7 +2,7 @@
 
 One vocabulary for Grandpa Shop. Code, sketches, and the roadmap use these words. A new word is added here before it shows up as a type. There are no domain types in the modules yet. The model step of a slice is what turns a term into a type.
 
-The collection belongs to one person. Sync, accounts, and prices are not terms yet. The transport and the conflict model are still open. See [docs/decisions](docs/decisions/README.md).
+The collection belongs to one person. Sync and accounts are not terms yet. The transport and the conflict model are still open. See [docs/decisions](docs/decisions/README.md).
 
 ## Card
 
@@ -74,6 +74,14 @@ Whether a printing is foil. The named foil treatments are not listed yet. A slic
 
 Attribute, monster type, level, rank, link rating, ATK, and DEF describe a monster card. Spell and trap cards do not have them.
 
+## Cardmarket product
+
+A printing as Cardmarket sells it, known by a stable numeric id. Cardmarket draws its product lines differently from the catalogue, so several printings can share one product, and a product can match no printing in the catalogue. The product table, generated and committed in the repo, says which product a printing has. See [0013](docs/decisions/0013-prices-come-from-cardmarket-price-guide.md).
+
+## Price
+
+The Cardmarket trend price of a printing, in euros, as of the day of the price guide it came from. It is the price of the printing's Cardmarket product, so it ignores condition, edition, language, and finish. A printing with no Cardmarket product, or whose product has no trend price in the guide, has no price.
+
 ## Not named yet
 
-Wishlist, deck, trade list, price, and user account. Do not add them as types until a frame gives them a glossary entry.
+Wishlist, deck, trade list, and user account. Do not add them as types until a frame gives them a glossary entry.
