@@ -2,12 +2,10 @@ package com.vjgarciag96.grandpashop.server
 
 import com.vjgarciag96.grandpashop.server.catalogue.CardCatalogue
 import com.vjgarciag96.grandpashop.server.catalogue.CardImages
-import com.vjgarciag96.grandpashop.server.price.CardmarketProductId
 import com.vjgarciag96.grandpashop.server.price.CardmarketProducts
 import com.vjgarciag96.grandpashop.server.price.Prices
-import com.vjgarciag96.grandpashop.server.price.PrintingKey
-import com.vjgarciag96.grandpashop.server.price.ProductRow
 import com.vjgarciag96.grandpashop.server.price.Resolution
+import com.vjgarciag96.grandpashop.server.price.row
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
@@ -20,10 +18,7 @@ import java.nio.file.Path
 
 /** The API as `main` builds it when keeping the price guide fails at start. */
 class StartWithoutGuideTest {
-    private val table =
-        CardmarketProducts(
-            listOf(ProductRow(PrintingKey("SRL-029", "Ultra Rare"), CardmarketProductId(579386), Resolution.Inferred)),
-        )
+    private val table = CardmarketProducts(listOf(row("SRL-029", "Ultra Rare", 579386, Resolution.Inferred)))
 
     private fun withGuideThatCannotBeKept(block: suspend ApplicationTestBuilder.() -> Unit) =
         testApplication {

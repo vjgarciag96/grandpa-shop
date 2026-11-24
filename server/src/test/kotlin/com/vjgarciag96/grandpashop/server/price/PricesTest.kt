@@ -10,8 +10,8 @@ class PricesTest {
     private val table =
         CardmarketProducts(
             listOf(
-                ProductRow(relinquished, CardmarketProductId(579386), Resolution.Inferred),
-                ProductRow(darkBeginning, CardmarketProductId(105210), Resolution.Inferred),
+                row("SRL-029", "Ultra Rare", 579386, Resolution.Inferred),
+                row("DB1-EN015", "Super Rare", 105210, Resolution.Inferred),
             ),
         )
     private val guide = PriceGuide(LocalDate.of(2026, 11, 23), mapOf(CardmarketProductId(579386) to 4006L))
