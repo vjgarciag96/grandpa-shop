@@ -163,13 +163,28 @@ object CardmarketProductTable {
         printings.groupBy { normalise(it.card.name) }.flatMap { (name, ofCard) ->
             val products = match.expansion.productsByName[name].orEmpty()
             val rarities = ofCard.map { it.printing.rarity }.distinct()
+            val setCodes = ofCard.map { it.printing.setCode }.distinct()
             when {
                 products.size == 1 && rarities.size == 1 ->
                     ofCard.map { it.row(products.single(), if (match.tied) Resolution.Inferred else Resolution.Unique) }
+                rarities.size == 1 && products.size == setCodes.size -> pairBySetCode(ofCard, products)
                 products.size == rarities.size -> pairByPrice(ofCard, products, rarities, guide)
                 else -> emptyList()
             }
         }
+
+    /**
+     * Products in the order Cardmarket added them against set codes in their own order: Cardmarket added the
+     * later regional reprint (MRD-E003, MRD-EN003) as a later product. A guess, so the rows are inferred.
+     */
+    private fun pairBySetCode(
+        printings: List<SetPrinting>,
+        products: List<CardmarketProduct>,
+    ): List<ProductRow> {
+        val byCode = printings.sortedBy { it.printing.setCode }
+        val byAdded = products.sortedWith(compareBy({ it.dateAdded }, { it.id.value }))
+        return byCode.zip(byAdded) { printing, product -> printing.row(product, Resolution.Inferred) }
+    }
 
     /**
      * Products in trend order against rarities in rank order. Nothing when a rarity has no rank, a product has

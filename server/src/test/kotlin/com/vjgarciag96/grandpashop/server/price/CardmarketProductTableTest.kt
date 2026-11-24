@@ -48,6 +48,69 @@ class CardmarketProductTableTest {
     }
 
     @Test
+    fun pairs_set_codes_of_one_rarity_with_products_in_the_order_cardmarket_added_them() {
+        val cards = listOf(summonedSkull("MRD-003", "MRD-E003", "MRD-EN003"))
+        val products =
+            listOf(
+                product(579183, "Summoned Skull", expansion = 1016, added = LocalDate.of(2021, 10, 19)),
+                product(105790, "Summoned Skull", expansion = 1016, added = LocalDate.of(2007, 1, 1)),
+                product(578977, "Summoned Skull", expansion = 1016, added = LocalDate.of(2021, 10, 18)),
+            )
+
+        val generation = CardmarketProductTable.generate(cards, products, noTrends, noRows)
+
+        assertEquals(
+            listOf(
+                row("MRD-003", "Ultra Rare", 105790, Resolution.Inferred),
+                row("MRD-E003", "Ultra Rare", 578977, Resolution.Inferred),
+                row("MRD-EN003", "Ultra Rare", 579183, Resolution.Inferred),
+            ),
+            generation.table.rows,
+        )
+    }
+
+    @Test
+    fun pairs_set_codes_with_products_added_the_same_day_by_product_id() {
+        val cards = listOf(summonedSkull("MRD-003", "MRD-E003"))
+        val products =
+            listOf(
+                product(578977, "Summoned Skull", expansion = 1016),
+                product(105790, "Summoned Skull", expansion = 1016),
+            )
+
+        val generation = CardmarketProductTable.generate(cards, products, noTrends, noRows)
+
+        assertEquals(
+            listOf(
+                row("MRD-003", "Ultra Rare", 105790, Resolution.Inferred),
+                row("MRD-E003", "Ultra Rare", 578977, Resolution.Inferred),
+            ),
+            generation.table.rows,
+        )
+    }
+
+    @Test
+    fun gives_no_row_when_a_card_has_a_product_per_rarity_and_set_code() {
+        val cards =
+            listOf(
+                card(
+                    1,
+                    "Summoned Skull",
+                    Printing("MRD-003", "Metal Raiders", "Ultra Rare"),
+                    Printing("MRD-E003", "Metal Raiders", "Ultra Rare"),
+                    Printing("MRD-003", "Metal Raiders", "Common"),
+                    Printing("MRD-E003", "Metal Raiders", "Common"),
+                ),
+            )
+        val products = (11L..14L).map { product(it, "Summoned Skull", expansion = 1016) }
+        val guide = guide(11 to 5000, 12 to 4000, 13 to 50, 14 to 40)
+
+        val generation = CardmarketProductTable.generate(cards, products, guide, noRows)
+
+        assertEquals(emptyList<ProductRow>(), generation.table.rows)
+    }
+
+    @Test
     fun takes_the_expansion_cardmarket_added_first_when_several_list_the_set_and_marks_its_rows_inferred() {
         val cards = spellRuler()
         val products =
@@ -407,6 +470,10 @@ class CardmarketProductTableTest {
             generation.coverage,
         )
     }
+
+    /** Summoned Skull as an Ultra Rare under each of the given Metal Raiders set codes. */
+    private fun summonedSkull(vararg setCodes: String) =
+        card(1, "Summoned Skull", *setCodes.map { Printing(it, "Metal Raiders", "Ultra Rare") }.toTypedArray())
 
     /** Three Spell Ruler cards, one printing each, enough names for a tied set to join. */
     private fun spellRuler() =
