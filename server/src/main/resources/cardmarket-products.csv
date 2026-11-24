@@ -7677,17 +7677,6 @@ DIFO-EN097,Super Rare,656315,unique
 DIFO-EN098,Super Rare,656316,unique
 DIFO-EN099,Common,656317,unique
 DIFO-EN100,Starlight Rare,656318,unique
-DL10-EN001,Super Rare,102292,unique
-DL2-001,Super Rare,105962,unique
-DL2-002,Super Rare,102822,unique
-DL2-EN001,Super Rare,105962,unique
-DL2-EN002,Super Rare,102822,unique
-DL3-001,Rare,104756,unique
-DL5-EN001,Super Rare,105237,unique
-DL6-EN001,Super Rare,106081,unique
-DL7-EN001,Super Rare,106083,unique
-DL8-EN001,Super Rare,101832,unique
-DL9-EN001,Super Rare,104198,unique
 DLCS-EN008,Common,493764,unique
 DLCS-EN009,Common,493769,unique
 DLCS-EN010,Common,493774,unique
@@ -7926,7 +7915,6 @@ DLG1-EN109,Super Rare,244602,unique
 DLG1-EN110,Ultra Rare,244603,unique
 DLG1-EN111,Ultra Rare,244604,unique
 DLG1-EN112,Ultra Rare,244605,unique
-DMG-001,Secret Rare,102826,unique
 DOCS-EN001,Rare,285626,unique
 DOCS-EN002,Rare,285627,unique
 DOCS-EN003,Rare,285628,unique
@@ -11465,7 +11453,6 @@ FET-EN058,Ultimate Rare,250220,inferred
 FET-EN059,Common,103158,inferred
 FET-EN060,Rare,103439,inferred
 FET-EN060,Ultimate Rare,250221,inferred
-FFSE-EN001,Super Rare,282225,unique
 FIGA-EN001,Super Rare,392697,unique
 FIGA-EN002,Secret Rare,392702,unique
 FIGA-EN003,Super Rare,392707,unique
@@ -12811,7 +12798,6 @@ GRCR-EN058,Super Rare,606084,unique
 GRCR-EN059,Collector's Rare,606086,inferred
 GRCR-EN059,Rare,606085,inferred
 GRCR-EN060,Rare,606087,unique
-GSE-EN001,Ultra Secret Rare,103230,unique
 GTP2-EN177,Ghost Rare,652759,unique
 GTP2-EN178,Ghost Rare,652760,unique
 GTP2-EN182,Ghost Rare,652762,unique
@@ -12830,7 +12816,6 @@ GX05-EN003,Super Rare,102296,unique
 GX1-EN001,Super Rare,103196,unique
 GX1-EN002,Super Rare,106404,unique
 GX1-EN003,Super Rare,103907,unique
-GXNG-EN001,Ultra Rare,106384,unique
 HA01-EN001,Secret Rare,109770,unique
 HA01-EN002,Super Rare,109771,unique
 HA01-EN003,Secret Rare,109772,unique
@@ -13538,8 +13523,6 @@ HAC1-EN175,Secret Rare,610206,unique
 HAC1-EN176,Secret Rare,610207,unique
 HAC1-EN177,Secret Rare,610209,unique
 HAC1-EN178,Secret Rare,610211,unique
-HASE-EN001,Super Rare,248472,unique
-HASE-EN002,Super Rare,248473,unique
 HISU-EN001,Super Rare,366610,unique
 HISU-EN002,Secret Rare,366650,unique
 HISU-EN003,Super Rare,366611,unique
@@ -14334,8 +14317,6 @@ JOTL-EN096,Common,263670,unique
 JOTL-EN097,Common,263671,unique
 JOTL-EN098,Common,263672,unique
 JOTL-EN099,Common,263673,unique
-JUMP-EN011,Secret Rare,724546,unique
-JUMP-EN086,Ultra Rare,726327,unique
 JUSH-EN001,Collector's Rare,840005,inferred
 JUSH-EN001,Starlight Rare,840004,inferred
 JUSH-EN001,Ultra Rare,837552,inferred
@@ -16347,7 +16328,6 @@ LDK2-ENY37,Common,293068,unique
 LDK2-ENY38,Common,293069,unique
 LDK2-ENY39,Common,293070,unique
 LDK2-ENY40,Common,293071,unique
-LDPP-EN001,Ultra Rare,253171,unique
 LDS1-EN002,Common,475159,unique
 LDS1-EN003,Common,475164,unique
 LDS1-EN004,Common,475169,unique
@@ -19107,7 +19087,6 @@ MDP2-EN017,Common,106115,unique
 MDP2-EN018,Common,103108,unique
 MDP2-EN019,Common,104649,unique
 MDP2-EN020,Common,105758,unique
-MF01-EN001,Normal Parallel Rare,103222,unique
 MF02-EN001,Normal Parallel Rare,282186,unique
 MF02-EN002,Normal Parallel Rare,282187,unique
 MF02-EN003,Normal Parallel Rare,102637,unique
@@ -26402,12 +26381,6 @@ PSV-EN101,Super Rare,580589,inferred
 PSV-EN102,Common,580590,inferred
 PSV-EN103,Ultra Rare,580591,inferred
 PSV-EN104,Secret Rare,580592,inferred
-PT02-EN001,Ultra Rare,244645,unique
-PT02-EN002,Common,106078,unique
-PT03-EN001,Ultra Rare,244648,unique
-PT03-EN002,Common,244649,unique
-PT1-EN001,Common,244646,unique
-PT1-EN002,Ultra Rare,244647,unique
 PTDN-EN001,Common,103613,unique
 PTDN-EN002,Common,102031,unique
 PTDN-EN003,Secret Rare,105123,unique
@@ -30458,7 +30431,6 @@ RYMP-EN110,Ultra Rare,253163,unique
 RYMP-EN111,Common,253164,unique
 RYMP-EN112,Ultra Rare,253165,unique
 RYMP-EN113,Rare,253166,unique
-SAAS-EN001,Super Rare,252044,unique
 SAST-EN000,Ultra Rare,369365,unique
 SAST-EN001,Common,369366,unique
 SAST-EN002,Rare,369367,unique
@@ -30826,7 +30798,6 @@ SBCB-EN200,Common,518931,unique
 SBCB-EN201,Secret Rare,518936,unique
 SBCB-EN202,Secret Rare,518941,unique
 SBCB-EN203,Secret Rare,518946,unique
-SBPR-EN004,Secret Rare,671805,unique
 SBSC-EN001,Common,389392,unique
 SBSC-EN002,Super Rare,389397,unique
 SBSC-EN003,Super Rare,389402,unique
@@ -30907,7 +30878,6 @@ SD09-EN033,Common,716829,unique
 SD09-EN034,Common,716830,unique
 SD09-EN035,Common,716831,unique
 SD09-EN036,Common,716832,unique
-SD09-ENSS1,Ultra Rare,714961,unique
 SD1-EN001,Ultra Rare,724518,unique
 SD1-EN002,Common,724519,unique
 SD1-EN003,Common,724520,unique
@@ -36904,13 +36874,11 @@ TU08-EN017,Common,256703,unique
 TU08-EN018,Common,256704,unique
 TU08-EN019,Common,256705,unique
 TU08-EN020,Common,256706,unique
-TWED-EN001,Ultra Rare,110693,unique
 UBP1-EN001,Secret Rare,105264,inferred
 UBP1-EN002,Secret Rare,104218,inferred
 UBP1-EN003,Secret Rare,105261,inferred
 UBP1-EN004,Secret Rare,104215,inferred
 UBP1-EN005,Secret Rare,103313,inferred
-UE02-EN001,Ultra Rare,244612,unique
 UP01-EN001,Ultimate Rare,893741,unique
 UP01-EN002,Ultimate Rare,893742,unique
 UP01-EN003,Ultimate Rare,893743,unique
@@ -37432,11 +37400,9 @@ WSUP-EN047,Super Rare,282170,unique
 WSUP-EN048,Super Rare,282171,unique
 WSUP-EN049,Super Rare,282172,unique
 WSUP-EN050,Prismatic Secret Rare,282173,unique
-XSPU-EN001,Super Rare,264352,unique
 YDB1-EN001,Super Rare,102225,unique
 YDB1-EN002,Super Rare,104545,unique
 YDB1-EN003,Super Rare,102920,unique
-YG01-EN001,Secret Rare,253171,unique
 YGLD-ENA00,Secret Rare,286232,unique
 YGLD-ENA01,Common,286109,unique
 YGLD-ENA02,Common,286110,unique
