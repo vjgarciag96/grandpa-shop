@@ -1,5 +1,6 @@
+import { useEffect, useState } from "react";
 import { CONDITIONS, type Condition, type Copy } from "./binder";
-import type { Catalogue, MonsterStats } from "./catalogue";
+import type { Catalogue, MonsterStats, Price, Printing } from "./catalogue";
 import { Dialog } from "./Dialog";
 
 type Props = {
@@ -23,6 +24,7 @@ export function CopyDetail({
   onClose,
 }: Props) {
   const { card, printing } = copy;
+  const price = usePrice(catalogue, printing);
   return (
     <Dialog title={title} onClose={onClose}>
       <div className="detail">
@@ -47,6 +49,7 @@ export function CopyDetail({
             </li>
             <li>{printing.setName}</li>
           </ul>
+          {price && <p className="detail__price">{priceLine(price)}</p>}
           <label className="detail__condition">
             <span>Condition</span>
             <select
@@ -79,6 +82,56 @@ export function CopyDetail({
       </div>
     </Dialog>
   );
+}
+
+type PriceAnswer = {
+  catalogue: Catalogue;
+  setCode: string;
+  rarity: string;
+  price: Price;
+};
+
+/**
+ * The printing's price once the catalogue has answered it; null before that, when there is none,
+ * and when the lookup failed: a copy whose price cannot be fetched looks exactly as one with no price.
+ */
+function usePrice(catalogue: Catalogue, { setCode, rarity }: Printing) {
+  const [answer, setAnswer] = useState<PriceAnswer | null>(null);
+  const price =
+    answer?.catalogue === catalogue &&
+    answer.setCode === setCode &&
+    answer.rarity === rarity
+      ? answer.price
+      : null;
+
+  useEffect(() => {
+    const request = new AbortController();
+    catalogue.price({ setCode, rarity }, request.signal).then(
+      (found) => {
+        if (found && !request.signal.aborted)
+          setAnswer({ catalogue, setCode, rarity, price: found });
+      },
+      () => {}, // A failed lookup deliberately shows no line.
+    );
+    return () => request.abort();
+  }, [catalogue, setCode, rarity]);
+
+  return price;
+}
+
+// The guide date parses as UTC midnight, so a viewer west of Greenwich would otherwise see the day before.
+const guideDateFormat = new Intl.DateTimeFormat("en-GB", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
+/** 40.06 € · Cardmarket, 23 Nov 2026: the euros keep their sign on the same line. */
+function priceLine({ cents, guideDate }: Price): string {
+  const euros = (cents / 100).toFixed(2);
+  const day = guideDateFormat.format(new Date(guideDate));
+  return `${euros}\u00a0€ · Cardmarket, ${day}`;
 }
 
 function statsLine(monster: MonsterStats): string {

@@ -36,11 +36,23 @@ export type CardSet = {
 /** One printing in a set, with the card it is a printing of. */
 export type SetPrinting = { readonly card: Card; readonly printing: Printing };
 
+/** What a printing is worth on Cardmarket on the day of the guide. See GET /api/printings/price. */
+export type Price = {
+  readonly cents: number;
+  /** The guide's date as Cardmarket writes it, such as 2026-11-23. */
+  readonly guideDate: string;
+};
+
 export interface Catalogue {
   search(query: string, signal?: AbortSignal): Promise<Card[]>;
   searchSets(query: string, signal?: AbortSignal): Promise<CardSet[]>;
   /** Every printing of the set with exactly this name, in set-code order. */
   setPrintings(name: string, signal?: AbortSignal): Promise<SetPrinting[]>;
+  /** The printing's price, or null when the server has none for it today or has no guide at all. */
+  price(
+    printing: Pick<Printing, "setCode" | "rarity">,
+    signal?: AbortSignal,
+  ): Promise<Price | null>;
   imageUrl(passcode: number): string;
 }
 
@@ -76,11 +88,57 @@ export const httpCatalogue: Catalogue = {
       return { card, printing: { setCode, setName: body.name, rarity } };
     });
   },
+  async price({ setCode, rarity }, signal) {
+    const params = new URLSearchParams({ setCode, rarity });
+    const response = await fetch(`/api/printings/price?${params}`, {
+      signal,
+    });
+    if (response.status === NO_PRICE || response.status === NO_GUIDE) {
+      return null;
+    }
+    const body: unknown = await bodyOf(response);
+    if (!isPrice(body)) {
+      throw new Error("The catalogue answered a malformed price");
+    }
+    return {
+      cents: body.cents,
+      guideDate: body.guideDate,
+    };
+  },
   imageUrl: (passcode) => `/api/cards/${passcode}/image`,
 };
 
+/** The price route's answer for a printing it has no price for. */
+const NO_PRICE = 404;
+/** The price route's answer while the server has no price guide. */
+const NO_GUIDE = 503;
+
+/** The guide's date as Cardmarket writes it: 2026-11-23, and nothing the formatter could misread. */
+const GUIDE_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+/** True for a year-month-day that names a real calendar day; 2026-13-45 has the shape but no date. */
+function isCalendarDay(guideDate: string): boolean {
+  return (
+    GUIDE_DATE.test(guideDate) && !Number.isNaN(new Date(guideDate).getTime())
+  );
+}
+
+/** True when a 200 body carries a price the detail can show; anything else is a failed lookup, not a crash. */
+function isPrice(body: unknown): body is Price {
+  if (typeof body !== "object" || body === null) return false;
+  const { cents, guideDate } = body as Record<string, unknown>;
+  return (
+    Number.isInteger(cents) &&
+    typeof guideDate === "string" &&
+    isCalendarDay(guideDate)
+  );
+}
+
 async function get<T>(url: string, signal?: AbortSignal): Promise<T> {
-  const response = await fetch(url, { signal });
+  return bodyOf(await fetch(url, { signal }));
+}
+
+async function bodyOf<T>(response: Response): Promise<T> {
   if (!response.ok) {
     throw new Error(`The catalogue answered ${response.status}`);
   }
