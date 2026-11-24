@@ -55,6 +55,17 @@ class PriceRouteTest {
         }
 
     @Test
+    fun answers_not_found_for_a_padded_set_code_since_lookups_are_exact() =
+        withPrices {
+            val response = client.get("/api/printings/price?setCode=%20SRL-029%20&rarity=Ultra%20Rare")
+
+            assertEquals(
+                HttpStatusCode.NotFound to "No price for that printing",
+                response.status to response.bodyAsText(),
+            )
+        }
+
+    @Test
     fun answers_not_found_for_a_printing_whose_product_has_no_trend() =
         withPrices {
             val response = client.get("/api/printings/price?setCode=DB1-EN015&rarity=Super%20Rare")
