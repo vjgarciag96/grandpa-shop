@@ -13,7 +13,7 @@ sealed interface PriceLookup {
     /** The table names a product, but the loaded guide has no trend for it. */
     data object NoTrend : PriceLookup
 
-    /** No guide was loaded this run. */
+    /** The table names a product, but no guide was loaded this run. */
     data object NoGuide : PriceLookup
 }
 
