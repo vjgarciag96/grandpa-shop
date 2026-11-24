@@ -49,30 +49,40 @@ class CardmarketProductTableTest {
 
     @Test
     fun takes_the_expansion_cardmarket_added_first_when_several_list_the_set_and_marks_its_rows_inferred() {
-        val cards = listOf(card(1, "Relinquished", Printing("SRL-029", "Spell Ruler", "Ultra Rare")))
+        val cards = spellRuler()
         val products =
-            listOf(
-                product(700001, "Relinquished", expansion = 100, added = LocalDate.of(2023, 3, 1)),
-                product(579386, "Relinquished", expansion = 4416, added = LocalDate.of(2021, 10, 18)),
-            )
+            spellRulerProducts(expansion = 100, firstId = 700001, added = LocalDate.of(2023, 3, 1)) +
+                spellRulerProducts(expansion = 4416, firstId = 579386, added = LocalDate.of(2021, 10, 18))
 
         val generation = CardmarketProductTable.generate(cards, products, noTrends, noRows)
 
-        assertEquals(listOf(row("SRL-029", "Ultra Rare", 579386, Resolution.Inferred)), generation.table.rows)
+        assertEquals(row("SRL-029", "Ultra Rare", 579386, Resolution.Inferred), generation.table.rows.first())
     }
 
     @Test
     fun takes_the_lowest_expansion_id_when_the_tied_expansions_were_added_the_same_day() {
-        val cards = listOf(card(1, "Jinzo", Printing("DB1-EN015", "Dark Beginning 1", "Super Rare")))
+        val cards = spellRuler()
+        val products =
+            spellRulerProducts(expansion = 4879, firstId = 700001) +
+                spellRulerProducts(expansion = 1014, firstId = 105210)
+
+        val generation = CardmarketProductTable.generate(cards, products, noTrends, noRows)
+
+        assertEquals(CardmarketProductId(105210), generation.table.productOf(PrintingKey("SRL-029", "Ultra Rare")))
+    }
+
+    @Test
+    fun leaves_a_set_of_fewer_than_three_names_unmatched_when_several_expansions_list_it() {
+        val cards = listOf(card(1, "Machine King", Printing("DL4-001", "Duelist League 4", "Super Rare")))
         val products =
             listOf(
-                product(700001, "Jinzo", expansion = 4879),
-                product(105210, "Jinzo", expansion = 1014),
+                product(245197, "Machine King", expansion = 1251),
+                product(104331, "Machine King", expansion = 4449, added = LocalDate.of(2021, 1, 1)),
             )
 
         val generation = CardmarketProductTable.generate(cards, products, noTrends, noRows)
 
-        assertEquals(CardmarketProductId(105210), generation.table.productOf(PrintingKey("DB1-EN015", "Super Rare")))
+        assertEquals(emptyList<ProductRow>() to 1, generation.table.rows to generation.coverage.setsUnmatched)
     }
 
     @Test
@@ -322,15 +332,12 @@ class CardmarketProductTableTest {
         val cards =
             listOf(
                 card(1, "Jinzo", Printing("MIL1-EN008", "Millennium Pack", "Common")),
-                card(2, "Relinquished", Printing("SRL-029", "Spell Ruler", "Ultra Rare")),
                 card(3, "Kuriboh", Printing("SD1-EN001", "Starter Deck", "Common")),
-            )
+            ) + spellRuler()
         val products =
-            listOf(
-                product(289403, "Jinzo", expansion = 1700),
-                product(700001, "Relinquished", expansion = 5341, added = LocalDate.of(2023, 3, 1)),
-                product(579386, "Relinquished", expansion = 4416, added = LocalDate.of(2021, 10, 18)),
-            )
+            listOf(product(289403, "Jinzo", expansion = 1700)) +
+                spellRulerProducts(expansion = 5341, firstId = 700001, added = LocalDate.of(2023, 3, 1)) +
+                spellRulerProducts(expansion = 4416, firstId = 579386, added = LocalDate.of(2021, 10, 18))
 
         val generation = CardmarketProductTable.generate(cards, products, noTrends, noRows)
 
@@ -340,15 +347,33 @@ class CardmarketProductTableTest {
                 setsMatched = 2,
                 setsTied = 1,
                 setsUnmatched = 1,
-                printings = 3,
+                printings = 5,
                 unique = 1,
-                inferred = 1,
+                inferred = 3,
                 excluded = 0,
                 unmapped = 1,
             ),
             generation.coverage,
         )
     }
+
+    /** Three Spell Ruler cards, one printing each, enough names for a tied set to join. */
+    private fun spellRuler() =
+        listOf(
+            card(1, "Relinquished", Printing("SRL-029", "Spell Ruler", "Ultra Rare")),
+            card(2, "Toon World", Printing("SRL-073", "Spell Ruler", "Super Rare")),
+            card(3, "Megamorph", Printing("SRL-079", "Spell Ruler", "Super Rare")),
+        )
+
+    private fun spellRulerProducts(
+        expansion: Long,
+        firstId: Long,
+        added: LocalDate = LocalDate.of(2007, 1, 1),
+    ) = listOf(
+        product(firstId, "Relinquished", expansion, added),
+        product(firstId + 1, "Toon World", expansion, added),
+        product(firstId + 2, "Megamorph", expansion, added),
+    )
 
     private fun card(
         passcode: Long,

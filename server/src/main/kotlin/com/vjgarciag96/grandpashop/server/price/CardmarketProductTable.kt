@@ -69,6 +69,9 @@ object CardmarketProductTable {
     /** An expansion's names must share at least this much of a set's names, by Jaccard, when none equals them. */
     private const val NEAR = 0.9
 
+    /** A set with fewer names than this joins only an expansion that holds it alone; a tie says nothing. */
+    private const val NAMES_TO_BREAK_A_TIE = 3
+
     /**
      * The table with [existing] rows kept as they are and a row for every other printing the rules settle,
      * plus how many sets and printings each rule took. Stops when a row's product is not in [products] or
@@ -137,15 +140,19 @@ object CardmarketProductTable {
             Expansion(id, members.minOf { it.dateAdded }, members.groupBy { normalise(it.name) })
         }
 
-    /** Expansions whose names equal the set's, else those near them; the one Cardmarket added first wins a tie. */
+    /**
+     * Expansions whose names equal the set's, else those near them; the one Cardmarket added first wins a tie,
+     * unless the set has too few names for a tie to mean anything.
+     */
     private fun matchExpansion(
         printings: List<SetPrinting>,
         expansions: List<Expansion>,
     ): ExpansionMatch? {
         val names = printings.map { normalise(it.card.name) }.toSet()
         val candidates = expansions.filter { it.names == names }.ifEmpty { expansions.filter { it.isNear(names) } }
-        val first = candidates.minWithOrNull(compareBy({ it.firstAdded }, { it.id })) ?: return null
-        return ExpansionMatch(first, tied = candidates.size > 1)
+        val tied = candidates.size > 1
+        val first = candidates.minWithOrNull(compareBy({ it.firstAdded }, { it.id }))
+        return if (first == null || tied && names.size < NAMES_TO_BREAK_A_TIE) null else ExpansionMatch(first, tied)
     }
 
     private fun rowsOf(
