@@ -3,7 +3,6 @@ package com.vjgarciag96.grandpashop.server
 import com.vjgarciag96.grandpashop.server.catalogue.CardCatalogue
 import com.vjgarciag96.grandpashop.server.catalogue.CardImages
 import com.vjgarciag96.grandpashop.server.catalogue.Ygoprodeck
-import com.vjgarciag96.grandpashop.server.catalogue.cachedText
 import com.vjgarciag96.grandpashop.server.catalogue.catalogueModule
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
@@ -17,8 +16,7 @@ fun main() {
     val port = environment["GRANDPA_SHOP_PORT"]?.toInt() ?: DEFAULT_PORT
     val cacheDir = Path(environment["GRANDPA_SHOP_CACHE_DIR"] ?: ".cache")
 
-    val catalogueJson = cachedText(cacheDir.resolve("cardinfo.json"), Ygoprodeck::cardInfo)
-    val catalogue = CardCatalogue.fromYgoprodeckJson(catalogueJson)
+    val catalogue = CardCatalogue.fromYgoprodeckJson(Ygoprodeck.keptCardInfo(cacheDir))
 
     val images = CardImages(cacheDir.resolve("images"), catalogue, Ygoprodeck::smallImage)
 

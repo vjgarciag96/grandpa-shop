@@ -1,5 +1,6 @@
 package com.vjgarciag96.grandpashop.server.catalogue
 
+import com.vjgarciag96.grandpashop.server.files.cachedBytes
 import java.nio.file.Path
 
 /** Card images, fetched from the source once per card and kept in [cacheDir] after that. */
