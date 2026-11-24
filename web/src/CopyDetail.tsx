@@ -91,7 +91,10 @@ type PriceAnswer = {
   price: Price;
 };
 
-/** The printing's price once the catalogue has answered it; null before that, and when there is none. */
+/**
+ * The printing's price once the catalogue has answered it; null before that, when there is none,
+ * and when the lookup failed: a copy whose price cannot be fetched looks exactly as one with no price.
+ */
 function usePrice(catalogue: Catalogue, { setCode, rarity }: Printing) {
   const [answer, setAnswer] = useState<PriceAnswer | null>(null);
   const price =
@@ -108,7 +111,7 @@ function usePrice(catalogue: Catalogue, { setCode, rarity }: Printing) {
         if (found && !request.signal.aborted)
           setAnswer({ catalogue, setCode, rarity, price: found });
       },
-      () => {},
+      () => {}, // A failed lookup deliberately shows no line.
     );
     return () => request.abort();
   }, [catalogue, setCode, rarity]);
@@ -116,6 +119,7 @@ function usePrice(catalogue: Catalogue, { setCode, rarity }: Printing) {
   return price;
 }
 
+// The guide date parses as UTC midnight, so a viewer west of Greenwich would otherwise see the day before.
 const guideDateFormat = new Intl.DateTimeFormat("en-GB", {
   day: "numeric",
   month: "short",
