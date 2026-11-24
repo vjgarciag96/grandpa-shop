@@ -76,11 +76,11 @@ Attribute, monster type, level, rank, link rating, ATK, and DEF describe a monst
 
 ## Cardmarket product
 
-A printing as Cardmarket sells it, known by a stable numeric id. Cardmarket draws its product lines differently from the catalogue, so several printings can share one product, and a product can match no printing. The map from a printing to its product is generated data kept in the repo, not something a client works out. See [0013](docs/decisions/0013-prices-come-from-cardmarket-price-guide.md).
+A printing as Cardmarket sells it, known by a stable numeric id. Cardmarket draws its product lines differently from the catalogue, so several printings can share one product, and a product can match no printing in the catalogue. The product table, generated and committed in the repo, says which product a printing has. See [0013](docs/decisions/0013-prices-come-from-cardmarket-price-guide.md).
 
 ## Price
 
-The Cardmarket trend price of a printing, in euros, as of the day Cardmarket published it. It is the price of the printing's Cardmarket product, so it ignores condition, edition, language, and finish. A printing with no Cardmarket product has no price.
+The Cardmarket trend price of a printing, in euros, as of the day of the price guide it came from. It is the price of the printing's Cardmarket product, so it ignores condition, edition, language, and finish. A printing with no Cardmarket product, or whose product has no trend price in the guide, has no price.
 
 ## Not named yet
 
