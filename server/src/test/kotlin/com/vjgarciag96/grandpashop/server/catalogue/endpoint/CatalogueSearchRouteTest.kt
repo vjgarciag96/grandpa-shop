@@ -1,4 +1,4 @@
-package com.vjgarciag96.grandpashop.server.catalogue
+package com.vjgarciag96.grandpashop.server.catalogue.endpoint
 
 import com.vjgarciag96.grandpashop.server.testApi
 import io.ktor.client.HttpClient

@@ -1,14 +1,15 @@
-package com.vjgarciag96.grandpashop.server.catalogue
+package com.vjgarciag96.grandpashop.server.catalogue.infra
 
-import com.vjgarciag96.grandpashop.server.files.cachedText
-import com.vjgarciag96.grandpashop.server.http.Downloads
+import com.vjgarciag96.grandpashop.server.catalogue.domain.model.Passcode
+import com.vjgarciag96.grandpashop.server.core.Downloads
+import com.vjgarciag96.grandpashop.server.core.cachedText
 import java.nio.file.Path
 
 /**
  * The YGOPRODeck API v7. It asks callers to cache what they download and not to hotlink images,
  * which the server keeps to.
  */
-object Ygoprodeck {
+object YgoprodeckClient {
     private const val CARD_INFO = "https://db.ygoprodeck.com/api/v7/cardinfo.php"
     private const val SMALL_IMAGES = "https://images.ygoprodeck.com/images/cards_small"
     private const val NAME = "YGOPRODeck"

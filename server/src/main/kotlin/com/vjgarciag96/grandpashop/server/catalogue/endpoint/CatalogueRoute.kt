@@ -1,5 +1,10 @@
-package com.vjgarciag96.grandpashop.server.catalogue
+package com.vjgarciag96.grandpashop.server.catalogue.endpoint
 
+import com.vjgarciag96.grandpashop.server.catalogue.domain.model.Passcode
+import com.vjgarciag96.grandpashop.server.catalogue.domain.usecase.GetCardImage
+import com.vjgarciag96.grandpashop.server.catalogue.domain.usecase.GetSetContents
+import com.vjgarciag96.grandpashop.server.catalogue.domain.usecase.SearchCards
+import com.vjgarciag96.grandpashop.server.catalogue.domain.usecase.SearchSets
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
@@ -9,7 +14,6 @@ import io.ktor.server.response.respond
 import io.ktor.server.response.respondBytes
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
-import kotlinx.serialization.Serializable
 import java.io.IOException
 
 private const val MIN_QUERY_LENGTH = 2
@@ -20,21 +24,23 @@ private val LIMITS = 1..MAX_LIMIT
 // A card's printed image never changes, so a browser may keep it for a week.
 private const val IMAGE_CACHE_CONTROL = "public, max-age=604800, immutable"
 
-fun Route.catalogueRoutes(
-    catalogue: CardCatalogue,
-    images: CardImages,
+internal fun Route.catalogueRoutes(
+    searchCards: SearchCards,
+    searchSets: SearchSets,
+    getSetContents: GetSetContents,
+    getCardImage: GetCardImage,
 ) {
     get("/api/cards") {
         val search = call.searchParameters() ?: return@get
-        call.respond(CardsResponse(catalogue.search(search.query, search.limit).map { it.toResponse() }))
+        call.respond(CardsResponse(searchCards(search.query, search.limit).map { it.toResponse() }))
     }
     get("/api/sets") {
         val search = call.searchParameters() ?: return@get
-        call.respond(SetsResponse(catalogue.searchSets(search.query, search.limit).map { it.toResponse() }))
+        call.respond(SetsResponse(searchSets(search.query, search.limit).map { it.toResponse() }))
     }
     get("/api/sets/printings") {
         val name = call.request.queryParameters["name"]
-        val found = name?.let(catalogue::setPrintings)
+        val found = name?.let { getSetContents(it) }
         when {
             name == null -> call.respond(HttpStatusCode.BadRequest, "name is required")
             found == null -> call.respond(HttpStatusCode.NotFound, "No set with that name")
@@ -45,7 +51,7 @@ fun Route.catalogueRoutes(
         val passcode = call.parameters["passcode"]?.toLongOrNull()?.let(::Passcode)
         val image =
             try {
-                passcode?.let { images.image(it) }
+                passcode?.let { getCardImage(it) }
             } catch (e: IOException) {
                 call.application.environment.log
                     .warn("Could not fetch the image of card ${passcode?.value}", e)
@@ -86,99 +92,3 @@ private suspend fun ApplicationCall.searchParameters(): SearchParameters? {
         else -> SearchParameters(query, limit)
     }
 }
-
-@Serializable
-private class CardsResponse(
-    val cards: List<CardResponse>,
-)
-
-@Serializable
-private data class CardResponse(
-    val passcode: Long,
-    val name: String,
-    val kind: String,
-    val type: String,
-    val text: String,
-    val monster: MonsterResponse?,
-    val printings: List<PrintingResponse>,
-)
-
-@Serializable
-private data class MonsterResponse(
-    val attribute: String,
-    val race: String,
-    val level: Int? = null,
-    val rank: Int? = null,
-    val linkRating: Int? = null,
-    val atk: Int?,
-    val def: Int?,
-)
-
-@Serializable
-private class PrintingResponse(
-    val setCode: String,
-    val setName: String,
-    val rarity: String,
-)
-
-private fun Card.toResponse() =
-    CardResponse(
-        passcode = passcode.value,
-        name = name,
-        kind = kind.name,
-        type = type,
-        text = text,
-        monster = monster?.toResponse(),
-        printings = printings.map { PrintingResponse(it.setCode, it.setName, it.rarity) },
-    )
-
-private fun MonsterStats.toResponse() =
-    MonsterResponse(
-        attribute = attribute,
-        race = race,
-        level = (rating as? MonsterRating.Level)?.value,
-        rank = (rating as? MonsterRating.Rank)?.value,
-        linkRating = (rating as? MonsterRating.LinkRating)?.value,
-        atk = atk,
-        def = def,
-    )
-
-@Serializable
-private class SetsResponse(
-    val sets: List<SetResponse>,
-)
-
-@Serializable
-private class SetResponse(
-    val name: String,
-    val prefix: String,
-    val printings: Int,
-)
-
-@Serializable
-private class SetPrintingsResponse(
-    val name: String,
-    val prefix: String,
-    val cards: List<CardResponse>,
-    val printings: List<SetPrintingResponse>,
-)
-
-@Serializable
-private class SetPrintingResponse(
-    val setCode: String,
-    val rarity: String,
-    val passcode: Long,
-)
-
-private fun CardSet.toResponse() = SetResponse(name, prefix, printingCount)
-
-private fun SetContents.toResponse() =
-    SetPrintingsResponse(
-        name = set.name,
-        prefix = set.prefix,
-        cards = printings.map { it.card }.distinctBy { it.passcode }.map { it.toResponse() },
-        printings =
-            printings.map {
-                SetPrintingResponse(it.printing.setCode, it.printing.rarity, it.card.passcode.value)
-            },
-    )

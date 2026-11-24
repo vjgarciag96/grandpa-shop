@@ -1,5 +1,7 @@
-package com.vjgarciag96.grandpashop.server.catalogue
+package com.vjgarciag96.grandpashop.server.catalogue.endpoint
 
+import com.vjgarciag96.grandpashop.server.catalogue.domain.model.Passcode
+import com.vjgarciag96.grandpashop.server.catalogue.infra.CachedCardImageRepository
 import com.vjgarciag96.grandpashop.server.fixtureCatalogue
 import com.vjgarciag96.grandpashop.server.testApi
 import io.ktor.client.request.get
@@ -36,7 +38,7 @@ class CardImageRouteTest {
     ) = testApplication {
         val catalogue = fixtureCatalogue()
         val images =
-            CardImages(cacheDir, catalogue) { passcode ->
+            CachedCardImageRepository(cacheDir) { passcode ->
                 fetched += passcode.value
                 fetch(passcode)
             }
@@ -67,9 +69,7 @@ class CardImageRouteTest {
     fun keeps_a_fetched_image_for_the_next_server_start() =
         withImages({ darkMagicianJpeg }) {
             client.get("/api/cards/46986414/image")
-            val fixture = checkNotNull(javaClass.getResource("/cardinfo.json")).readText()
-            val catalogue = CardCatalogue.fromYgoprodeckJson(fixture)
-            val restarted = CardImages(cacheDir, catalogue) { error("the source must not be asked again") }
+            val restarted = CachedCardImageRepository(cacheDir) { error("the source must not be asked again") }
 
             val image = runBlocking { restarted.image(Passcode(46986414)) }
 
@@ -89,7 +89,7 @@ class CardImageRouteTest {
         val requestThread = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
         val otherRequestServed = CountDownLatch(1)
         val images =
-            CardImages(cacheDir, fixtureCatalogue()) {
+            CachedCardImageRepository(cacheDir) {
                 check(otherRequestServed.await(5, TimeUnit.SECONDS)) { "the other request never ran" }
                 darkMagicianJpeg
             }

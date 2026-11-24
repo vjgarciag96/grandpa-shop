@@ -1,8 +1,8 @@
 package com.vjgarciag96.grandpashop.server.price
 
-import com.vjgarciag96.grandpashop.server.catalogue.Card
-import com.vjgarciag96.grandpashop.server.catalogue.SetPrinting
-import com.vjgarciag96.grandpashop.server.catalogue.printingsBySet
+import com.vjgarciag96.grandpashop.server.catalogue.domain.model.Card
+import com.vjgarciag96.grandpashop.server.catalogue.domain.model.SetPrinting
+import com.vjgarciag96.grandpashop.server.catalogue.domain.model.printingsBySet
 import java.text.Normalizer
 import java.time.LocalDateTime
 

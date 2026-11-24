@@ -1,4 +1,4 @@
-package com.vjgarciag96.grandpashop.server.files
+package com.vjgarciag96.grandpashop.server.core
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test

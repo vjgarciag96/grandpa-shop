@@ -1,7 +1,7 @@
 package com.vjgarciag96.grandpashop.server.price
 
-import com.vjgarciag96.grandpashop.server.files.cachedText
-import com.vjgarciag96.grandpashop.server.http.Downloads
+import com.vjgarciag96.grandpashop.server.core.Downloads
+import com.vjgarciag96.grandpashop.server.core.cachedText
 import java.nio.file.Path
 
 /** Cardmarket's public daily files for Yu-Gi-Oh (game 3). See docs/decisions/0013. */

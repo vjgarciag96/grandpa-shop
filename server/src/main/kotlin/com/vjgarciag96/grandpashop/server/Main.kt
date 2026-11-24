@@ -1,8 +1,8 @@
 package com.vjgarciag96.grandpashop.server
 
-import com.vjgarciag96.grandpashop.server.catalogue.CardCatalogue
-import com.vjgarciag96.grandpashop.server.catalogue.CardImages
-import com.vjgarciag96.grandpashop.server.catalogue.Ygoprodeck
+import com.vjgarciag96.grandpashop.server.catalogue.data.repository.InMemoryCardRepository
+import com.vjgarciag96.grandpashop.server.catalogue.infra.CachedCardImageRepository
+import com.vjgarciag96.grandpashop.server.catalogue.infra.YgoprodeckClient
 import com.vjgarciag96.grandpashop.server.price.Cardmarket
 import com.vjgarciag96.grandpashop.server.price.CardmarketProducts
 import com.vjgarciag96.grandpashop.server.price.PriceGuide
@@ -22,9 +22,9 @@ fun main() {
     val port = environment["GRANDPA_SHOP_PORT"]?.toInt() ?: DEFAULT_PORT
     val cacheDir = Path(environment["GRANDPA_SHOP_CACHE_DIR"] ?: ".cache")
 
-    val catalogue = CardCatalogue.fromYgoprodeckJson(Ygoprodeck.keptCardInfo(cacheDir))
+    val catalogue = InMemoryCardRepository.fromYgoprodeckJson(YgoprodeckClient.keptCardInfo(cacheDir))
 
-    val images = CardImages(cacheDir.resolve("images"), catalogue, Ygoprodeck::smallImage)
+    val images = CachedCardImageRepository(cacheDir.resolve("images"), YgoprodeckClient::smallImage)
 
     val guide = priceGuideOrNone { PriceGuides.keep(cacheDir, Cardmarket::priceGuide) }
     val prices = Prices(CardmarketProducts.fromResource(), guide)
