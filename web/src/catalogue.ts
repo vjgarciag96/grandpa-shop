@@ -116,6 +116,13 @@ const NO_GUIDE = 503;
 /** The guide's date as Cardmarket writes it: 2026-11-23, and nothing the formatter could misread. */
 const GUIDE_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
+/** True for a year-month-day that names a real calendar day; 2026-13-45 has the shape but no date. */
+function isCalendarDay(guideDate: string): boolean {
+  return (
+    GUIDE_DATE.test(guideDate) && !Number.isNaN(new Date(guideDate).getTime())
+  );
+}
+
 /** True when a 200 body carries a price the detail can show; anything else is a failed lookup, not a crash. */
 function isPrice(body: unknown): body is Price {
   if (typeof body !== "object" || body === null) return false;
@@ -123,7 +130,7 @@ function isPrice(body: unknown): body is Price {
   return (
     Number.isInteger(cents) &&
     typeof guideDate === "string" &&
-    GUIDE_DATE.test(guideDate)
+    isCalendarDay(guideDate)
   );
 }
 

@@ -105,6 +105,15 @@ it("fails the price lookup on an empty guide date", async () => {
   ).rejects.toThrow("The catalogue answered a malformed price");
 });
 
+it("fails the price lookup on a guide date that is not a calendar day", async () => {
+  const body = { cents: 4006, guideDate: "2026-13-45", product: 579386 };
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json(body)));
+
+  await expect(
+    httpCatalogue.price({ setCode: "SRL-029", rarity: "Ultra Rare" }),
+  ).rejects.toThrow("The catalogue answered a malformed price");
+});
+
 it("fails the price lookup on cents that are not a whole number", async () => {
   const body = { cents: 40.06, guideDate: "2026-11-23", product: 579386 };
   vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json(body)));
