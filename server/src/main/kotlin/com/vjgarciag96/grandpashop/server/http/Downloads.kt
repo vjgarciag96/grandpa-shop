@@ -19,8 +19,19 @@ internal object Downloads {
     private val DOWNLOAD_TIMEOUT = Duration.ofMinutes(DOWNLOAD_TIMEOUT_MINUTES)
     private val client = HttpClient.newBuilder().connectTimeout(CONNECT_TIMEOUT).build()
 
-    /** The body of [url], gunzipped when the server gzipped it. [source] names who answered in the error. */
-    fun get(
+    /** The body of [url] as UTF-8 text. [source] names who answered in the error. */
+    fun text(
+        url: String,
+        source: String,
+    ): String = bytes(url, source).decodeToString()
+
+    /** The whole body of [url], gunzipped when the server gzipped it. [source] names who answered in the error. */
+    fun bytes(
+        url: String,
+        source: String,
+    ): ByteArray = open(url, source).use { it.readBytes() }
+
+    private fun open(
         url: String,
         source: String,
     ): InputStream {

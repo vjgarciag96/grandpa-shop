@@ -2,7 +2,6 @@ package com.vjgarciag96.grandpashop.server.price
 
 import com.vjgarciag96.grandpashop.server.catalogue.Ygoprodeck
 import com.vjgarciag96.grandpashop.server.catalogue.YgoprodeckCards
-import com.vjgarciag96.grandpashop.server.catalogue.cachedText
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
@@ -18,9 +17,8 @@ fun main(args: Array<String>) {
     val cacheDir = Path(args.getOrElse(0) { ".cache" })
     val tablePath = Path(args.getOrElse(1) { "src/main/resources/${CardmarketProducts.FILE_NAME}" })
 
-    val cards = YgoprodeckCards.parse(cachedText(cacheDir.resolve("cardinfo.json"), Ygoprodeck::cardInfo))
-    val products =
-        CardmarketProductList.parse(cachedText(cacheDir.resolve("cardmarket-products.json"), Cardmarket::productList))
+    val cards = YgoprodeckCards.parse(Ygoprodeck.keptCardInfo(cacheDir))
+    val products = CardmarketProductList.parse(Cardmarket.keptProductList(cacheDir))
     val guide = PriceGuides.keep(cacheDir, Cardmarket::priceGuide)
     val existing =
         if (tablePath.exists()) CardmarketProducts.fromCsv(tablePath.readText()) else CardmarketProducts(emptyList())
