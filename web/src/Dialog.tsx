@@ -1,3 +1,4 @@
+import { text } from "./strings";
 import { useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
 
 type Props = {
@@ -87,7 +88,7 @@ export function Dialog({
             ref={closeButton}
             type="button"
             className="control control--icon dialog__close"
-            aria-label="Close"
+            aria-label={text.detail.close}
             onClick={onClose}
           >
             <span className="close-icon" aria-hidden="true" />

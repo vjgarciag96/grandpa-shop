@@ -1,3 +1,4 @@
+import { catalogueHeading, text } from "./strings";
 import {
   useId,
   useLayoutEffect,
@@ -18,7 +19,6 @@ import { LiveRegion } from "./LiveRegion";
 import { CatalogueResults, type Opened } from "./CatalogueResults";
 import { PrintingList, SetPrintingList } from "./CataloguePrintings";
 import { SearchIcon } from "./CatalogueStatus";
-import { catalogueHeading } from "./catalogueStrings";
 import { useCatalogueSearch } from "./useCatalogueSearch";
 
 type Props = {
@@ -96,7 +96,7 @@ export function CataloguePanel({
       className={
         beside ? "catalogue catalogue--beside" : "catalogue catalogue--sheet"
       }
-      aria-label="Catalogue"
+      aria-label={text.catalogue.name}
       inert={inert}
     >
       <header className="catalogue__head">
@@ -107,7 +107,7 @@ export function CataloguePanel({
         <button
           type="button"
           className="control control--icon"
-          aria-label="Close catalogue"
+          aria-label={text.catalogue.close}
           onClick={onClose}
         >
           <span className="close-icon" aria-hidden="true" />
@@ -148,9 +148,9 @@ export function CataloguePanel({
               <input
                 ref={searchInput}
                 type="search"
-                aria-label="Search cards and sets"
+                aria-label={text.catalogue.search}
                 autoComplete="off"
-                placeholder="Card, set, or set code"
+                placeholder={text.catalogue.placeholder}
                 value={query}
                 onChange={(event) => updateQuery(event.target.value)}
               />
@@ -158,7 +158,7 @@ export function CataloguePanel({
                 <button
                   type="button"
                   className="control control--icon"
-                  aria-label="Clear search"
+                  aria-label={text.catalogue.clear}
                   onClick={() => {
                     updateQuery("");
                     searchInput.current?.focus();

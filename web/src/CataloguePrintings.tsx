@@ -1,3 +1,4 @@
+import { text } from "./strings";
 import type { PointerEvent, RefObject } from "react";
 import { isHeld, type Aim } from "./aim";
 import type {
@@ -7,7 +8,6 @@ import type {
   Printing,
   SetPrinting,
 } from "./catalogue";
-import { countOf } from "./catalogueStrings";
 import { RetryMessage } from "./CatalogueStatus";
 import { useCatalogueRequest } from "./useCatalogueRequest";
 
@@ -58,7 +58,10 @@ export function PrintingList({
         </div>
       </div>
       <div className="catalogue__scroll">
-        <ul className="catalogue__printings" aria-label="Printings">
+        <ul
+          className="catalogue__printings"
+          aria-label={text.catalogue.printings}
+        >
           {printings.map((printing) => (
             <PrintingRow
               key={`${printing.setCode} ${printing.rarity} ${printing.setName}`}
@@ -114,7 +117,7 @@ export function SetPrintingList({
           <div className="catalogue__card-label">
             <h3>{set.name}</h3>
             <span>
-              {set.prefix} · {countOf(set.printings, "printing")}
+              {set.prefix} · {text.catalogue.printingCount(set.printings)}
             </span>
           </div>
         </div>
@@ -122,12 +125,12 @@ export function SetPrintingList({
       <div className="catalogue__scroll">
         {result === null && (
           <div className="catalogue__message" role="status">
-            <strong>Opening the set…</strong>
+            <strong>{text.catalogue.openingSet}</strong>
           </div>
         )}
         {result === "failed" && (
           <RetryMessage
-            message="The set did not load."
+            message={text.catalogue.setFailed}
             onRetry={() => {
               backButton.current?.focus();
               retry();
@@ -135,7 +138,10 @@ export function SetPrintingList({
           />
         )}
         {Array.isArray(result) && (
-          <ul className="catalogue__printings" aria-label="Printings">
+          <ul
+            className="catalogue__printings"
+            aria-label={text.catalogue.printings}
+          >
             {result.map((entry) => (
               <PrintingRow
                 key={`${entry.card.passcode} ${entry.printing.setCode} ${entry.printing.rarity}`}
@@ -166,7 +172,7 @@ function BackToResults({
       onClick={onBack}
       autoFocus
     >
-      <span aria-hidden="true">←</span> Back to results
+      <span aria-hidden="true">←</span> {text.catalogue.backToResults}
     </button>
   );
 }

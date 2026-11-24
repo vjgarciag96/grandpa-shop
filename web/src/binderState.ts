@@ -1,10 +1,10 @@
+import { movedPrinting, placedPrinting, removedPrinting } from "./strings";
 import { isTarget, type Aim } from "./aim";
 import {
   moveCopy,
   place,
   removeCopy,
   slotAt,
-  slotNameInSentence,
   type Binder,
   type Copy,
   type SlotAddress,
@@ -37,7 +37,6 @@ export function placeAt(
   printing: Printing,
 ): BinderState {
   const replaced = slotAt(current.binder, address);
-  const placed = `Placed ${printing.setCode} in ${slotNameInSentence(address)}`;
   return {
     ...current,
     binder: place(current.binder, address, {
@@ -48,9 +47,7 @@ export function placeAt(
     aim: null,
     announcement: announced(
       current.announcement,
-      replaced
-        ? `${placed}, replacing ${replaced.printing.setCode}.`
-        : `${placed}.`,
+      placedPrinting(printing.setCode, address, replaced?.printing.setCode),
     ),
   };
 }
@@ -64,7 +61,6 @@ export function moveAt(
   const move = moveCopy(current.binder, from, to, copy);
   if (move.kind === "refused") return current;
   const swapped = move.kind === "swapped";
-  const moved = `${copy.printing.setCode} to ${slotNameInSentence(to)}`;
   return {
     ...current,
     binder: move.binder,
@@ -74,9 +70,12 @@ export function moveAt(
         : current.aim,
     moveAnnouncement: announced(
       current.moveAnnouncement,
-      swapped
-        ? `Swapped ${moved} and ${move.displaced.printing.setCode} to ${slotNameInSentence(from)}.`
-        : `Moved ${moved}.`,
+      movedPrinting(
+        copy.printing.setCode,
+        to,
+        from,
+        swapped ? move.displaced.printing.setCode : undefined,
+      ),
     ),
   };
 }
@@ -94,7 +93,7 @@ export function removeAt(
     binder: removal.binder,
     moveAnnouncement: announced(
       current.moveAnnouncement,
-      `Removed ${copy.printing.setCode} from ${slotNameInSentence(from)}.`,
+      removedPrinting(copy.printing.setCode, from),
     ),
   };
 }

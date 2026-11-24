@@ -1,3 +1,4 @@
+import { text } from "./strings";
 export function SearchIcon() {
   return <span className="catalogue__magnifier" aria-hidden="true" />;
 }
@@ -17,7 +18,7 @@ export function RetryMessage({
         className="control control--tonal"
         onClick={onRetry}
       >
-        Try again
+        {text.catalogue.retry}
       </button>
     </div>
   );

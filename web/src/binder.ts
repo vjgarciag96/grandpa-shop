@@ -30,16 +30,6 @@ export function sameSlot(a: SlotAddress, b: SlotAddress): boolean {
   return a.page === b.page && a.position === b.position;
 }
 
-/** How a slot is named to the person using the binder, such as "Page 1, slot 3". */
-export function slotName({ page, position }: SlotAddress): string {
-  return `Page ${page}, slot ${position + 1}`;
-}
-
-/** A slot's name inside a sentence, such as "page 1, slot 3". */
-export function slotNameInSentence(address: SlotAddress): string {
-  return `page ${address.page}, slot ${address.position + 1}`;
-}
-
 export type Binder = { readonly slots: ReadonlyArray<Copy | null> };
 
 export function emptyBinder(): Binder {
