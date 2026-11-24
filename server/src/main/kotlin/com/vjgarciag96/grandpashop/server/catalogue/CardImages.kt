@@ -12,8 +12,8 @@ class CardImages(
     private val fetch: (Passcode) -> ByteArray,
 ) {
     /**
-     * The card's image, or null when the passcode is not in the catalogue. The download and the file write block, so they
-     * run on the IO pool and never hold the thread that serves requests.
+     * The card's image, or null when the passcode is not in the catalogue.
+     * The download and file write run on the IO pool so the request thread stays free.
      */
     suspend fun image(passcode: Passcode): ByteArray? =
         if (catalogue.contains(passcode)) {
