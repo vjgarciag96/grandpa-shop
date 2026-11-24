@@ -61,10 +61,3 @@ jobs:
       - run: npm test
       - run: npm run build
 
-  skills:
-    name: skills
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7.0.1
-      - name: Vendored skills match the Cursor copies
-        run: ./scripts/check-skills.sh

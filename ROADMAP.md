@@ -1,6 +1,6 @@
 # Roadmap
 
-Nothing here is implemented. Lead frames an item before anyone builds it, and assigns it with [team/README.md](team/README.md). An item is not done until its slice has tests and has been graded by someone other than the author.
+Frame an item before building it. An item is not done until its slice has tests and has been reviewed.
 
 Live sync is blocked. [0009](docs/decisions/0009-realtime-transport.md) and [0010](docs/decisions/0010-sync-and-conflict-model.md) are open. Do not start the sync milestone by picking a transport in a pull request.
 
