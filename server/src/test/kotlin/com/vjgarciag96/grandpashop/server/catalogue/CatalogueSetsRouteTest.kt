@@ -1,5 +1,6 @@
 package com.vjgarciag96.grandpashop.server.catalogue
 
+import com.vjgarciag96.grandpashop.server.testApi
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
@@ -15,7 +16,6 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import java.nio.file.Path
 
 class CatalogueSetsRouteTest {
     private fun withSetsCatalogue(
@@ -23,9 +23,7 @@ class CatalogueSetsRouteTest {
         block: suspend ApplicationTestBuilder.() -> Unit,
     ) = testApplication {
         val fixture = checkNotNull(javaClass.getResource("/sets.json")).readText()
-        val catalogue = CardCatalogue.fromYgoprodeckJson(fixture.replace("Legendary 5D&apos;s Decks", setName))
-        val noImages = CardImages(Path.of("unused"), catalogue) { error("sets never fetch an image") }
-        application { catalogueModule(catalogue, noImages) }
+        testApi(catalogue = CardCatalogue.fromYgoprodeckJson(fixture.replace("Legendary 5D&apos;s Decks", setName)))
         block()
     }
 

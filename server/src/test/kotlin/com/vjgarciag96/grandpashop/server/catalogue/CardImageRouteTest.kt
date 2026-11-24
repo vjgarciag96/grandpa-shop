@@ -1,5 +1,7 @@
 package com.vjgarciag96.grandpashop.server.catalogue
 
+import com.vjgarciag96.grandpashop.server.fixtureCatalogue
+import com.vjgarciag96.grandpashop.server.testApi
 import io.ktor.client.request.get
 import io.ktor.client.statement.readRawBytes
 import io.ktor.http.ContentType
@@ -25,14 +27,13 @@ class CardImageRouteTest {
         fetch: (Passcode) -> ByteArray,
         block: suspend ApplicationTestBuilder.() -> Unit,
     ) = testApplication {
-        val fixture = checkNotNull(javaClass.getResource("/cardinfo.json")).readText()
-        val catalogue = CardCatalogue.fromYgoprodeckJson(fixture)
+        val catalogue = fixtureCatalogue()
         val images =
             CardImages(cacheDir, catalogue) { passcode ->
                 fetched += passcode.value
                 fetch(passcode)
             }
-        application { catalogueModule(catalogue, images) }
+        testApi(catalogue, images)
         block()
     }
 

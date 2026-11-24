@@ -22,6 +22,12 @@ class PriceGuidesTest {
         return """{"createdAt":"${createdAt}T02:46:00+0100","priceGuides":$rows}"""
     }
 
+    /** A guide whose one trend, in cents, is past what a Long holds. */
+    private fun tooLargeGuideJson(createdAt: String): String {
+        val rows = """[{"idProduct":1,"trend":1e17}]"""
+        return """{"createdAt":"${createdAt}T02:46:00+0100","priceGuides":$rows}"""
+    }
+
     @Test
     fun keeps_the_downloaded_guide_under_the_day_cardmarket_made_it() {
         val cacheDir = dir.resolve("cache")
@@ -71,6 +77,27 @@ class PriceGuidesTest {
         val guide = PriceGuides.keep(dir) { guideJson("2026-11-24") }
 
         assertEquals(LocalDate.of(2026, 11, 24), guide.createdOn)
+    }
+
+    @Test
+    fun downloads_when_the_newest_kept_guide_holds_a_trend_too_large_for_cents() {
+        dir.resolve("price-guide-2026-11-23.json").writeText(tooLargeGuideJson("2026-11-23"))
+
+        val guide = PriceGuides.keep(dir) { guideJson("2026-11-24") }
+
+        assertEquals(LocalDate.of(2026, 11, 24), guide.createdOn)
+    }
+
+    @Test
+    fun surfaces_a_download_with_a_trend_too_large_for_cents_as_an_io_exception() {
+        val cacheDir = dir.resolve("cache")
+
+        val failure =
+            assertThrows(IOException::class.java) {
+                PriceGuides.keep(cacheDir) { tooLargeGuideJson("2026-11-24") }
+            }
+
+        assertEquals("Cardmarket's price guide holds a trend too large for cents", failure.message)
     }
 
     @Test

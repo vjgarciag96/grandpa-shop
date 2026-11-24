@@ -3,18 +3,13 @@ package com.vjgarciag96.grandpashop.server.catalogue
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
-import io.ktor.serialization.kotlinx.json.json
-import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
-import io.ktor.server.application.install
-import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.response.header
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondBytes
+import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
-import io.ktor.server.routing.routing
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import java.io.IOException
 
 private const val MIN_QUERY_LENGTH = 2
@@ -25,46 +20,43 @@ private val LIMITS = 1..MAX_LIMIT
 // A card's printed image never changes, so a browser may keep it for a week.
 private const val IMAGE_CACHE_CONTROL = "public, max-age=604800, immutable"
 
-fun Application.catalogueModule(
+fun Route.catalogueRoutes(
     catalogue: CardCatalogue,
     images: CardImages,
 ) {
-    install(ContentNegotiation) { json(Json { explicitNulls = false }) }
-    routing {
-        get("/api/cards") {
-            val search = call.searchParameters() ?: return@get
-            call.respond(CardsResponse(catalogue.search(search.query, search.limit).map { it.toResponse() }))
+    get("/api/cards") {
+        val search = call.searchParameters() ?: return@get
+        call.respond(CardsResponse(catalogue.search(search.query, search.limit).map { it.toResponse() }))
+    }
+    get("/api/sets") {
+        val search = call.searchParameters() ?: return@get
+        call.respond(SetsResponse(catalogue.searchSets(search.query, search.limit).map { it.toResponse() }))
+    }
+    get("/api/sets/printings") {
+        val name = call.request.queryParameters["name"]
+        val found = name?.let(catalogue::setPrintings)
+        when {
+            name == null -> call.respond(HttpStatusCode.BadRequest, "name is required")
+            found == null -> call.respond(HttpStatusCode.NotFound, "No set with that name")
+            else -> call.respond(found.toResponse())
         }
-        get("/api/sets") {
-            val search = call.searchParameters() ?: return@get
-            call.respond(SetsResponse(catalogue.searchSets(search.query, search.limit).map { it.toResponse() }))
-        }
-        get("/api/sets/printings") {
-            val name = call.request.queryParameters["name"]
-            val found = name?.let(catalogue::setPrintings)
-            when {
-                name == null -> call.respond(HttpStatusCode.BadRequest, "name is required")
-                found == null -> call.respond(HttpStatusCode.NotFound, "No set with that name")
-                else -> call.respond(found.toResponse())
+    }
+    get("/api/cards/{passcode}/image") {
+        val passcode = call.parameters["passcode"]?.toLongOrNull()?.let(::Passcode)
+        val image =
+            try {
+                passcode?.let(images::image)
+            } catch (e: IOException) {
+                call.application.environment.log
+                    .warn("Could not fetch the image of card ${passcode?.value}", e)
+                call.respond(HttpStatusCode.BadGateway, "The card image source did not answer")
+                return@get
             }
-        }
-        get("/api/cards/{passcode}/image") {
-            val passcode = call.parameters["passcode"]?.toLongOrNull()?.let(::Passcode)
-            val image =
-                try {
-                    passcode?.let(images::image)
-                } catch (e: IOException) {
-                    call.application.environment.log
-                        .warn("Could not fetch the image of card ${passcode?.value}", e)
-                    call.respond(HttpStatusCode.BadGateway, "The card image source did not answer")
-                    return@get
-                }
-            if (image == null) {
-                call.respond(HttpStatusCode.NotFound, "No card with that passcode")
-            } else {
-                call.response.header(HttpHeaders.CacheControl, IMAGE_CACHE_CONTROL)
-                call.respondBytes(image, ContentType.Image.JPEG)
-            }
+        if (image == null) {
+            call.respond(HttpStatusCode.NotFound, "No card with that passcode")
+        } else {
+            call.response.header(HttpHeaders.CacheControl, IMAGE_CACHE_CONTROL)
+            call.respondBytes(image, ContentType.Image.JPEG)
         }
     }
 }
