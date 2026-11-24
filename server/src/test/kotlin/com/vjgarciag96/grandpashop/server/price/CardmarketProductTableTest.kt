@@ -56,18 +56,18 @@ class CardmarketProductTableTest {
         val cards = listOf(summonedSkull("MRD-003", "MRD-E003", "MRD-EN003")) + fillers("Metal Raiders", "MRD")
         val products =
             listOf(
-                product(579183, "Summoned Skull", expansion = 1016, added = LocalDate.of(2021, 10, 19)),
-                product(105790, "Summoned Skull", expansion = 1016, added = LocalDate.of(2007, 1, 1)),
-                product(578977, "Summoned Skull", expansion = 1016, added = LocalDate.of(2021, 10, 18)),
+                product(105790, "Summoned Skull", expansion = 1016, added = LocalDate.of(2021, 10, 19)),
+                product(578977, "Summoned Skull", expansion = 1016, added = LocalDate.of(2007, 1, 1)),
+                product(579183, "Summoned Skull", expansion = 1016, added = LocalDate.of(2021, 10, 18)),
             ) + fillerProducts(1016)
 
         val generation = CardmarketProductTable.generate(cards, products, noTrends, noRows)
 
         assertEquals(
             listOf(
-                row("MRD-003", "Ultra Rare", 105790, Resolution.Inferred),
-                row("MRD-E003", "Ultra Rare", 578977, Resolution.Inferred),
-                row("MRD-EN003", "Ultra Rare", 579183, Resolution.Inferred),
+                row("MRD-003", "Ultra Rare", 578977, Resolution.Inferred),
+                row("MRD-E003", "Ultra Rare", 579183, Resolution.Inferred),
+                row("MRD-EN003", "Ultra Rare", 105790, Resolution.Inferred),
             ) + fillerRows("MRD", 1016),
             generation.table.rows,
         )
