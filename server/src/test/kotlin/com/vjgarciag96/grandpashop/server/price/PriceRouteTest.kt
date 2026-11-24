@@ -104,12 +104,23 @@ class PriceRouteTest {
         }
 
     @Test
-    fun answers_service_unavailable_when_no_guide_is_loaded() =
+    fun answers_service_unavailable_for_a_mapped_printing_when_no_guide_is_loaded() =
         withPrices(guide = null) {
             val response = client.get("/api/printings/price?setCode=SRL-029&rarity=Ultra%20Rare")
 
             assertEquals(
                 HttpStatusCode.ServiceUnavailable to "The price guide is not available",
+                response.status to response.bodyAsText(),
+            )
+        }
+
+    @Test
+    fun answers_not_found_for_a_printing_with_no_row_even_when_no_guide_is_loaded() =
+        withPrices(guide = null) {
+            val response = client.get("/api/printings/price?setCode=MRL-029&rarity=Ultra%20Rare")
+
+            assertEquals(
+                HttpStatusCode.NotFound to "No price for that printing",
                 response.status to response.bodyAsText(),
             )
         }

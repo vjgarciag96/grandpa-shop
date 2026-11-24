@@ -47,6 +47,15 @@ class PricesTest {
     }
 
     @Test
+    fun reports_no_product_for_a_printing_the_table_does_not_hold_even_when_no_guide_is_loaded() {
+        val prices = Prices(table, guide = null)
+
+        val lookup = prices.of(PrintingKey("MRL-029", "Ultra Rare"))
+
+        assertEquals(PriceLookup.NoProduct, lookup)
+    }
+
+    @Test
     fun reports_no_guide_for_a_mapped_printing_when_no_guide_is_loaded() {
         val prices = Prices(table, guide = null)
 
