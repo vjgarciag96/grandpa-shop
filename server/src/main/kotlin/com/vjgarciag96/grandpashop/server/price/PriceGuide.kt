@@ -18,13 +18,16 @@ class PriceGuide(
         private val json = Json { ignoreUnknownKeys = true }
         private const val DATE_LENGTH = "2026-11-23".length
 
-        /** Reads Cardmarket's `price_guide_3.json`. A row with a null trend leaves its product without a price. */
+        /**
+         * Reads Cardmarket's `price_guide_3.json`. A row with a null or negative trend leaves its product without
+         * a price: a price below nothing is a guide defect, not a value to show.
+         */
         fun parse(text: String): PriceGuide {
             val guide = json.decodeFromString<Source>(text)
             val trends =
                 guide.priceGuides
-                    .mapNotNull { row -> row.trend?.let { CardmarketProductId(row.idProduct) to cents(it) } }
-                    .toMap()
+                    .mapNotNull { row -> row.trend?.takeIf { it >= 0 }?.let { row.idProduct to it } }
+                    .associate { (product, euros) -> CardmarketProductId(product) to cents(euros) }
             return PriceGuide(LocalDate.parse(guide.createdAt.take(DATE_LENGTH)), trends)
         }
 
