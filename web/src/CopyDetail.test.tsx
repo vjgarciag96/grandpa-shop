@@ -2,7 +2,9 @@ import { act, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import App from "./App";
-import type { Catalogue } from "./catalogue";
+import type { Copy } from "./binder";
+import type { Catalogue, Price } from "./catalogue";
+import { CopyDetail } from "./CopyDetail";
 import { saveBinderWith } from "./test/binder";
 import {
   darkMagician,
@@ -281,4 +283,91 @@ describe("a copy's price", () => {
 
     expect(asked).toEqual(["SRL-029 Ultra Rare"]);
   });
+
+  it("abandons the price lookup when the detail closes", async () => {
+    const { catalogue, lookups } = catalogueAnsweringOnDemand();
+    const detail = await openRelinquished(catalogue);
+
+    await userEvent.click(detail.getByRole("button", { name: "Close" }));
+
+    expect(lookups[0].signal?.aborted, "the lookup's signal is aborted").toBe(
+      true,
+    );
+  });
+
+  it("shows no price of the previous copy once the detail shows another", async () => {
+    const { catalogue, lookups } = catalogueAnsweringOnDemand();
+    const { rerender } = renderDetailOf(relinquishedCopy, catalogue);
+    await lookups[0].answer(relinquishedPrice);
+
+    rerender(detailOf(darkMagicianCopy, catalogue));
+
+    expect(screen.queryByText(/Cardmarket/)).toBeNull();
+  });
+
+  it("keeps the current copy's price when the previous copy's lookup answers late", async () => {
+    const { catalogue, lookups } = catalogueAnsweringOnDemand();
+    const { rerender } = renderDetailOf(relinquishedCopy, catalogue);
+    rerender(detailOf(darkMagicianCopy, catalogue));
+    await lookups[1].answer({ ...relinquishedPrice, cents: 100 });
+
+    await lookups[0].answer(relinquishedPrice);
+
+    expect(screen.getByText(/Cardmarket/).textContent).toBe(
+      "1.00 € · Cardmarket, 23 Nov 2026",
+    );
+  });
 });
+
+const relinquishedCopy: Copy = {
+  card: relinquished,
+  printing: relinquished.printings[0],
+  condition: "Near Mint",
+};
+
+const darkMagicianCopy: Copy = {
+  card: darkMagician,
+  printing: darkMagician.printings[0],
+  condition: "Near Mint",
+};
+
+function detailOf(copy: Copy, catalogue: Catalogue) {
+  return (
+    <CopyDetail
+      copy={copy}
+      title="Page 1, slot 1"
+      catalogue={catalogue}
+      onCondition={() => {}}
+      onReplace={() => {}}
+      onRemove={() => {}}
+      onClose={() => {}}
+    />
+  );
+}
+
+/** Renders the detail on its own, so a test can change the copy under it without closing it. */
+function renderDetailOf(copy: Copy, catalogue: Catalogue) {
+  return render(detailOf(copy, catalogue));
+}
+
+type Lookup = {
+  signal: AbortSignal | undefined;
+  /** Answers the lookup and waits for the detail to render the answer. */
+  answer: (price: Price | null) => Promise<void>;
+};
+
+/** A catalogue whose price lookups answer only when the test says so, listed in the order they were asked. */
+function catalogueAnsweringOnDemand() {
+  const lookups: Lookup[] = [];
+  const catalogue: Catalogue = {
+    ...fakeCatalogue().catalogue,
+    price: (_printing, signal) =>
+      new Promise((resolve) => {
+        lookups.push({
+          signal,
+          answer: (price) => act(async () => resolve(price)),
+        });
+      }),
+  };
+  return { catalogue, lookups };
+}
