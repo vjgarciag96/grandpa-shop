@@ -1,5 +1,6 @@
+// @vitest-environment node
 import { afterEach, expect, it, vi } from "vitest";
-import { httpCatalogue } from "./catalogue";
+import { httpCatalogue } from "./httpCatalogue";
 import { darkMagician } from "./test/fakeCatalogue";
 
 afterEach(() => {
@@ -160,4 +161,53 @@ it("fails the price lookup on any other error answer", async () => {
   await expect(
     httpCatalogue.price({ setCode: "SRL-029", rarity: "Ultra Rare" }),
   ).rejects.toThrow("The catalogue answered 500");
+});
+
+it("rejects a card whose printing has no rarity", async () => {
+  const cards = [
+    {
+      ...darkMagician,
+      printings: [{ setCode: "LOB-EN005", setName: "Blue Eyes" }],
+    },
+  ];
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({ cards })));
+
+  await expect(httpCatalogue.search("dark")).rejects.toThrow(
+    "The catalogue answered malformed cards",
+  );
+});
+
+it("rejects a set whose printing count is text", async () => {
+  const sets = [
+    { name: "The Lost Millennium", prefix: "TLM", printings: "85" },
+  ];
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({ sets })));
+
+  await expect(httpCatalogue.searchSets("lost")).rejects.toThrow(
+    "The catalogue answered malformed sets",
+  );
+});
+
+it("rejects a set printing whose passcode is text", async () => {
+  const body = {
+    name: "The Lost Millennium",
+    cards: [darkMagician],
+    printings: [
+      { setCode: "TLM-EN001", rarity: "Common", passcode: "46986414" },
+    ],
+  };
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json(body)));
+
+  await expect(
+    httpCatalogue.setPrintings("The Lost Millennium"),
+  ).rejects.toThrow("The catalogue answered malformed set printings");
+});
+
+it("rejects a price whose date would roll into the next month", async () => {
+  const body = { cents: 4006, guideDate: "2026-02-30" };
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json(body)));
+
+  await expect(
+    httpCatalogue.price({ setCode: "SRL-029", rarity: "Ultra Rare" }),
+  ).rejects.toThrow("The catalogue answered a malformed price");
 });
