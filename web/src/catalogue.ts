@@ -39,7 +39,6 @@ export type SetPrinting = { readonly card: Card; readonly printing: Printing };
 /** What a printing is worth on Cardmarket on the day of the guide. See GET /api/printings/price. */
 export type Price = {
   readonly cents: number;
-  readonly currency: "EUR";
   /** The guide's date as Cardmarket writes it, such as 2026-11-23. */
   readonly guideDate: string;
 };
@@ -103,7 +102,6 @@ export const httpCatalogue: Catalogue = {
     }
     return {
       cents: body.cents,
-      currency: body.currency,
       guideDate: body.guideDate,
     };
   },

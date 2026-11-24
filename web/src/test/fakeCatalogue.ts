@@ -70,7 +70,6 @@ export const relinquished: Card = {
 /** The price of Relinquished SRL-029 Ultra Rare in the 2026-11-23 guide. */
 export const relinquishedPrice: Price = {
   cents: 4006,
-  currency: "EUR",
   guideDate: "2026-11-23",
 };
 

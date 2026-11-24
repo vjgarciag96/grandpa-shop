@@ -59,10 +59,12 @@ it("requests an exact set name and joins each printing to its card in response o
 });
 
 it("asks the price route for the printing's set code and rarity, percent-encoded", async () => {
-  const price = { cents: 4006, currency: "EUR", guideDate: "2026-11-23" };
+  const price = { cents: 4006, guideDate: "2026-11-23" };
   const fetch = vi
     .fn()
-    .mockResolvedValue(Response.json({ ...price, product: 579386 }));
+    .mockResolvedValue(
+      Response.json({ ...price, currency: "EUR", product: 579386 }),
+    );
   vi.stubGlobal("fetch", fetch);
 
   const result = await httpCatalogue.price({
