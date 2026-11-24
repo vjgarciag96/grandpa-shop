@@ -1,5 +1,8 @@
 package com.vjgarciag96.grandpashop.server.catalogue
 
+import com.vjgarciag96.grandpashop.server.apiModule
+import com.vjgarciag96.grandpashop.server.price.CardmarketProducts
+import com.vjgarciag96.grandpashop.server.price.Prices
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
@@ -18,6 +21,8 @@ import org.junit.jupiter.api.Test
 import java.nio.file.Path
 
 class CatalogueSetsRouteTest {
+    private val noPrices = Prices(CardmarketProducts(emptyList()), guide = null)
+
     private fun withSetsCatalogue(
         setName: String = "Legendary 5D&apos;s Decks",
         block: suspend ApplicationTestBuilder.() -> Unit,
@@ -25,7 +30,7 @@ class CatalogueSetsRouteTest {
         val fixture = checkNotNull(javaClass.getResource("/sets.json")).readText()
         val catalogue = CardCatalogue.fromYgoprodeckJson(fixture.replace("Legendary 5D&apos;s Decks", setName))
         val noImages = CardImages(Path.of("unused"), catalogue) { error("sets never fetch an image") }
-        application { catalogueModule(catalogue, noImages) }
+        application { apiModule(catalogue, noImages, noPrices) }
         block()
     }
 

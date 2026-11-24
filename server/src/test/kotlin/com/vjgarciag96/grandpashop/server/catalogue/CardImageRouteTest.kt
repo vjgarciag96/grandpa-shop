@@ -1,5 +1,8 @@
 package com.vjgarciag96.grandpashop.server.catalogue
 
+import com.vjgarciag96.grandpashop.server.apiModule
+import com.vjgarciag96.grandpashop.server.price.CardmarketProducts
+import com.vjgarciag96.grandpashop.server.price.Prices
 import io.ktor.client.request.get
 import io.ktor.client.statement.readRawBytes
 import io.ktor.http.ContentType
@@ -15,6 +18,8 @@ import java.io.IOException
 import java.nio.file.Path
 
 class CardImageRouteTest {
+    private val noPrices = Prices(CardmarketProducts(emptyList()), guide = null)
+
     @TempDir
     lateinit var cacheDir: Path
 
@@ -32,7 +37,7 @@ class CardImageRouteTest {
                 fetched += passcode.value
                 fetch(passcode)
             }
-        application { catalogueModule(catalogue, images) }
+        application { apiModule(catalogue, images, noPrices) }
         block()
     }
 
