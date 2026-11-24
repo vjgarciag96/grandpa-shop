@@ -30,3 +30,11 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+
+tasks.register<JavaExec>("generateCardmarketProducts") {
+    group = "data"
+    description = "Writes src/main/resources/cardmarket-products.csv from the kept catalogue, product list and price guide"
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("com.vjgarciag96.grandpashop.server.price.GenerateCardmarketProductsKt")
+    workingDir = projectDir
+}
