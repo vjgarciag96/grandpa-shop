@@ -4,12 +4,17 @@ import {
   coveredMost,
   ghostAt,
   grabFraction,
+  overlaps,
   type Pocket,
   type Point,
   type Rect,
   type Size,
 } from "./pocketGeometry";
-import { pocketSizeOnScreen, pocketsOnScreen } from "./pocketsOnPage";
+import {
+  binderOnScreen,
+  pocketSizeOnScreen,
+  pocketsOnScreen,
+} from "./pocketsOnPage";
 import type { Card, Printing } from "./catalogue";
 import { DRAG_START_PX, DROP_MIN_COVER_SHARE } from "./tokens";
 
@@ -17,12 +22,35 @@ export type DragOrigin =
   | { kind: "printing"; card: Card; printing: Printing }
   | { kind: "copy"; from: SlotAddress; copy: Copy };
 
+/**
+ * What a release would do: place a printing in a pocket, move a filed copy to another pocket,
+ * or remove a filed copy whose card is off the binder. A printing is never removed.
+ */
+export type Drop =
+  | {
+      readonly kind: "place";
+      readonly card: Card;
+      readonly printing: Printing;
+      readonly to: SlotAddress;
+    }
+  | {
+      readonly kind: "move";
+      readonly from: SlotAddress;
+      readonly copy: Copy;
+      readonly to: SlotAddress;
+    }
+  | {
+      readonly kind: "remove";
+      readonly from: SlotAddress;
+      readonly copy: Copy;
+    };
+
 type Drag = {
   readonly origin: DragOrigin;
   /** The card under the pointer, or null until a pocket on screen gives it a size. */
   readonly ghost: Rect | null;
-  /** The pocket a release now would drop into. */
-  readonly target: SlotAddress | null;
+  /** What a release now would do. */
+  readonly drop: Drop | null;
 };
 
 type Press = {
@@ -42,26 +70,27 @@ type Press = {
   pointer: Point;
   /** False from a spread turn until the pointer moves again: a turn never arms a drop. */
   armed: boolean;
-  /** The pocket shown as the drop target; a release drops only there. */
-  target: SlotAddress | null;
+  /** The drop shown; a release does only that. */
+  drop: Drop | null;
 };
 
 /**
  * A press becomes a drag once it moves `motion.dragStartPx`; a shorter press stays a tap.
  * The card is a pocket-sized rectangle held where the press grabbed it; it drops into the pocket it covers most, when that pocket takes it.
+ * A filed copy whose card touches no part of the binder is off the binder instead.
  * Pass a memoized `allowed`: each new object rechecks the active press and rebinds the listeners.
  */
 export function useDragToPocket(
   allowed: Allowed,
-  onDrop: (address: SlotAddress, origin: DragOrigin) => void,
+  onDrop: (drop: Drop) => void,
 ) {
   const [drag, setDrag] = useState<Drag | null>(null);
   const press = useRef<Press | null>(null);
   const escapeCanceledCopyDrag = useRef(false);
-  const drop = useRef(onDrop);
+  const handleDrop = useRef(onDrop);
 
   useLayoutEffect(() => {
-    drop.current = onDrop;
+    handleDrop.current = onDrop;
   }, [onDrop]);
 
   useLayoutEffect(() => {
@@ -82,15 +111,15 @@ export function useDragToPocket(
       // The spread turned under a still pointer: nothing is a target until it moves.
       active.spread = allowed.spread;
       active.armed = false;
-      active.target = null;
-      setDrag((current) => current && { ...current, target: null });
+      active.drop = null;
+      setDrag((current) => current && { ...current, drop: null });
     }
 
     const follow = (current: Press) => {
       sizeGhost(current);
-      const { ghost, target } = hold(current);
-      current.target = current.armed ? target : null;
-      setDrag({ origin: current.origin, ghost, target: current.target });
+      const { ghost, drop } = hold(current);
+      current.drop = current.armed ? drop : null;
+      setDrag({ origin: current.origin, ghost, drop: current.drop });
     };
     const end = () => {
       press.current = null;
@@ -126,9 +155,9 @@ export function useDragToPocket(
       if (current.phase === "dragging" && event.button === 0) {
         current.pointer = { x: event.clientX, y: event.clientY };
         sizeGhost(current);
-        const { target } = hold(current);
-        if (target && current.target && sameSlot(target, current.target)) {
-          drop.current(target, current.origin);
+        const { drop } = hold(current);
+        if (drop && current.drop && sameDrop(drop, current.drop)) {
+          handleDrop.current(drop);
         }
       }
       end();
@@ -187,7 +216,7 @@ export function useDragToPocket(
       size: null,
       pointer: { x: event.clientX, y: event.clientY },
       armed: true,
-      target: null,
+      drop: null,
     };
     return true;
   };
@@ -206,12 +235,38 @@ function sizeGhost(press: Press) {
   press.size ??= pocketSizeOnScreen();
 }
 
-/** The card [press] holds under its pointer, and the pocket on screen a release there would drop into. */
-function hold(press: Press) {
+/** The card [press] holds under its pointer, and what a release there would do. */
+function hold(press: Press): { ghost: Rect | null; drop: Drop | null } {
   const ghost = press.size && ghostAt(press.pointer, press.grab, press.size);
-  const covered =
-    ghost && coveredMost(ghost, pocketsOnScreen(), DROP_MIN_COVER_SHARE);
-  return { ghost, target: covered && dropAddress(press, covered) };
+  if (!ghost) return { ghost, drop: null };
+  const { origin } = press;
+  if (origin.kind === "copy" && isOffBinder(ghost)) {
+    return {
+      ghost,
+      drop: { kind: "remove", from: origin.from, copy: origin.copy },
+    };
+  }
+  const covered = coveredMost(ghost, pocketsOnScreen(), DROP_MIN_COVER_SHARE);
+  const to = covered && dropAddress(press, covered);
+  return { ghost, drop: to && dropInto(origin, to) };
+}
+
+/** Dropping [origin] into the pocket at [to]: a printing is placed, a copy moved. */
+function dropInto(origin: DragOrigin, to: SlotAddress): Drop {
+  return origin.kind === "printing"
+    ? { kind: "place", card: origin.card, printing: origin.printing, to }
+    : { kind: "move", from: origin.from, copy: origin.copy, to };
+}
+
+/** Whether [ghost] touches no part of the open pages or the spine you can see. */
+function isOffBinder(ghost: Rect): boolean {
+  return !binderOnScreen().some((part) => overlaps(ghost, part));
+}
+
+/** Whether two drops of the same press do the same: a removal, or a drop into the same pocket. */
+function sameDrop(a: Drop, b: Drop): boolean {
+  if (a.kind === "remove" || b.kind === "remove") return a.kind === b.kind;
+  return sameSlot(a.to, b.to);
 }
 
 /**

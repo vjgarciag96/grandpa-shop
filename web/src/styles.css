@@ -1002,6 +1002,13 @@ html:has(.dialog-backdrop) {
   pointer-events: none;
 }
 
+/* Off the binder, a release takes the copy out of the binder. */
+.drag-ghost--removing {
+  opacity: var(--drag-ghost-removing-opacity);
+  outline: var(--aim-stroke) solid var(--color-error);
+  outline-offset: calc(var(--aim-stroke) * -1);
+}
+
 .catalogue__group {
   margin: calc(var(--space-slot) * 1.5) 0 var(--space-slot);
   color: var(--color-on-surface-variant);

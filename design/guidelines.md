@@ -14,7 +14,7 @@ Blue-Eyes-inspired sapphire and ice blue mark primary actions and selections, wi
 | `surface`, `surfaceContainer*` | The desk, dialogs, and the distinct layers within them. |
 | `onSurface`, `onSurfaceVariant` | Main and supporting content on surfaces. |
 | `outline`, `outlineVariant` | Visible control boundaries and quiet dividers, respectively. |
-| `error` | Destructive actions and error messages on light surfaces. |
+| `error` | Destructive actions, error messages on light surfaces, and a filed copy about to leave the binder by drag. |
 | `binderBoard`, `binderPage` | The physical cover, spine, and sheet surfaces. |
 | `foil` | A decorative rarity mark beside its text label. |
 
@@ -101,7 +101,7 @@ Printing rows and pockets are buttons, so each step works by tapping, by clickin
 - Any pocket can be the target of a mouse or pen drag. In a touch drag, a filled pocket covered most is no target, so it shows nothing.
 - Releasing on an empty target places the printing there and announces it.
 - Releasing a mouse or pen drag on a filled target files a new Near Mint copy of the printing there, and the copy that was there leaves the binder, as with Remove. There is no confirmation. The replace is announced as "Placed LOB-EN119 in page 1, slot 1, replacing SDY-006". A touch drag never replaces a copy.
-- Releasing with no target, pressing Escape, letting go of the primary button, or releasing another button drops nothing. There is no animation back to the panel.
+- Releasing with no target, off the binder included, pressing Escape, letting go of the primary button, or releasing another button drops nothing. There is no animation back to the panel.
 
 ### Dragging a filed copy
 
@@ -111,7 +111,10 @@ Printing rows and pockets are buttons, so each step works by tapping, by clickin
 - The copy's own pocket is never a target: while the card covers it most, nothing is lit and a release changes nothing.
 - Releasing on an empty target on either visible page moves the copy there. The original pocket becomes empty, the copy keeps its printing and condition, and the move is announced as "Moved SDY-006 to page 1, slot 3".
 - Releasing on a filled target swaps the two. Each keeps its printing and condition. The swap is announced as "Swapped SDY-006 to page 1, slot 2 and LOB-EN005 to page 1, slot 1".
-- Releasing with no target, pressing Escape, letting go of the primary button, or opening a copy's detail changes nothing. Turning the spread mid-drag cancels the drag: a copy does not leave its spread.
+- The binder is the open pages and the spine, as far as you can see them. The card is off the binder once no part of it touches them. The board around the pages, the bare inside cover on the first or last spread, the catalogue panel, and the bottom sheet are off the binder.
+- While the card is off the binder, the copy's own pocket shows as empty and the card shows at `layout.dragGhostRemovingOpacity` with the `error` outline `layout.aimStrokePx` wide, inside its edge. Bringing the card back over the binder restores the normal look.
+- Releasing with the card off the binder takes the copy out of the binder, as with Remove. There is no confirmation and no undo. The removal is announced as "Removed SDY-006 from page 1, slot 1". A replace target on that pocket stays the target, now empty.
+- Releasing with no target while the card still touches the binder, such as in a gap between pockets or over the spine, pressing Escape, letting go of the primary button, releasing another button, or opening a copy's detail changes nothing. Turning the spread mid-drag cancels the drag: a copy does not leave its spread.
 
 ## What clients must not do
 

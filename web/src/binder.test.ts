@@ -6,6 +6,7 @@ import {
   pageSlots,
   place,
   remove,
+  removeCopy,
   sameSlot,
   spreadPages,
   type Copy,
@@ -210,5 +211,52 @@ describe("moveCopy", () => {
     );
 
     expect(move).toEqual({ kind: "refused" });
+  });
+});
+
+describe("removeCopy", () => {
+  it("empties the slot that still holds the copy", () => {
+    const filled = place(
+      emptyBinder(),
+      { page: 2, position: 4 },
+      darkMagicianCopy,
+    );
+
+    const removal = removeCopy(
+      filled,
+      { page: 2, position: 4 },
+      darkMagicianCopy,
+    );
+
+    expect(removal).toEqual({ kind: "removed", binder: emptyBinder() });
+  });
+
+  it("refuses a copy that is no longer in the slot", () => {
+    const filled = place(
+      emptyBinder(),
+      { page: 2, position: 4 },
+      darkMagicianCopy,
+    );
+
+    const removal = removeCopy(
+      filled,
+      { page: 2, position: 4 },
+      {
+        ...darkMagicianCopy,
+        condition: "Damaged",
+      },
+    );
+
+    expect(removal).toEqual({ kind: "refused" });
+  });
+
+  it("refuses an empty slot", () => {
+    const removal = removeCopy(
+      emptyBinder(),
+      { page: 2, position: 4 },
+      darkMagicianCopy,
+    );
+
+    expect(removal).toEqual({ kind: "refused" });
   });
 });

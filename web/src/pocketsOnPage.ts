@@ -8,6 +8,7 @@ import {
 
 const pocketAttribute = "data-pocket";
 const filledAttribute = "data-filled";
+const binderAttribute = "data-binder";
 
 /** Attributes that let a drag find this pocket. */
 export function pocketMarker(
@@ -47,6 +48,19 @@ export function pocketSizeOnScreen(): Size | null {
   if (!pocket) return null;
   const { width, height } = pocket.getBoundingClientRect();
   return { width, height };
+}
+
+/** Attributes that let a drag find an open page or the spine. An inside cover is not binder. */
+export function binderMarker(): Record<string, string> {
+  return { [binderAttribute]: "" };
+}
+
+/** The parts of the open pages and the spine you can see now. A hidden part is left out. */
+export function binderOnScreen(): Rect[] {
+  const area = visibleArea();
+  return Array.from(document.querySelectorAll(`[${binderAttribute}]`)).flatMap(
+    (element) => visiblePart(element.getBoundingClientRect(), area) ?? [],
+  );
 }
 
 /** The window, above the catalogue's bottom sheet when it is open. */

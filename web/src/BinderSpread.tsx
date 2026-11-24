@@ -9,7 +9,7 @@ import {
   type Copy,
   type SlotAddress,
 } from "./binder";
-import { pocketMarker } from "./pocketsOnPage";
+import { binderMarker, pocketMarker } from "./pocketsOnPage";
 import type { Catalogue } from "./catalogue";
 import { SWIPE_THRESHOLD_PX } from "./tokens";
 import type { Turn } from "./useSpreadTurns";
@@ -30,6 +30,8 @@ type Props = {
   /** The slot the drag would drop into: empty or filled, never the source. */
   dropTarget: SlotAddress | null;
   movingCopy: boolean;
+  /** The slot of a copy dragged off the binder: it looks empty until the copy leaves on release. */
+  pocketBeingEmptied: SlotAddress | null;
   catalogue: Catalogue;
   onSlot: OpenSlot;
   onCopyPress: PressCopy;
@@ -44,6 +46,7 @@ export function BinderSpread({
   aim,
   dropTarget,
   movingCopy,
+  pocketBeingEmptied,
   catalogue,
   onSlot,
   onCopyPress,
@@ -60,6 +63,7 @@ export function BinderSpread({
     aim,
     dropTarget,
     movingCopy,
+    pocketBeingEmptied,
     catalogue,
     onSlot,
     onCopyPress,
@@ -108,7 +112,7 @@ export function BinderSpread({
       }}
     >
       <PageSide page={left} side="left" {...sides} />
-      <div className="spine" aria-hidden="true" />
+      <div className="spine" aria-hidden="true" {...binderMarker()} />
       <PageSide page={right} side="right" {...sides} />
       {turn && (
         <TurningPage
@@ -159,6 +163,7 @@ type SideProps = {
   aim: Aim | null;
   dropTarget: SlotAddress | null;
   movingCopy: boolean;
+  pocketBeingEmptied: SlotAddress | null;
   catalogue: Catalogue;
   onSlot: OpenSlot;
   onCopyPress: PressCopy;
@@ -172,6 +177,7 @@ function PageSide({
   aim,
   dropTarget,
   movingCopy,
+  pocketBeingEmptied,
   catalogue,
   onSlot,
   onCopyPress,
@@ -185,18 +191,23 @@ function PageSide({
       className={`page-side page-side--${side} page`}
       aria-label={`Page ${page}`}
       inert={inert}
+      {...(inert ? undefined : binderMarker())}
     >
       <div className="page__grid">
         {pageSlots(binder, page).map((copy, position) => {
           const address = { page, position };
           const label = slotName(address);
           const dropping = dropTarget !== null && sameSlot(dropTarget, address);
+          const shownCopy =
+            pocketBeingEmptied !== null && sameSlot(pocketBeingEmptied, address)
+              ? null
+              : copy;
           const aimed =
             isTarget(aim, address) ||
             ((movingCopy || aim?.kind === "holding") && !copy) ||
             (dropping && copy !== null);
           const className = [
-            copy ? "slot slot--filled" : "slot slot--empty",
+            shownCopy ? "slot slot--filled" : "slot slot--empty",
             aimed && "slot--aimed",
             dropping && !copy && "slot--drop",
           ]
@@ -218,10 +229,10 @@ function PageSide({
               }}
               onClick={(event) => onSlot(address, event.currentTarget)}
             >
-              {copy && (
+              {shownCopy && (
                 <img
-                  src={catalogue.imageUrl(copy.card.passcode)}
-                  alt={copy.card.name}
+                  src={catalogue.imageUrl(shownCopy.card.passcode)}
+                  alt={shownCopy.card.name}
                   draggable={false}
                 />
               )}

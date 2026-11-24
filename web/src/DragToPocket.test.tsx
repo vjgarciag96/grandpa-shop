@@ -22,7 +22,9 @@ import {
   release,
   releaseCopy,
   releaseOnto,
+  releaseAt,
   releaseSecondary,
+  removeCopyWithMouse,
 } from "./test/drag";
 import { centreOf, stubLayout, type Layout } from "./test/layout";
 import { prefersReducedMotion, viewportWidth } from "./test/media";
@@ -945,14 +947,14 @@ describe("moving a filed copy", () => {
     ]);
   });
 
+  // The card spans y 299–445: 33px of slot 7, which the sheet from y 300 hides, while its top 1px stays on the binder.
   it("does not move a copy into a pocket the bottom sheet hides", async () => {
     await fileDarkMagicianUnderSheet();
     const source = slot("Page 1, slot 1: Dark Magician");
-    const hidden = slot("Page 1, slot 7, empty");
-
-    dragCopy(source, hidden);
+    pressAt(source, 150, 173);
+    moveTo(150, 372);
     const lit = litPockets();
-    releaseCopy(source, hidden);
+    releaseCopy(source, slot("Page 1, slot 7, empty"));
 
     expect([lit, darkMagicianPockets()]).toEqual([
       [],
@@ -1384,7 +1386,8 @@ describe("a cancelled drag onto a filled pocket", () => {
     expectNothingSwapped();
   });
 
-  it("swaps nothing when released outside the binder", () => {
+  // The pocket is the shown target, but a release at (0, 0) holds the card off the binder.
+  it("swaps nothing when released off the binder while a pocket is the target", () => {
     openSavedBinder({ 0: savedDarkMagician, 1: savedPotOfGreed });
     const source = slot("Page 1, slot 1: Dark Magician");
     dragCopy(source, slot("Page 1, slot 2: Pot of Greed"));
@@ -1479,5 +1482,254 @@ describe("a cancelled drag onto a filled pocket", () => {
     releaseCopy(source, occupied);
 
     expectNothingSwapped();
+  });
+});
+
+/** SDY-006 is still in [pocket], page 1, slot 1 unless given, and the binder said nothing. */
+function expectCopyKept(pocket = "Page 1, slot 1") {
+  expect([labelOf(pocket), binderAnnouncement()]).toEqual([
+    `${pocket}: Dark Magician`,
+    "",
+  ]);
+}
+
+// The pages span x 88–432 and 438–782 and y 88–570, with the spine between. A copy pressed at its centre holds the card 50px either side of the pointer and 73px above and below.
+describe("a filed copy released with its card still on the binder", () => {
+  // The card spans x 405–505: 15px of slot 3, under a fifth of the card, and the empty page beyond.
+  it("keeps the copy when released in the gap beside a pocket", () => {
+    openSavedBinder({ 0: savedPlayedSdyDarkMagician });
+    pressAt(slot("Page 1, slot 1: Dark Magician"), 150, 173);
+    moveTo(455, 173);
+
+    releaseAt(455, 173);
+
+    expectCopyKept();
+  });
+
+  // The card spans x 385–485 across the spine at x 432–438: 35px of its own pocket and 35px of page 3, slot 1.
+  it("keeps the copy when released over the spine", async () => {
+    prefersReducedMotion(true);
+    const user = openSavedBinder({ 11: savedPlayedSdyDarkMagician });
+    await user.click(slot("Next spread"));
+    pressAt(slot("Page 2, slot 3: Dark Magician"), 370, 173);
+    moveTo(435, 173);
+
+    releaseAt(435, 173);
+
+    expectCopyKept("Page 2, slot 3");
+  });
+
+  // The card spans y 569–715, so its top 1px still overlaps the page's bottom edge at y 570.
+  it("keeps the copy when the card still overlaps the spread by 1px", () => {
+    openSavedBinder({ 0: savedPlayedSdyDarkMagician });
+    pressAt(slot("Page 1, slot 1: Dark Magician"), 150, 173);
+    moveTo(150, 642);
+
+    releaseAt(150, 642);
+
+    expectCopyKept();
+  });
+});
+
+/** Whether page 1, slot 1 looks empty and the dragged card shows the removal cue. */
+function removalCue() {
+  const pocket = screen.getByRole("button", { name: /^Page 1, slot 1[:,]/ });
+  return {
+    pocketLooksEmpty:
+      pocket.classList.contains("slot--empty") && !pocket.querySelector("img"),
+    ghostRemoving:
+      document
+        .querySelector(".drag-ghost")
+        ?.classList.contains("drag-ghost--removing") ?? false,
+  };
+}
+
+describe("removing a filed copy by dragging it off the binder", () => {
+  it("empties the pocket and announces the removal", () => {
+    openSavedBinder({ 0: savedPlayedSdyDarkMagician });
+
+    removeCopyWithMouse(slot("Page 1, slot 1: Dark Magician"));
+
+    expect([
+      labelOf("Page 1, slot 1"),
+      binderAnnouncement(),
+      screen.queryByRole("dialog"),
+    ]).toEqual([
+      "Page 1, slot 1, empty",
+      "Removed SDY-006 from page 1, slot 1.",
+      null,
+    ]);
+  });
+
+  it("removes a copy dragged with a pen", () => {
+    openSavedBinder({ 0: savedPlayedSdyDarkMagician });
+    const source = slot("Page 1, slot 1: Dark Magician");
+    dragCopy(source, null, "pen");
+
+    releaseAt(awayFromBinder.x, awayFromBinder.y);
+
+    expect(labelOf("Page 1, slot 1")).toBe("Page 1, slot 1, empty");
+  });
+
+  // The card spans y 570–716, so it only touches the page's bottom edge at y 570.
+  it("removes the copy once the card only touches the page's edge", () => {
+    openSavedBinder({ 0: savedPlayedSdyDarkMagician });
+    pressAt(slot("Page 1, slot 1: Dark Magician"), 150, 173);
+    moveTo(150, 643);
+
+    releaseAt(150, 643);
+
+    expect(labelOf("Page 1, slot 1")).toBe("Page 1, slot 1, empty");
+  });
+
+  // On the first spread the inside cover takes x 438–782: the card at x 560–660 is wholly over it.
+  it("removes a copy dragged wholly over the inside cover", () => {
+    openSavedBinder({ 0: savedPlayedSdyDarkMagician });
+    pressAt(slot("Page 1, slot 1: Dark Magician"), 150, 173);
+    moveTo(610, 173);
+
+    releaseAt(610, 173);
+
+    expect(labelOf("Page 1, slot 1")).toBe("Page 1, slot 1, empty");
+  });
+
+  // A printing row is centred on (900, 300), at the panel's side of the screen.
+  it("removes a copy released over the catalogue panel", async () => {
+    const user = openSavedBinder({ 0: savedPlayedSdyDarkMagician });
+    await openCatalogueResult(user, "pot", /Pot of Greed/);
+    pressAt(slot("Page 1, slot 1: Dark Magician"), 150, 173);
+    moveOnto(printing(/LOB-EN119/));
+
+    releaseAt(900, 300);
+
+    expect(labelOf("Page 1, slot 1")).toBe("Page 1, slot 1, empty");
+  });
+
+  // The card spans y 412–558, wholly under the sheet from y 300.
+  it("removes a copy dragged wholly under the bottom sheet", async () => {
+    await fileDarkMagicianUnderSheet();
+    const source = slot("Page 1, slot 1: Dark Magician");
+    pressAt(source, 150, 173);
+    moveTo(150, 485);
+
+    releaseAt(150, 485);
+
+    expect(labelOf("Page 1, slot 1")).toBe("Page 1, slot 1, empty");
+  });
+
+  it("shows the removal cue only while the card is wholly off the binder", () => {
+    openSavedBinder({ 0: savedPlayedSdyDarkMagician });
+    pressAt(slot("Page 1, slot 1: Dark Magician"), 150, 173);
+    moveTo(150, 642);
+    const overlapping = removalCue();
+    moveTo(150, 643);
+    const off = removalCue();
+
+    moveTo(150, 642);
+
+    expect([overlapping, off, removalCue()]).toEqual([
+      { pocketLooksEmpty: false, ghostRemoving: false },
+      { pocketLooksEmpty: true, ghostRemoving: true },
+      { pocketLooksEmpty: false, ghostRemoving: false },
+    ]);
+  });
+
+  it("keeps the pocket's name while the card is off the binder", () => {
+    openSavedBinder({ 0: savedPlayedSdyDarkMagician });
+
+    dragCopy(slot("Page 1, slot 1: Dark Magician"), null);
+
+    expect(labelOf("Page 1, slot 1")).toBe("Page 1, slot 1: Dark Magician");
+  });
+
+  it("keeps a catalogue target on the pocket it empties", async () => {
+    const user = openSavedBinder({ 0: savedPlayedSdyDarkMagician });
+    const source = slot("Page 1, slot 1: Dark Magician");
+    await user.click(source);
+    await user.click(screen.getByRole("button", { name: "Replace" }));
+    const panel = within(
+      screen.getByRole("complementary", { name: "Catalogue" }),
+    );
+
+    removeCopyWithMouse(source);
+
+    expect([
+      labelOf("Page 1, slot 1"),
+      panel.getByRole("heading", { level: 2 }).textContent,
+    ]).toEqual(["Page 1, slot 1, empty", "Adding to page 1, slot 1"]);
+  });
+});
+
+describe("a filed copy dragged off the binder and cancelled", () => {
+  it("is kept when released over a pocket without moving back onto the binder", () => {
+    openSavedBinder({ 0: savedPlayedSdyDarkMagician });
+    const source = slot("Page 1, slot 1: Dark Magician");
+    dragCopy(source, null);
+
+    releaseCopy(source, slot("Page 1, slot 2, empty"));
+
+    expectCopyKept();
+  });
+
+  it("is kept when Escape is pressed", () => {
+    openSavedBinder({ 0: savedPlayedSdyDarkMagician });
+    const source = slot("Page 1, slot 1: Dark Magician");
+    dragCopy(source, null);
+
+    fireEvent.keyDown(window, { key: "Escape" });
+    release(source, awayFromBinder.x, awayFromBinder.y);
+
+    expectCopyKept();
+  });
+
+  it("is kept when the primary button is no longer held", () => {
+    openSavedBinder({ 0: savedPlayedSdyDarkMagician });
+    const source = slot("Page 1, slot 1: Dark Magician");
+    dragCopy(source, null);
+
+    moveTo(awayFromBinder.x, awayFromBinder.y, 0);
+    release(source, awayFromBinder.x, awayFromBinder.y);
+
+    expectCopyKept();
+  });
+
+  it("is kept on a secondary button release", () => {
+    openSavedBinder({ 0: savedPlayedSdyDarkMagician });
+    dragCopy(slot("Page 1, slot 1: Dark Magician"), null);
+
+    releaseSecondary(awayFromBinder.x, awayFromBinder.y);
+
+    expectCopyKept();
+  });
+
+  it("is kept when another copy's detail opens mid-drag", () => {
+    openSavedBinder({ 0: savedPlayedSdyDarkMagician, 2: savedPotOfGreed });
+    dragCopy(slot("Page 1, slot 1: Dark Magician"), null);
+
+    fireEvent.click(slot("Page 1, slot 3: Pot of Greed"), { detail: 0 });
+    releaseAt(awayFromBinder.x, awayFromBinder.y);
+
+    expectCopyKept();
+  });
+
+  it("is kept when the spread turns mid-drag", () => {
+    prefersReducedMotion(true);
+    openSavedBinder({ 0: savedPlayedSdyDarkMagician });
+    dragCopy(slot("Page 1, slot 1: Dark Magician"), null);
+
+    fireEvent.keyDown(document, { key: "ArrowRight" });
+    fireEvent.keyDown(document, { key: "ArrowLeft" });
+    releaseAt(awayFromBinder.x, awayFromBinder.y);
+
+    expectCopyKept();
+  });
+
+  it("is kept when pressed and moved off the binder by touch", () => {
+    openSavedBinder({ 0: savedPlayedSdyDarkMagician });
+    dragCopy(slot("Page 1, slot 1: Dark Magician"), null, "touch");
+
+    releaseAt(awayFromBinder.x, awayFromBinder.y);
+
+    expectCopyKept();
   });
 });

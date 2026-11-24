@@ -8,7 +8,11 @@ import {
   savedDarkMagician,
   savedPlayedSdyDarkMagician,
 } from "./test/binder";
-import { dragPrintingWithMouse, moveCopyWithMouse } from "./test/drag";
+import {
+  dragPrintingWithMouse,
+  moveCopyWithMouse,
+  removeCopyWithMouse,
+} from "./test/drag";
 import { darkMagician } from "./test/fakeCatalogue";
 import { stubLayout } from "./test/layout";
 
@@ -69,6 +73,17 @@ describe("the binder across reloads", () => {
     await first.user.click(
       screen.getByRole("button", { name: "Remove from slot" }),
     );
+    first.close();
+
+    openApp();
+
+    expect(slot("Page 1, slot 1, empty")).toBeTruthy();
+  });
+
+  it("keeps a copy dragged off the binder gone when the app is opened again", () => {
+    saveBinderWith({ 0: savedPlayedSdyDarkMagician });
+    const first = openApp();
+    removeCopyWithMouse(slot("Page 1, slot 1: Dark Magician"));
     first.close();
 
     openApp();

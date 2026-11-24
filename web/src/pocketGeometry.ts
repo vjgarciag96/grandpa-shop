@@ -37,6 +37,11 @@ export function coveredMost(
   return best?.pocket ?? null;
 }
 
+/** Whether [a] and [b] share any area; rectangles that only touch at an edge do not. */
+export function overlaps(a: Rect, b: Rect): boolean {
+  return overlap(a, b) > 0;
+}
+
 /** The part of [rect] inside [area], or null when none of it is. */
 export function visiblePart(rect: Rect, area: Rect): Rect | null {
   const left = Math.max(rect.left, area.left);
