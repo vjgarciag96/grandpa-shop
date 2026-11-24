@@ -54,7 +54,10 @@ class PriceRouteTest {
         withPrices {
             val response = client.get("/api/printings/price?setCode=MRL-029&rarity=Ultra%20Rare")
 
-            assertEquals(HttpStatusCode.NotFound to "No price for that printing", response.status to response.bodyAsText())
+            assertEquals(
+                HttpStatusCode.NotFound to "No price for that printing",
+                response.status to response.bodyAsText(),
+            )
         }
 
     @Test
@@ -62,7 +65,10 @@ class PriceRouteTest {
         withPrices {
             val response = client.get("/api/printings/price?setCode=DB1-EN015&rarity=Super%20Rare")
 
-            assertEquals(HttpStatusCode.NotFound to "No price for that printing", response.status to response.bodyAsText())
+            assertEquals(
+                HttpStatusCode.NotFound to "No price for that printing",
+                response.status to response.bodyAsText(),
+            )
         }
 
     @Test

@@ -23,9 +23,13 @@ class Prices(
     private val guide: PriceGuide?,
 ) {
     fun of(key: PrintingKey): PriceLookup {
-        val product = products.productOf(key) ?: return PriceLookup.NoProduct
-        if (guide == null) return PriceLookup.NoGuide
-        val price = guide.trend(product) ?: return PriceLookup.NoTrend
-        return PriceLookup.Found(price, product)
+        val product = products.productOf(key)
+        val price = product?.let { guide?.trend(it) }
+        return when {
+            product == null -> PriceLookup.NoProduct
+            guide == null -> PriceLookup.NoGuide
+            price == null -> PriceLookup.NoTrend
+            else -> PriceLookup.Found(price, product)
+        }
     }
 }
