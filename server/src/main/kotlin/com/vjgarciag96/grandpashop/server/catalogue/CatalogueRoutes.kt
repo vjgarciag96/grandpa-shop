@@ -45,7 +45,7 @@ fun Route.catalogueRoutes(
         val passcode = call.parameters["passcode"]?.toLongOrNull()?.let(::Passcode)
         val image =
             try {
-                passcode?.let(images::image)
+                passcode?.let { images.image(it) }
             } catch (e: IOException) {
                 call.application.environment.log
                     .warn("Could not fetch the image of card ${passcode?.value}", e)
