@@ -17,5 +17,5 @@ object Cardmarket {
     /** The product list kept in [cacheDir] as `cardmarket-products.json`, downloaded once when it is not there yet. */
     fun keptProductList(cacheDir: Path): String = cachedText(cacheDir.resolve(PRODUCT_LIST_FILE), ::productList)
 
-    fun productList(): String = Downloads.text(PRODUCT_LIST, NAME)
+    private fun productList(): String = Downloads.text(PRODUCT_LIST, NAME)
 }

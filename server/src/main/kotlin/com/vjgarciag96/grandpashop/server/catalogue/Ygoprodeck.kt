@@ -17,7 +17,7 @@ object Ygoprodeck {
     /** The card dump kept in [cacheDir] as `cardinfo.json`, downloaded once when it is not there yet. */
     fun keptCardInfo(cacheDir: Path): String = cachedText(cacheDir.resolve(CARD_INFO_FILE), ::cardInfo)
 
-    fun cardInfo(): String = Downloads.text(CARD_INFO, NAME)
+    private fun cardInfo(): String = Downloads.text(CARD_INFO, NAME)
 
     fun smallImage(passcode: Passcode): ByteArray = Downloads.bytes("$SMALL_IMAGES/${passcode.value}.jpg", NAME)
 }
