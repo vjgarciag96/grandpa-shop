@@ -12,15 +12,10 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import org.slf4j.LoggerFactory
 import java.io.IOException
-import kotlin.io.path.Path
-
-private const val DEFAULT_PORT = 43124
 
 fun main() {
-    val environment = System.getenv()
-    val host = environment["GRANDPA_SHOP_HOST"] ?: "127.0.0.1"
-    val port = environment["GRANDPA_SHOP_PORT"]?.toInt() ?: DEFAULT_PORT
-    val cacheDir = Path(environment["GRANDPA_SHOP_CACHE_DIR"] ?: ".cache")
+    val config = ServerConfig.fromEnvironment(System.getenv())
+    val cacheDir = config.cacheDir
 
     val catalogue = InMemoryCardRepository.fromYgoprodeckJson(YgoprodeckClient.keptCardInfo(cacheDir))
 
@@ -29,7 +24,9 @@ fun main() {
     val guide = priceGuideOrNone { PriceGuides.keep(cacheDir, CardmarketClient::priceGuide) }
     val prices = GetPrintingPrice(CardmarketProducts.fromResource(), guide)
 
-    embeddedServer(Netty, host = host, port = port) { apiModule(catalogue, images, prices) }.start(wait = true)
+    embeddedServer(Netty, host = config.host, port = config.port) {
+        apiModule(catalogue, images, prices)
+    }.start(wait = true)
 }
 
 /**
