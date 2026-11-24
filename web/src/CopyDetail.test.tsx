@@ -233,6 +233,21 @@ describe("a copy's price", () => {
     );
   });
 
+  it("shows whole euros with two decimals", async () => {
+    const { catalogue } = fakeCatalogue(
+      [darkMagician, potOfGreed, relinquished],
+      {
+        "SRL-029|Ultra Rare": { ...relinquishedPrice, cents: 1000 },
+      },
+    );
+
+    const detail = await openRelinquished(catalogue);
+
+    expect((await detail.findByText(/Cardmarket/)).textContent).toBe(
+      "10.00 € · Cardmarket, 23 Nov 2026",
+    );
+  });
+
   it("shows no price line when the printing has no price", async () => {
     const { catalogue } = fakeCatalogue([
       darkMagician,
@@ -241,7 +256,7 @@ describe("a copy's price", () => {
     ]);
 
     const detail = await openRelinquished(catalogue);
-    await act(async () => {});
+    await priceLookupSettled();
 
     expect(detail.queryByText(/Cardmarket/)).toBeNull();
   });
@@ -253,7 +268,7 @@ describe("a copy's price", () => {
     };
 
     const detail = await openRelinquished(catalogue);
-    await act(async () => {});
+    await priceLookupSettled();
 
     expect(detail.queryByText(/Cardmarket/)).toBeNull();
   });
@@ -343,6 +358,11 @@ function detailOf(copy: Copy, catalogue: Catalogue) {
       onClose={() => {}}
     />
   );
+}
+
+/** Lets an already answered price lookup reach the detail, so "no line" means settled, not still pending. */
+async function priceLookupSettled() {
+  await act(async () => {});
 }
 
 /** Renders the detail on its own, so a test can change the copy under it without closing it. */
