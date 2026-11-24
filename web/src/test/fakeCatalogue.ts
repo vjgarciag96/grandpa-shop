@@ -1,4 +1,10 @@
-import type { Card, CardSet, Catalogue, SetPrinting } from "../catalogue";
+import type {
+  Card,
+  CardSet,
+  Catalogue,
+  Price,
+  SetPrinting,
+} from "../catalogue";
 
 export const darkMagician: Card = {
   passcode: 46986414,
@@ -42,11 +48,46 @@ export const potOfGreed: Card = {
   ],
 };
 
-/** A catalogue that answers from a fixed list and records every query it is asked. */
-export function fakeCatalogue(cards: Card[] = [darkMagician, potOfGreed]) {
+/** Spell Ruler Relinquished, the printing whose price is known from Víctor's own Cardmarket page. */
+export const relinquished: Card = {
+  passcode: 64631466,
+  name: "Relinquished",
+  kind: "Monster",
+  type: "Ritual Monster",
+  text: 'You can Ritual Summon this card with "Black Illusion Ritual".',
+  monster: {
+    attribute: "DARK",
+    race: "Spellcaster",
+    level: 1,
+    atk: 0,
+    def: 0,
+  },
+  printings: [
+    { setCode: "SRL-029", setName: "Spell Ruler", rarity: "Ultra Rare" },
+  ],
+};
+
+/** The price of Relinquished SRL-029 Ultra Rare in the 2026-11-23 guide. */
+export const relinquishedPrice: Price = {
+  cents: 4006,
+  currency: "EUR",
+  guideDate: "2026-11-23",
+};
+
+/**
+ * A catalogue that answers from a fixed list and records every query it is asked.
+ * `prices` is keyed `setCode|rarity`; a printing not in it has no price.
+ */
+export function fakeCatalogue(
+  cards: Card[] = [darkMagician, potOfGreed],
+  prices: Record<string, Price> = {},
+) {
   const queries: string[] = [];
   const sets = setsOf(cards);
   const catalogue: Catalogue = {
+    async price({ setCode, rarity }) {
+      return prices[`${setCode}|${rarity}`] ?? null;
+    },
     async searchSets(query) {
       const needle = query.toLowerCase();
       return [...sets.values()]
@@ -103,5 +144,6 @@ export const failingCatalogue: Catalogue = {
   search: () => Promise.reject(new Error("the server is down")),
   searchSets: () => Promise.reject(new Error("the server is down")),
   setPrintings: () => Promise.reject(new Error("the server is down")),
+  price: () => Promise.reject(new Error("the server is down")),
   imageUrl: (passcode) => `/images/${passcode}.jpg`,
 };

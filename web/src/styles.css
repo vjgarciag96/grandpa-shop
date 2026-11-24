@@ -544,6 +544,13 @@ html:has(.dialog-backdrop) {
   background: var(--color-foil);
 }
 
+.detail__price {
+  margin: 0;
+  color: var(--color-on-surface);
+  font-size: var(--type-body);
+  font-weight: 500;
+}
+
 .detail__condition {
   display: grid;
   gap: calc(var(--space-slot) * 0.5);

@@ -1,8 +1,16 @@
-import { render, screen, within } from "@testing-library/react";
+import { act, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import App from "./App";
-import { fakeCatalogue } from "./test/fakeCatalogue";
+import type { Catalogue } from "./catalogue";
+import { saveBinderWith } from "./test/binder";
+import {
+  darkMagician,
+  fakeCatalogue,
+  potOfGreed,
+  relinquished,
+  relinquishedPrice,
+} from "./test/fakeCatalogue";
 
 async function appWithFirstSlotFilled(
   query: string,
@@ -187,5 +195,90 @@ describe("a copy's detail", () => {
     expect(
       screen.getByRole("button", { name: "Page 1, slot 1: Pot of Greed" }),
     ).toBeTruthy();
+  });
+});
+
+describe("a copy's price", () => {
+  const PRICED = { "SRL-029|Ultra Rare": relinquishedPrice };
+
+  /** Opens page 1, slot 1 of a binder holding Relinquished SRL-029 on `catalogue`. */
+  async function openRelinquished(catalogue: Catalogue) {
+    saveBinderWith({
+      0: {
+        card: relinquished,
+        printing: relinquished.printings[0],
+        condition: "Near Mint",
+      },
+    });
+    render(<App catalogue={catalogue} />);
+    const user = userEvent.setup();
+    await user.click(
+      screen.getByRole("button", { name: "Page 1, slot 1: Relinquished" }),
+    );
+    return within(screen.getByRole("dialog", { name: "Page 1, slot 1" }));
+  }
+
+  it("shows the Cardmarket price of the copy's printing with the guide's date", async () => {
+    const { catalogue } = fakeCatalogue(
+      [darkMagician, potOfGreed, relinquished],
+      PRICED,
+    );
+
+    const detail = await openRelinquished(catalogue);
+
+    expect((await detail.findByText(/Cardmarket/)).textContent).toBe(
+      "40.06\u00a0€ · Cardmarket, 23 Nov 2026",
+    );
+  });
+
+  it("shows no price line when the printing has no price", async () => {
+    const { catalogue } = fakeCatalogue([
+      darkMagician,
+      potOfGreed,
+      relinquished,
+    ]);
+
+    const detail = await openRelinquished(catalogue);
+    await act(async () => {});
+
+    expect(detail.queryByText(/Cardmarket/)).toBeNull();
+  });
+
+  it("shows no price line when the price lookup fails", async () => {
+    const catalogue: Catalogue = {
+      ...fakeCatalogue([darkMagician, potOfGreed, relinquished]).catalogue,
+      price: () => Promise.reject(new Error("the server is down")),
+    };
+
+    const detail = await openRelinquished(catalogue);
+    await act(async () => {});
+
+    expect(detail.queryByText(/Cardmarket/)).toBeNull();
+  });
+
+  it("shows no price line while the price is still being looked up", async () => {
+    const catalogue: Catalogue = {
+      ...fakeCatalogue([darkMagician, potOfGreed, relinquished]).catalogue,
+      price: () => new Promise(() => {}),
+    };
+
+    const detail = await openRelinquished(catalogue);
+
+    expect(detail.queryByText(/Cardmarket/)).toBeNull();
+  });
+
+  it("looks the price up for the copy's own printing", async () => {
+    const asked: string[] = [];
+    const catalogue: Catalogue = {
+      ...fakeCatalogue([darkMagician, potOfGreed, relinquished]).catalogue,
+      price: async ({ setCode, rarity }) => {
+        asked.push(`${setCode} ${rarity}`);
+        return null;
+      },
+    };
+
+    await openRelinquished(catalogue);
+
+    expect(asked).toEqual(["SRL-029 Ultra Rare"]);
   });
 });

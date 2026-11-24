@@ -57,3 +57,61 @@ it("requests an exact set name and joins each printing to its card in response o
     },
   ]);
 });
+
+it("asks the price route for the printing's set code and rarity, percent-encoded", async () => {
+  const price = { cents: 4006, currency: "EUR", guideDate: "2026-11-23" };
+  const fetch = vi
+    .fn()
+    .mockResolvedValue(Response.json({ ...price, product: 579386 }));
+  vi.stubGlobal("fetch", fetch);
+
+  const result = await httpCatalogue.price({
+    setCode: "SRL-029",
+    rarity: "Collector's Rare",
+  });
+
+  expect(fetch).toHaveBeenCalledWith(
+    "/api/printings/price?setCode=SRL-029&rarity=Collector%27s+Rare",
+    { signal: undefined },
+  );
+  expect(result).toEqual(price);
+});
+
+it("answers no price when the route has none for the printing", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn().mockResolvedValue(new Response("No price", { status: 404 })),
+  );
+
+  const result = await httpCatalogue.price({
+    setCode: "MRL-029",
+    rarity: "Ultra Rare",
+  });
+
+  expect(result).toBeNull();
+});
+
+it("answers no price while the guide is unavailable", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn().mockResolvedValue(new Response("No guide", { status: 503 })),
+  );
+
+  const result = await httpCatalogue.price({
+    setCode: "SRL-029",
+    rarity: "Ultra Rare",
+  });
+
+  expect(result).toBeNull();
+});
+
+it("fails the price lookup on any other error answer", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn().mockResolvedValue(new Response("Broken", { status: 500 })),
+  );
+
+  await expect(
+    httpCatalogue.price({ setCode: "SRL-029", rarity: "Ultra Rare" }),
+  ).rejects.toThrow("The catalogue answered 500");
+});

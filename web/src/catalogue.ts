@@ -36,11 +36,24 @@ export type CardSet = {
 /** One printing in a set, with the card it is a printing of. */
 export type SetPrinting = { readonly card: Card; readonly printing: Printing };
 
+/** What a printing is worth on Cardmarket on the day of the guide. See GET /api/printings/price. */
+export type Price = {
+  readonly cents: number;
+  readonly currency: "EUR";
+  /** The guide's date as Cardmarket writes it, such as 2026-11-23. */
+  readonly guideDate: string;
+};
+
 export interface Catalogue {
   search(query: string, signal?: AbortSignal): Promise<Card[]>;
   searchSets(query: string, signal?: AbortSignal): Promise<CardSet[]>;
   /** Every printing of the set with exactly this name, in set-code order. */
   setPrintings(name: string, signal?: AbortSignal): Promise<SetPrinting[]>;
+  /** The printing's price, or null when the server has none for it today or has no guide at all. */
+  price(
+    printing: Pick<Printing, "setCode" | "rarity">,
+    signal?: AbortSignal,
+  ): Promise<Price | null>;
   imageUrl(passcode: number): string;
 }
 
@@ -76,11 +89,34 @@ export const httpCatalogue: Catalogue = {
       return { card, printing: { setCode, setName: body.name, rarity } };
     });
   },
+  async price({ setCode, rarity }, signal) {
+    const params = new URLSearchParams({ setCode, rarity });
+    const response = await fetch(`/api/printings/price?${params}`, {
+      signal,
+    });
+    if (response.status === NO_PRICE || response.status === NO_GUIDE) {
+      return null;
+    }
+    const body: Price & { product: number } = await bodyOf(response);
+    return {
+      cents: body.cents,
+      currency: body.currency,
+      guideDate: body.guideDate,
+    };
+  },
   imageUrl: (passcode) => `/api/cards/${passcode}/image`,
 };
 
+/** The price route's answer for a printing it has no price for. */
+const NO_PRICE = 404;
+/** The price route's answer while the server has no price guide. */
+const NO_GUIDE = 503;
+
 async function get<T>(url: string, signal?: AbortSignal): Promise<T> {
-  const response = await fetch(url, { signal });
+  return bodyOf(await fetch(url, { signal }));
+}
+
+async function bodyOf<T>(response: Response): Promise<T> {
   if (!response.ok) {
     throw new Error(`The catalogue answered ${response.status}`);
   }
