@@ -2,6 +2,7 @@ package com.vjgarciag96.grandpashop.server.catalogue.endpoint
 
 import com.vjgarciag96.grandpashop.server.catalogue.domain.model.Passcode
 import com.vjgarciag96.grandpashop.server.catalogue.infra.CachedCardImageRepository
+import com.vjgarciag96.grandpashop.server.errorMessage
 import com.vjgarciag96.grandpashop.server.fixtureCatalogue
 import com.vjgarciag96.grandpashop.server.testApi
 import io.ktor.client.request.get
@@ -117,8 +118,11 @@ class CardImageRouteTest {
     @Test
     fun answers_bad_gateway_when_the_source_fails_and_nothing_is_kept() =
         withImages({ throw IOException("YGOPRODeck is down") }) {
-            val status = client.get("/api/cards/46986414/image").status
+            val response = client.get("/api/cards/46986414/image")
 
-            assertEquals(HttpStatusCode.BadGateway, status)
+            assertEquals(
+                HttpStatusCode.BadGateway to "The card image source did not answer",
+                response.status to response.errorMessage(),
+            )
         }
 }

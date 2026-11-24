@@ -5,6 +5,7 @@ import com.vjgarciag96.grandpashop.server.catalogue.domain.usecase.GetCardImage
 import com.vjgarciag96.grandpashop.server.catalogue.domain.usecase.GetSetContents
 import com.vjgarciag96.grandpashop.server.catalogue.domain.usecase.SearchCards
 import com.vjgarciag96.grandpashop.server.catalogue.domain.usecase.SearchSets
+import com.vjgarciag96.grandpashop.server.core.http.respondError
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
@@ -42,8 +43,8 @@ internal fun Route.catalogueRoutes(
         val name = call.request.queryParameters["name"]
         val found = name?.let { getSetContents(it) }
         when {
-            name == null -> call.respond(HttpStatusCode.BadRequest, "name is required")
-            found == null -> call.respond(HttpStatusCode.NotFound, "No set with that name")
+            name == null -> call.respondError(HttpStatusCode.BadRequest, "name is required")
+            found == null -> call.respondError(HttpStatusCode.NotFound, "No set with that name")
             else -> call.respond(found.toResponse())
         }
     }
@@ -55,11 +56,11 @@ internal fun Route.catalogueRoutes(
             } catch (e: IOException) {
                 call.application.environment.log
                     .warn("Could not fetch the image of card ${passcode?.value}", e)
-                call.respond(HttpStatusCode.BadGateway, "The card image source did not answer")
+                call.respondError(HttpStatusCode.BadGateway, "The card image source did not answer")
                 return@get
             }
         if (image == null) {
-            call.respond(HttpStatusCode.NotFound, "No card with that passcode")
+            call.respondError(HttpStatusCode.NotFound, "No card with that passcode")
         } else {
             call.response.header(HttpHeaders.CacheControl, IMAGE_CACHE_CONTROL)
             call.respondBytes(image, ContentType.Image.JPEG)
@@ -82,11 +83,11 @@ private suspend fun ApplicationCall.searchParameters(): SearchParameters? {
     val limit = if (limitParameter == null) DEFAULT_LIMIT else limitParameter.toIntOrNull()
     return when {
         query.length < MIN_QUERY_LENGTH -> {
-            respond(HttpStatusCode.BadRequest, "q needs at least $MIN_QUERY_LENGTH characters")
+            respondError(HttpStatusCode.BadRequest, "q needs at least $MIN_QUERY_LENGTH characters")
             null
         }
         limit == null || limit !in LIMITS -> {
-            respond(HttpStatusCode.BadRequest, "limit must be a number from 1 to $MAX_LIMIT")
+            respondError(HttpStatusCode.BadRequest, "limit must be a number from 1 to $MAX_LIMIT")
             null
         }
         else -> SearchParameters(query, limit)

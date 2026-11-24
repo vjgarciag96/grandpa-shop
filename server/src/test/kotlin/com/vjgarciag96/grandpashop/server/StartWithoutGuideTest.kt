@@ -5,7 +5,6 @@ import com.vjgarciag96.grandpashop.server.price.data.repository.Resolution
 import com.vjgarciag96.grandpashop.server.price.data.repository.row
 import com.vjgarciag96.grandpashop.server.price.domain.usecase.GetPrintingPrice
 import io.ktor.client.request.get
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
@@ -50,7 +49,7 @@ class StartWithoutGuideTest {
 
             assertEquals(
                 HttpStatusCode.ServiceUnavailable to "The price guide is not available",
-                response.status to response.bodyAsText(),
+                response.status to response.errorMessage(),
             )
         }
 }
