@@ -18,3 +18,4 @@ A new dependency needs a new file in this folder in the same change that adds it
 | [0010](0010-sync-and-conflict-model.md) | open | Sync and conflict model |
 | [0011](0011-server-json-is-kotlinx-serialization.md) | accepted | Server JSON is kotlinx.serialization through Ktor |
 | [0012](0012-web-tests-use-testing-library-on-jsdom.md) | accepted | Web tests use Testing Library on jsdom |
+| [0013](0013-prices-come-from-cardmarket-price-guide.md) | accepted | Prices come from Cardmarket's public price guide |
