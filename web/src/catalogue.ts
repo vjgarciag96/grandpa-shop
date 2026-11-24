@@ -97,7 +97,10 @@ export const httpCatalogue: Catalogue = {
     if (response.status === NO_PRICE || response.status === NO_GUIDE) {
       return null;
     }
-    const body: Price & { product: number } = await bodyOf(response);
+    const body: unknown = await bodyOf(response);
+    if (!isPrice(body)) {
+      throw new Error("The catalogue answered a malformed price");
+    }
     return {
       cents: body.cents,
       currency: body.currency,
@@ -111,6 +114,20 @@ export const httpCatalogue: Catalogue = {
 const NO_PRICE = 404;
 /** The price route's answer while the server has no price guide. */
 const NO_GUIDE = 503;
+
+/** The guide's date as Cardmarket writes it: 2026-11-23, and nothing the formatter could misread. */
+const GUIDE_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+/** True when a 200 body carries a price the detail can show; anything else is a failed lookup, not a crash. */
+function isPrice(body: unknown): body is Price {
+  if (typeof body !== "object" || body === null) return false;
+  const { cents, guideDate } = body as Record<string, unknown>;
+  return (
+    Number.isInteger(cents) &&
+    typeof guideDate === "string" &&
+    GUIDE_DATE.test(guideDate)
+  );
+}
 
 async function get<T>(url: string, signal?: AbortSignal): Promise<T> {
   return bodyOf(await fetch(url, { signal }));

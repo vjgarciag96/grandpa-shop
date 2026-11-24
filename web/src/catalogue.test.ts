@@ -77,6 +77,41 @@ it("asks the price route for the printing's set code and rarity, percent-encoded
   expect(result).toEqual(price);
 });
 
+it("fails the price lookup on a body without a price", async () => {
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({})));
+
+  await expect(
+    httpCatalogue.price({ setCode: "SRL-029", rarity: "Ultra Rare" }),
+  ).rejects.toThrow("The catalogue answered a malformed price");
+});
+
+it("fails the price lookup on a guide date not written as year-month-day", async () => {
+  const body = { cents: 4006, guideDate: "23/11/2026", product: 579386 };
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json(body)));
+
+  await expect(
+    httpCatalogue.price({ setCode: "SRL-029", rarity: "Ultra Rare" }),
+  ).rejects.toThrow("The catalogue answered a malformed price");
+});
+
+it("fails the price lookup on an empty guide date", async () => {
+  const body = { cents: 4006, guideDate: "", product: 579386 };
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json(body)));
+
+  await expect(
+    httpCatalogue.price({ setCode: "SRL-029", rarity: "Ultra Rare" }),
+  ).rejects.toThrow("The catalogue answered a malformed price");
+});
+
+it("fails the price lookup on cents that are not a whole number", async () => {
+  const body = { cents: 40.06, guideDate: "2026-11-23", product: 579386 };
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json(body)));
+
+  await expect(
+    httpCatalogue.price({ setCode: "SRL-029", rarity: "Ultra Rare" }),
+  ).rejects.toThrow("The catalogue answered a malformed price");
+});
+
 it("answers no price when the route has none for the printing", async () => {
   vi.stubGlobal(
     "fetch",
