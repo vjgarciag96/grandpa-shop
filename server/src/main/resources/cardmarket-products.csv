@@ -2455,6 +2455,8 @@ BLTR-EN053,Ultra Rare,774197,unique
 BLTR-EN054,Secret Rare,774198,unique
 BLTR-EN055,Ultra Rare,774199,unique
 BLTR-EN056,Ultra Rare,774200,unique
+BLTR-EN057,Ultra Rare,774201,inferred
+BLTR-EN058,Ultra Rare,774202,inferred
 BLTR-EN059,Ultra Rare,774203,unique
 BLTR-EN060,Secret Rare,774204,unique
 BLTR-EN061,Ultra Rare,774205,unique
@@ -2483,6 +2485,8 @@ BLTR-EN080,Ultra Rare,774225,unique
 BLTR-EN081,Secret Rare,774226,unique
 BLTR-EN082,Ultra Rare,774227,unique
 BLTR-EN083,Ultra Rare,774228,unique
+BLTR-EN084,Ultra Rare,774229,inferred
+BLTR-EN085,Ultra Rare,774230,inferred
 BLTR-EN086,Secret Rare,774231,unique
 BLTR-EN087,Secret Rare,774232,unique
 BLTR-EN088,Ultra Rare,774233,unique
@@ -2500,8 +2504,12 @@ BLTR-EN095,Quarter Century Secret Rare,774284,inferred
 BLTR-EN095,Ultra Rare,774240,inferred
 BLTR-EN096,Quarter Century Secret Rare,774242,inferred
 BLTR-EN096,Secret Rare,774241,inferred
+BLTR-EN097,Ultra Rare,774243,inferred
+BLTR-EN098,Ultra Rare,774244,inferred
 BLTR-EN099,Ultra Rare,774245,unique
 BLTR-EN100,Secret Rare,774246,unique
+BLTR-EN101,Secret Rare,774247,inferred
+BLTR-EN102,Secret Rare,774248,inferred
 BLTR-EN103,Ultra Rare,774249,unique
 BLTR-EN104,Secret Rare,774250,unique
 BLTR-EN105,Ultra Rare,774251,unique
@@ -2971,8 +2979,6 @@ BP01-EN010,Rare,254978,inferred
 BP01-EN010,Starfoil Rare,255319,inferred
 BP01-EN011,Rare,254979,inferred
 BP01-EN011,Starfoil Rare,255320,inferred
-BP01-EN012,Rare,254980,inferred
-BP01-EN012,Starfoil Rare,255321,inferred
 BP01-EN013,Rare,254981,inferred
 BP01-EN013,Starfoil Rare,255322,inferred
 BP01-EN014,Rare,254982,inferred
@@ -3367,8 +3373,6 @@ BP01-EN208,Common,255176,inferred
 BP01-EN208,Starfoil Rare,255297,inferred
 BP01-EN209,Common,255177,inferred
 BP01-EN209,Starfoil Rare,255298,inferred
-BP01-EN210,Common,255178,inferred
-BP01-EN210,Starfoil Rare,255299,inferred
 BP01-EN211,Common,255179,inferred
 BP01-EN211,Starfoil Rare,255300,inferred
 BP01-EN212,Common,255180,inferred
@@ -3784,8 +3788,6 @@ BP02-EN198,Common,262622,inferred
 BP02-EN198,Mosaic Rare,262623,inferred
 BP02-EN199,Common,262711,inferred
 BP02-EN199,Mosaic Rare,262712,inferred
-BP02-EN200,Common,262803,inferred
-BP02-EN200,Mosaic Rare,262804,inferred
 BP02-EN201,Common,262596,inferred
 BP02-EN201,Mosaic Rare,262597,inferred
 BP02-EN202,Common,262660,inferred
@@ -3990,8 +3992,6 @@ BP03-EN086,Rare,268247,inferred
 BP03-EN086,Shatterfoil Rare,268467,inferred
 BP03-EN087,Common,268248,inferred
 BP03-EN087,Shatterfoil Rare,268468,inferred
-BP03-EN088,Common,268249,inferred
-BP03-EN088,Shatterfoil Rare,268469,inferred
 BP03-EN089,Rare,268250,inferred
 BP03-EN089,Shatterfoil Rare,268470,inferred
 BP03-EN090,Common,268251,inferred
@@ -7188,27 +7188,225 @@ DB9,Common,103736,inferred
 DBT-EN001,Super Rare,103247,unique
 DBT-EN002,Super Rare,102699,unique
 DBT-EN003,Super Rare,106194,unique
+DCR-000,Secret Rare,106276,inferred
+DCR-001,Common,102106,inferred
+DCR-002,Common,104814,inferred
+DCR-003,Common,101836,inferred
+DCR-004,Common,102022,inferred
+DCR-005,Common,103787,inferred
+DCR-006,Ultra Rare,103785,inferred
+DCR-007,Ultra Rare,103789,inferred
+DCR-008,Rare,103783,inferred
+DCR-009,Common,103792,inferred
+DCR-010,Rare,103802,inferred
 DCR-011,Short Print,581407,inferred
+DCR-012,Ultra Rare,105191,inferred
+DCR-013,Common,104291,inferred
+DCR-014,Rare,102912,inferred
+DCR-015,Super Rare,102988,inferred
+DCR-016,Ultra Rare,105488,inferred
+DCR-017,Super Rare,102774,inferred
+DCR-018,Super Rare,104597,inferred
+DCR-019,Super Rare,102137,inferred
+DCR-020,Ultra Rare,103306,inferred
+DCR-021,Common,103806,inferred
+DCR-022,Common,102223,inferred
 DCR-023,Short Print,581419,inferred
+DCR-024,Short Print,104418,inferred
+DCR-025,Rare,103346,inferred
+DCR-026,Common,102838,inferred
+DCR-027,Super Rare,102717,inferred
+DCR-028,Common,106030,inferred
+DCR-029,Common,105491,inferred
+DCR-030,Common,101804,inferred
+DCR-031,Common,102530,inferred
+DCR-032,Super Rare,102326,inferred
+DCR-033,Common,105498,inferred
+DCR-034,Common,103734,inferred
+DCR-035,Rare,106388,inferred
+DCR-036,Common,105308,inferred
+DCR-037,Common,106183,inferred
+DCR-038,Common,105046,inferred
+DCR-039,Common,105310,inferred
+DCR-040,Common,103326,inferred
+DCR-041,Common,106067,inferred
+DCR-042,Common,104650,inferred
+DCR-043,Common,104840,inferred
+DCR-044,Rare,102990,inferred
+DCR-045,Common,103374,inferred
+DCR-046,Common,105745,inferred
 DCR-047,Short Print,104879,inferred
+DCR-048,Common,102020,inferred
+DCR-049,Rare,105525,inferred
+DCR-050,Common,105151,inferred
+DCR-051,Ultra Rare,104106,inferred
+DCR-052,Ultra Rare,104027,inferred
+DCR-053,Ultra Rare,102545,inferred
+DCR-054,Common,103499,inferred
+DCR-055,Common,102713,inferred
+DCR-056,Common,104873,inferred
+DCR-057,Rare,101977,inferred
+DCR-058,Common,104941,inferred
+DCR-059,Common,105404,inferred
+DCR-060,Common,102840,inferred
+DCR-061,Common,102842,inferred
 DCR-062,Short Print,581458,inferred
+DCR-063,Rare,103749,inferred
+DCR-064,Common,104042,inferred
+DCR-065,Common,103645,inferred
+DCR-066,Rare,104511,inferred
+DCR-067,Common,106305,inferred
+DCR-068,Common,105466,inferred
+DCR-069,Rare,102864,inferred
+DCR-070,Common,102930,inferred
+DCR-071,Rare,103997,inferred
+DCR-072,Super Rare,105872,inferred
+DCR-073,Ultra Rare,105535,inferred
+DCR-074,Rare,104546,inferred
+DCR-075,Rare,106172,inferred
+DCR-076,Super Rare,104670,inferred
+DCR-077,Common,104125,inferred
+DCR-078,Common,104123,inferred
+DCR-079,Common,106489,inferred
+DCR-080,Common,101845,inferred
+DCR-081,Rare,104225,inferred
+DCR-082,Super Rare,102815,inferred
+DCR-083,Common,105671,inferred
+DCR-084,Common,103059,inferred
+DCR-085,Common,103990,inferred
+DCR-086,Rare,102533,inferred
+DCR-087,Common,102535,inferred
 DCR-088,Short Print,581484,inferred
+DCR-089,Common,102443,inferred
+DCR-090,Common,102394,inferred
+DCR-091,Common,103377,inferred
+DCR-092,Common,101981,inferred
+DCR-093,Common,104679,inferred
 DCR-094,Short Print,581490,inferred
+DCR-095,Common,101865,inferred
+DCR-096,Common,103469,inferred
+DCR-097,Common,102112,inferred
+DCR-098,Rare,102846,inferred
+DCR-099,Common,101982,inferred
 DCR-100,Short Print,581496,inferred
+DCR-101,Super Rare,105679,inferred
+DCR-102,Common,105377,inferred
+DCR-103,Common,105145,inferred
+DCR-104,Ultra Rare,102199,inferred
+DCR-105,Secret Rare,104084,inferred
+DCR-EN000,Secret Rare,581396,inferred
+DCR-EN001,Common,581397,inferred
+DCR-EN002,Common,581398,inferred
+DCR-EN003,Common,581399,inferred
+DCR-EN004,Common,581400,inferred
+DCR-EN005,Common,581401,inferred
+DCR-EN006,Ultra Rare,581402,inferred
+DCR-EN007,Ultra Rare,581403,inferred
+DCR-EN008,Rare,581404,inferred
+DCR-EN009,Common,581405,inferred
+DCR-EN010,Rare,581406,inferred
 DCR-EN011,Common,102655,inferred
 DCR-EN011,Short Print,581407,inferred
+DCR-EN012,Ultra Rare,581408,inferred
+DCR-EN013,Common,581409,inferred
+DCR-EN014,Rare,581410,inferred
+DCR-EN015,Super Rare,581411,inferred
+DCR-EN016,Ultra Rare,581412,inferred
+DCR-EN017,Super Rare,581413,inferred
+DCR-EN018,Super Rare,581414,inferred
+DCR-EN019,Super Rare,581415,inferred
+DCR-EN020,Ultra Rare,581416,inferred
+DCR-EN021,Common,581417,inferred
+DCR-EN022,Common,581418,inferred
 DCR-EN023,Common,102927,inferred
 DCR-EN023,Short Print,581419,inferred
+DCR-EN024,Short Print,581420,inferred
+DCR-EN025,Rare,581421,inferred
+DCR-EN026,Common,581422,inferred
+DCR-EN027,Super Rare,581423,inferred
+DCR-EN028,Common,581424,inferred
+DCR-EN029,Common,581425,inferred
+DCR-EN030,Common,581426,inferred
+DCR-EN031,Common,581427,inferred
+DCR-EN032,Super Rare,581428,inferred
+DCR-EN033,Common,581429,inferred
+DCR-EN034,Common,581430,inferred
+DCR-EN035,Rare,581431,inferred
+DCR-EN036,Common,581432,inferred
+DCR-EN037,Common,581433,inferred
+DCR-EN038,Common,581434,inferred
+DCR-EN039,Common,581435,inferred
+DCR-EN040,Common,581436,inferred
+DCR-EN041,Common,581437,inferred
+DCR-EN042,Common,581438,inferred
+DCR-EN043,Common,581439,inferred
+DCR-EN044,Rare,581440,inferred
+DCR-EN045,Common,581441,inferred
+DCR-EN046,Common,581442,inferred
 DCR-EN047,Common,581443,inferred
 DCR-EN047,Short Print,104879,inferred
+DCR-EN048,Common,581444,inferred
+DCR-EN049,Rare,581445,inferred
+DCR-EN050,Common,581446,inferred
+DCR-EN051,Ultra Rare,581447,inferred
+DCR-EN052,Ultra Rare,581448,inferred
+DCR-EN053,Ultra Rare,581449,inferred
+DCR-EN054,Common,581450,inferred
+DCR-EN055,Common,581451,inferred
+DCR-EN056,Common,581452,inferred
+DCR-EN057,Rare,581453,inferred
+DCR-EN058,Common,581454,inferred
+DCR-EN059,Common,581455,inferred
+DCR-EN060,Common,581456,inferred
+DCR-EN061,Common,581457,inferred
 DCR-EN062,Common,104922,inferred
 DCR-EN062,Short Print,581458,inferred
+DCR-EN063,Rare,581459,inferred
+DCR-EN064,Common,581460,inferred
+DCR-EN065,Common,581461,inferred
+DCR-EN066,Rare,581462,inferred
+DCR-EN067,Common,581463,inferred
+DCR-EN068,Common,581464,inferred
+DCR-EN069,Rare,581465,inferred
+DCR-EN070,Common,581466,inferred
+DCR-EN071,Rare,581467,inferred
+DCR-EN072,Super Rare,581468,inferred
+DCR-EN073,Ultra Rare,581469,inferred
+DCR-EN074,Rare,581470,inferred
+DCR-EN075,Rare,581471,inferred
+DCR-EN076,Super Rare,581472,inferred
+DCR-EN077,Common,581473,inferred
+DCR-EN078,Common,581474,inferred
+DCR-EN079,Common,581475,inferred
+DCR-EN080,Common,581476,inferred
+DCR-EN081,Rare,581477,inferred
+DCR-EN082,Super Rare,581478,inferred
+DCR-EN083,Common,581479,inferred
+DCR-EN084,Common,581480,inferred
+DCR-EN085,Common,581481,inferred
+DCR-EN086,Rare,581482,inferred
+DCR-EN087,Common,581483,inferred
 DCR-EN088,Common,103337,inferred
 DCR-EN088,Short Print,581484,inferred
+DCR-EN089,Common,581485,inferred
+DCR-EN090,Common,581486,inferred
+DCR-EN091,Common,581487,inferred
+DCR-EN092,Common,581488,inferred
+DCR-EN093,Common,581489,inferred
 DCR-EN094,Common,104939,inferred
 DCR-EN094,Short Print,581490,inferred
+DCR-EN095,Common,581491,inferred
+DCR-EN096,Common,581492,inferred
+DCR-EN097,Common,581493,inferred
+DCR-EN098,Rare,581494,inferred
+DCR-EN099,Common,581495,inferred
 DCR-EN100,Common,102982,inferred
 DCR-EN100,Short Print,581496,inferred
+DCR-EN101,Super Rare,581497,inferred
+DCR-EN102,Common,581498,inferred
+DCR-EN103,Common,581499,inferred
+DCR-EN104,Ultra Rare,581500,inferred
+DCR-EN105,Secret Rare,581501,inferred
 DDS-001,Prismatic Secret Rare,102244,unique
 DDS-002,Prismatic Secret Rare,102803,unique
 DDS-003,Prismatic Secret Rare,103311,unique
@@ -7485,7 +7683,6 @@ DL2-002,Super Rare,102822,unique
 DL2-EN001,Super Rare,105962,unique
 DL2-EN002,Super Rare,102822,unique
 DL3-001,Rare,104756,unique
-DL4-001,Super Rare,245197,inferred
 DL5-EN001,Super Rare,105237,unique
 DL6-EN001,Super Rare,106081,unique
 DL7-EN001,Super Rare,106083,unique
@@ -10786,7 +10983,6 @@ EHC2-EN001,Secret Rare,257741,unique
 EHC2-EN002,Secret Rare,257742,unique
 EHC2-EN003,Secret Rare,257743,unique
 EHC2-EN004,Secret Rare,257744,unique
-EM1-EN001,Ultra Rare,245197,inferred
 EOJ-EN001,Common,102947,inferred
 EOJ-EN002,Common,102938,inferred
 EOJ-EN003,Rare,102943,inferred
@@ -14035,8 +14231,6 @@ IOC-EN108,Common,707471,inferred
 IOC-EN109,Rare,707472,inferred
 IOC-EN110,Super Rare,707473,inferred
 IOC-EN111,Secret Rare,707474,inferred
-JMP-EN005,Secret Rare,713224,inferred
-JMP-EN005,Ultra Rare,713224,inferred
 JOTL-EN001,Rare,263569,unique
 JOTL-EN002,Rare,263570,unique
 JOTL-EN003,Common,263571,unique
@@ -14238,8 +14432,6 @@ JUSH-EN054,Rare,837605,inferred
 JUSH-EN054,Super Rare,840047,inferred
 JUSH-EN055,Rare,837606,unique
 JUSH-EN056,Super Rare,837607,unique
-JUSH-EN057,Rare,837608,inferred
-JUSH-EN057,Super Rare,840049,inferred
 JUSH-EN058,Collector's Rare,840051,inferred
 JUSH-EN058,Rare,837609,inferred
 JUSH-EN058,Super Rare,840050,inferred
@@ -14420,6 +14612,7 @@ L26D-ENS07,3,883536,unique
 L26D-ENS08,Common,883537,inferred
 L26D-ENS08,Secret Rare,883742,inferred
 L26D-ENS08,Starlight Rare,883747,inferred
+L26D-ENS09,Common,883538,inferred
 L26D-ENS11,2,883540,unique
 L26D-ENS12,Common,883541,unique
 L26D-ENS13,Ultra Rare,883542,unique
@@ -14430,6 +14623,8 @@ L26D-ENS17,Common,883546,unique
 L26D-ENS18,Common,883547,unique
 L26D-ENS19,Common,883548,unique
 L26D-ENS20,2,883549,unique
+L26D-ENS21,Common,883550,inferred
+L26D-ENS23,Common,883553,inferred
 L26D-ENS24,Common,883554,unique
 L26D-ENS27,2,883558,unique
 L26D-ENS28,Common,883559,unique
@@ -14453,8 +14648,11 @@ L26D-ENX13,Common,883656,unique
 L26D-ENX16,Common,883664,unique
 L26D-ENX17,Common,883665,unique
 L26D-ENX18,3,883666,unique
+L26D-ENX20,Common,883671,inferred
+L26D-ENX21,Common,883672,inferred
 L26D-ENX22,Common,883673,unique
 L26D-ENX23,Common,883674,unique
+L26D-ENX24,Common,883675,inferred
 L26D-ENX26,Common,883677,inferred
 L26D-ENX26,Secret Rare,883678,inferred
 L26D-ENX27,Common,883679,unique
@@ -14530,6 +14728,7 @@ L5DD-ENC17,Common,855971,unique
 L5DD-ENC18,Common,855972,unique
 L5DD-ENC19,2,855973,unique
 L5DD-ENC20,Common,855974,unique
+L5DD-ENC21,Common,855904,inferred
 L5DD-ENC22,2,855976,unique
 L5DD-ENC23,Ultra Rare,855977,unique
 L5DD-ENC24,Common,855978,unique
@@ -14570,6 +14769,7 @@ L5DD-ENY23,Common,855900,unique
 L5DD-ENY24,Common,855901,unique
 L5DD-ENY25,Common,855902,unique
 L5DD-ENY26,Common,855903,unique
+L5DD-ENY27,Common,855975,inferred
 L5DD-ENY28,Common,855905,unique
 L5DD-ENY29,Common,855906,unique
 L5DD-ENY30,Common,855907,unique
@@ -14583,9 +14783,11 @@ L5DD-ENY38,Common,855915,unique
 L5DD-ENY39,Common,855916,unique
 L5DD-ENY40,Common,855917,unique
 L5DD-ENY41,Common,855918,unique
+LAVD-ENL01,Common,900186,inferred
 LAVD-ENL03,Ultra Rare,900189,unique
 LAVD-ENL04,Common,900190,unique
 LAVD-ENL05,2,900191,unique
+LAVD-ENL06,Common,900155,inferred
 LAVD-ENL07,Ultra Rare,900193,unique
 LAVD-ENL08,Common,900194,inferred
 LAVD-ENL08,Secret Rare,901390,inferred
@@ -14599,8 +14801,10 @@ LAVD-ENL15,Common,900201,unique
 LAVD-ENL16,3,900202,unique
 LAVD-ENL17,2,900203,unique
 LAVD-ENL18,Common,900204,unique
+LAVD-ENL19,Common,900167,inferred
 LAVD-ENL20,Common,900206,unique
 LAVD-ENL21,Common,900207,unique
+LAVD-ENL22,Common,900208,inferred
 LAVD-ENL23,Common,900209,unique
 LAVD-ENL24,Common,900210,unique
 LAVD-ENL25,Common,900211,unique
@@ -14615,10 +14819,13 @@ LAVD-ENL37,Common,900223,unique
 LAVD-ENL38,Common,900224,unique
 LAVD-ENL39,Common,900225,unique
 LAVD-ENL40,Common,900226,unique
+LAVD-ENL41,Common,900184,inferred
+LAVD-ENO01,2,900147,inferred
 LAVD-ENO02,Common,900148,unique
 LAVD-ENO05,Common,900152,unique
 LAVD-ENO06,Ultra Rare,900153,unique
 LAVD-ENO07,Common,900154,unique
+LAVD-ENO08,Common,900192,inferred
 LAVD-ENO09,Common,900156,unique
 LAVD-ENO10,Common,900157,unique
 LAVD-ENO11,3,900158,unique
@@ -14628,6 +14835,7 @@ LAVD-ENO14,Common,900161,unique
 LAVD-ENO15,Common,900162,unique
 LAVD-ENO16,Common,900163,unique
 LAVD-ENO18,Common,900165,unique
+LAVD-ENO20,Common,900205,inferred
 LAVD-ENO21,3,900168,unique
 LAVD-ENO22,2,900169,unique
 LAVD-ENO23,2,900170,unique
@@ -14645,9 +14853,13 @@ LAVD-ENO35,Common,900182,inferred
 LAVD-ENO35,Secret Rare,901384,inferred
 LAVD-ENO35,Starlight Rare,901385,inferred
 LAVD-ENO36,Ultra Rare,900183,unique
+LAVD-ENO37,Common,900227,inferred
+LAVD-ENS01,Common,900228,inferred
+LAVD-ENS02,2,900229,inferred
 LAVD-ENS04,Common,900232,unique
 LAVD-ENS06,Common,900235,unique
 LAVD-ENS07,Common,900236,unique
+LAVD-ENS08,Common,900237,inferred
 LAVD-ENS09,3,900238,unique
 LAVD-ENS10,2,900239,unique
 LAVD-ENS11,2,900240,unique
@@ -14655,6 +14867,8 @@ LAVD-ENS12,Common,900241,unique
 LAVD-ENS13,Common,900242,unique
 LAVD-ENS14,2,900243,unique
 LAVD-ENS16,2,900246,unique
+LAVD-ENS17,Common,900247,inferred
+LAVD-ENS18,Common,900248,inferred
 LAVD-ENS19,3,900249,unique
 LAVD-ENS20,3,900250,unique
 LAVD-ENS22,Common,900252,unique
@@ -15146,6 +15360,8 @@ LCGX-EN177,Ultra Rare,251720,unique
 LCGX-EN178,Ultra Rare,251721,unique
 LCGX-EN179,Ultra Rare,251722,unique
 LCGX-EN180,Secret Rare,251723,unique
+LCGX-EN181,Secret Rare,251724,inferred
+LCGX-EN182,Secret Rare,251809,inferred
 LCGX-EN183,Secret Rare,251725,unique
 LCGX-EN184,Secret Rare,251726,unique
 LCGX-EN185,Rare,251727,unique
@@ -16027,6 +16243,7 @@ LDK2-ENJ22,Common,293134,unique
 LDK2-ENJ23,Common,293135,unique
 LDK2-ENJ24,Common,293136,unique
 LDK2-ENJ25,Common,293137,unique
+LDK2-ENJ26,Common,293093,inferred
 LDK2-ENJ27,Common,293138,unique
 LDK2-ENJ28,Common,293139,unique
 LDK2-ENJ29,Common,293140,unique
@@ -16064,6 +16281,7 @@ LDK2-ENK18,Common,293089,unique
 LDK2-ENK19,Common,293090,unique
 LDK2-ENK20,Common,293091,unique
 LDK2-ENK21,Common,293092,unique
+LDK2-ENK22,Common,293164,inferred
 LDK2-ENK23,Common,293094,unique
 LDK2-ENK24,Common,293095,unique
 LDK2-ENK25,Common,293096,unique
@@ -17210,6 +17428,7 @@ LEHD-ENA19,Common,364698,unique
 LEHD-ENA20,Common,364699,unique
 LEHD-ENA21,Common,364700,unique
 LEHD-ENA22,Common,364701,unique
+LEHD-ENA23,Common,364702,inferred
 LEHD-ENA24,Common,364703,unique
 LEHD-ENA25,Common,364704,unique
 LEHD-ENA26,Common,364705,unique
@@ -17244,6 +17463,7 @@ LEHD-ENB15,Common,364733,unique
 LEHD-ENB16,Common,364734,unique
 LEHD-ENB17,Common,364735,unique
 LEHD-ENB18,Common,364736,unique
+LEHD-ENB19,Common,364737,inferred
 LEHD-ENB20,Common,364738,unique
 LEHD-ENB21,Ultra Rare,364739,inferred
 LEHD-ENB22,Common,364740,unique
@@ -17279,6 +17499,7 @@ LEHD-ENC12,Common,364769,unique
 LEHD-ENC13,Common,364770,unique
 LEHD-ENC14,Common,364771,unique
 LEHD-ENC15,Common,364772,inferred
+LEHD-ENC16,Common,364773,inferred
 LEHD-ENC17,Common,364774,unique
 LEHD-ENC18,Common,364775,unique
 LEHD-ENC19,Common,364776,unique
@@ -17406,24 +17627,488 @@ LIOV-EN097,Common,566062,unique
 LIOV-EN098,Super Rare,566063,unique
 LIOV-EN099,Common,566064,unique
 LIOV-EN100,Starlight Rare,566065,unique
+LOD-000,Secret Rare,106466,inferred
+LOD-001,Ultra Rare,102834,inferred
+LOD-002,Super Rare,102732,inferred
+LOD-003,Rare,104236,inferred
+LOD-004,Common,105028,inferred
+LOD-005,Common,106409,inferred
+LOD-006,Common,105544,inferred
+LOD-007,Common,105359,inferred
+LOD-008,Common,106193,inferred
+LOD-009,Rare,104904,inferred
+LOD-010,Common,102084,inferred
+LOD-011,Rare,103345,inferred
+LOD-012,Common,104252,inferred
+LOD-013,Common,105967,inferred
+LOD-014,Common,105619,inferred
+LOD-015,Common,103053,inferred
+LOD-016,Ultra Rare,103456,inferred
+LOD-017,Common,106043,inferred
+LOD-018,Ultra Rare,104455,inferred
+LOD-019,Super Rare,105356,inferred
+LOD-020,Common,106345,inferred
+LOD-021,Common,104686,inferred
+LOD-022,Common,103464,inferred
+LOD-023,Super Rare,103304,inferred
+LOD-024,Common,105941,inferred
+LOD-025,Rare,105464,inferred
+LOD-026,Common,103067,inferred
+LOD-027,Rare,105881,inferred
+LOD-028,Super Rare,105199,inferred
+LOD-029,Rare,102017,inferred
+LOD-030,Rare,106009,inferred
+LOD-031,Common,105149,inferred
+LOD-032,Common,101808,inferred
+LOD-033,Common,103245,inferred
+LOD-034,Ultra Rare,106213,inferred
+LOD-035,Super Rare,105656,inferred
+LOD-036,Common,105721,inferred
+LOD-037,Common,105906,inferred
+LOD-038,Common,104293,inferred
+LOD-039,Super Rare,103369,inferred
+LOD-041,Common,103741,inferred
+LOD-042,Common,106170,inferred
+LOD-043,Rare,105909,inferred
+LOD-044,Common,101820,inferred
+LOD-045,Common,103078,inferred
+LOD-046,Common,105738,inferred
+LOD-047,Common,105800,inferred
+LOD-048,Common,103081,inferred
+LOD-049,Common,102315,inferred
+LOD-050,Super Rare,104315,inferred
+LOD-051,Common,105298,inferred
+LOD-052,Common,106427,inferred
+LOD-053,Common,105942,inferred
+LOD-054,Common,105297,inferred
+LOD-055,Common,105299,inferred
+LOD-056,Ultra Rare,103361,inferred
+LOD-057,Common,105450,inferred
+LOD-058,Common,104951,inferred
+LOD-059,Rare,106051,inferred
+LOD-060,Common,103685,inferred
+LOD-061,Common,106430,inferred
+LOD-062,Ultra Rare,101849,inferred
+LOD-063,Super Rare,106187,inferred
 LOD-064,Short Print,104408,inferred
 LOD-065,Short Print,581255,inferred
+LOD-066,Rare,105811,inferred
+LOD-067,Ultra Rare,106459,inferred
 LOD-068,Common,581258,inferred
 LOD-069,Super Short Print,104921,inferred
+LOD-070,Ultra Rare,103923,inferred
+LOD-071,Super Rare,102028,inferred
+LOD-072,Common,103478,inferred
+LOD-073,Common,105801,inferred
+LOD-074,Common,105802,inferred
+LOD-075,Common,103352,inferred
+LOD-076,Common,105734,inferred
+LOD-077,Common,103865,inferred
+LOD-078,Common,101814,inferred
+LOD-079,Rare,103491,inferred
 LOD-080,Short Print,105574,inferred
+LOD-081,Ultra Rare,102560,inferred
+LOD-082,Common,105727,inferred
+LOD-083,Rare,105426,inferred
+LOD-084,Common,102540,inferred
+LOD-085,Common,105980,inferred
+LOD-086,Rare,101843,inferred
+LOD-087,Rare,104362,inferred
+LOD-088,Rare,102207,inferred
+LOD-090,Common,102299,inferred
+LOD-091,Rare,105338,inferred
+LOD-092,Rare,102276,inferred
+LOD-093,Common,102073,inferred
+LOD-094,Common,104892,inferred
+LOD-095,Common,105724,inferred
+LOD-096,Common,104850,inferred
+LOD-097,Super Rare,103104,inferred
+LOD-098,Common,103364,inferred
+LOD-099,Ultra Rare,104202,inferred
+LOD-100,Secret Rare,104012,inferred
+LOD-EN000,Secret Rare,581126,inferred
+LOD-EN001,Ultra Rare,581128,inferred
+LOD-EN002,Super Rare,581129,inferred
+LOD-EN003,Rare,581130,inferred
+LOD-EN004,Common,581131,inferred
+LOD-EN005,Common,581132,inferred
+LOD-EN006,Common,581133,inferred
+LOD-EN007,Common,581134,inferred
+LOD-EN008,Common,581135,inferred
+LOD-EN009,Rare,581136,inferred
+LOD-EN010,Common,581137,inferred
+LOD-EN011,Rare,581138,inferred
+LOD-EN012,Common,581139,inferred
+LOD-EN013,Common,581141,inferred
+LOD-EN014,Common,581143,inferred
+LOD-EN015,Common,581145,inferred
+LOD-EN016,Ultra Rare,581146,inferred
+LOD-EN017,Common,581147,inferred
+LOD-EN018,Ultra Rare,581148,inferred
+LOD-EN019,Super Rare,581150,inferred
+LOD-EN020,Common,581152,inferred
+LOD-EN021,Common,581154,inferred
+LOD-EN022,Common,581155,inferred
+LOD-EN023,Super Rare,581156,inferred
+LOD-EN024,Common,581158,inferred
+LOD-EN025,Rare,581160,inferred
+LOD-EN026,Common,581162,inferred
+LOD-EN027,Rare,581163,inferred
+LOD-EN028,Super Rare,581164,inferred
+LOD-EN029,Rare,581165,inferred
+LOD-EN030,Rare,581167,inferred
+LOD-EN031,Common,581169,inferred
+LOD-EN032,Common,581170,inferred
+LOD-EN033,Common,581171,inferred
+LOD-EN034,Ultra Rare,581172,inferred
+LOD-EN035,Super Rare,581174,inferred
+LOD-EN036,Common,581176,inferred
+LOD-EN037,Common,581178,inferred
+LOD-EN038,Common,581179,inferred
+LOD-EN039,Super Rare,581181,inferred
+LOD-EN041,Common,581185,inferred
+LOD-EN042,Common,581186,inferred
+LOD-EN043,Rare,581188,inferred
+LOD-EN044,Common,581191,inferred
+LOD-EN045,Common,581194,inferred
+LOD-EN046,Common,581195,inferred
+LOD-EN047,Common,581198,inferred
+LOD-EN048,Common,581201,inferred
+LOD-EN049,Common,581204,inferred
+LOD-EN050,Super Rare,581205,inferred
+LOD-EN051,Common,581208,inferred
+LOD-EN052,Common,581210,inferred
+LOD-EN053,Common,581214,inferred
+LOD-EN054,Common,581217,inferred
+LOD-EN055,Common,581221,inferred
+LOD-EN056,Ultra Rare,581223,inferred
+LOD-EN057,Common,581226,inferred
+LOD-EN058,Common,581228,inferred
+LOD-EN059,Rare,581231,inferred
+LOD-EN060,Common,581235,inferred
+LOD-EN061,Common,581245,inferred
+LOD-EN062,Ultra Rare,581247,inferred
+LOD-EN063,Super Rare,581250,inferred
 LOD-EN064,Common,581253,inferred
 LOD-EN064,Short Print,104408,inferred
 LOD-EN065,Common,103989,inferred
 LOD-EN065,Short Print,581255,inferred
+LOD-EN066,Rare,581256,inferred
+LOD-EN067,Ultra Rare,581257,inferred
 LOD-EN068,Common,581258,inferred
 LOD-EN068,Short Print,103748,inferred
 LOD-EN069,Common,581260,inferred
 LOD-EN069,Super Short Print,104921,inferred
+LOD-EN070,Ultra Rare,581262,inferred
+LOD-EN071,Super Rare,581265,inferred
+LOD-EN072,Common,581267,inferred
+LOD-EN073,Common,581268,inferred
+LOD-EN074,Common,581269,inferred
+LOD-EN075,Common,581270,inferred
+LOD-EN076,Common,581271,inferred
+LOD-EN077,Common,581272,inferred
+LOD-EN078,Common,581273,inferred
+LOD-EN079,Rare,581275,inferred
 LOD-EN080,Common,581276,inferred
 LOD-EN080,Short Print,105574,inferred
+LOD-EN081,Ultra Rare,581277,inferred
+LOD-EN082,Common,581278,inferred
+LOD-EN083,Rare,581279,inferred
+LOD-EN084,Common,581280,inferred
+LOD-EN085,Common,581281,inferred
+LOD-EN086,Rare,581282,inferred
+LOD-EN087,Rare,581284,inferred
+LOD-EN088,Rare,581286,inferred
+LOD-EN090,Common,581289,inferred
+LOD-EN091,Rare,581290,inferred
+LOD-EN092,Rare,581291,inferred
+LOD-EN093,Common,581292,inferred
+LOD-EN094,Common,581293,inferred
+LOD-EN095,Common,581294,inferred
+LOD-EN096,Common,581295,inferred
+LOD-EN097,Super Rare,581296,inferred
+LOD-EN098,Common,581297,inferred
+LOD-EN099,Ultra Rare,581298,inferred
+LOD-EN100,Secret Rare,581299,inferred
 LOD2-EN001,Super Rare,394902,unique
 LOD2-EN002,Ultra Rare,394907,unique
 LOD2-EN003,Super Rare,394912,unique
+LON-000,Secret Rare,103547,inferred
+LON-001,Ultra Rare,105963,inferred
+LON-002,Common,105844,inferred
+LON-004,Common,106433,inferred
+LON-006,Super Rare,105255,inferred
+LON-007,Common,103429,inferred
+LON-008,Rare,101889,inferred
+LON-009,Common,105493,inferred
+LON-010,Common,103498,inferred
+LON-011,Common,103692,inferred
+LON-012,Common,104526,inferred
+LON-013,Rare,104852,inferred
+LON-017,Super Rare,104473,inferred
+LON-018,Ultra Rare,104475,inferred
+LON-019,Super Rare,104477,inferred
+LON-020,Rare,104468,inferred
+LON-021,Rare,105242,inferred
+LON-022,Common,104270,inferred
+LON-025,Ultra Rare,106106,inferred
+LON-026,Rare,104051,inferred
+LON-027,Rare,104007,inferred
+LON-029,Ultra Rare,102356,inferred
+LON-030,Common,104193,inferred
+LON-031,Common,106002,inferred
+LON-032,Common,101868,inferred
+LON-033,Common,102568,inferred
+LON-034,Super Rare,103388,inferred
+LON-035,Common,104188,inferred
+LON-036,Common,103389,inferred
+LON-037,Rare,105707,inferred
+LON-038,Common,102726,inferred
+LON-039,Common,103321,inferred
+LON-040,Common,103254,inferred
+LON-041,Common,102608,inferred
+LON-042,Common,103976,inferred
+LON-043,Common,102162,inferred
+LON-044,Common,105934,inferred
+LON-045,Common,105736,inferred
+LON-046,Rare,104458,inferred
+LON-047,Super Rare,104055,inferred
+LON-048,Common,105415,inferred
+LON-049,Ultra Rare,106251,inferred
+LON-050,Ultra Rare,104344,inferred
+LON-051,Common,104865,inferred
+LON-052,Common,287647,inferred
+LON-053,Common,287646,inferred
+LON-054,Common,103863,inferred
+LON-056,Common,105912,inferred
+LON-057,Common,102256,inferred
+LON-058,Common,103409,inferred
+LON-059,Common,105685,inferred
+LON-060,Common,104272,inferred
+LON-061,Rare,104078,inferred
+LON-062,Super Rare,104178,inferred
+LON-063,Common,105793,inferred
+LON-064,Super Rare,102115,inferred
+LON-065,Ultra Rare,102823,inferred
+LON-066,Common,105627,inferred
+LON-067,Common,105704,inferred
+LON-068,Common,101959,inferred
+LON-069,Common,105974,inferred
+LON-070,Common,103523,inferred
+LON-071,Rare,103605,inferred
+LON-072,Rare,106098,inferred
+LON-073,Common,103095,inferred
+LON-074,Common,106495,inferred
+LON-076,Common,104463,inferred
+LON-077,Ultra Rare,105953,inferred
+LON-079,Super Rare,102852,inferred
+LON-080,Ultra Rare,105323,inferred
+LON-081,Super Rare,105275,inferred
+LON-082,Common,105546,inferred
+LON-083,Common,103730,inferred
+LON-084,Common,102884,inferred
+LON-085,Rare,102967,inferred
+LON-086,Common,102222,inferred
+LON-087,Common,105915,inferred
+LON-088,Ultra Rare,102933,inferred
+LON-089,Rare,105699,inferred
+LON-090,Rare,105703,inferred
+LON-091,Rare,105697,inferred
+LON-092,Rare,105701,inferred
+LON-093,Common,105905,inferred
+LON-094,Rare,105732,inferred
+LON-095,Common,102679,inferred
+LON-096,Common,102074,inferred
+LON-097,Super Rare,102878,inferred
+LON-099,Common,103140,inferred
+LON-100,Common,104585,inferred
+LON-101,Common,103084,inferred
+LON-102,Common,105695,inferred
+LON-104,Secret Rare,104346,inferred
+LON-E000,Secret Rare,580824,inferred
+LON-E001,Ultra Rare,580825,inferred
+LON-E002,Common,580826,inferred
+LON-E004,Common,580828,inferred
+LON-E006,Super Rare,580830,inferred
+LON-E007,Common,580831,inferred
+LON-E008,Rare,580832,inferred
+LON-E009,Common,580833,inferred
+LON-E010,Common,580834,inferred
+LON-E011,Common,580835,inferred
+LON-E012,Common,580836,inferred
+LON-E013,Rare,580837,inferred
+LON-E017,Super Rare,580841,inferred
+LON-E018,Ultra Rare,580842,inferred
+LON-E019,Super Rare,580843,inferred
+LON-E020,Rare,580844,inferred
+LON-E021,Rare,580845,inferred
+LON-E022,Common,580846,inferred
+LON-E025,Ultra Rare,580849,inferred
+LON-E026,Rare,580850,inferred
+LON-E027,Rare,580851,inferred
+LON-E029,Ultra Rare,580853,inferred
+LON-E030,Common,580854,inferred
+LON-E031,Common,580855,inferred
+LON-E032,Common,580856,inferred
+LON-E033,Common,580857,inferred
+LON-E034,Super Rare,580858,inferred
+LON-E035,Common,580859,inferred
+LON-E036,Common,580860,inferred
+LON-E037,Rare,580861,inferred
+LON-E038,Common,580862,inferred
+LON-E039,Common,580863,inferred
+LON-E040,Common,580864,inferred
+LON-E041,Common,580865,inferred
+LON-E042,Common,580866,inferred
+LON-E043,Common,580867,inferred
+LON-E044,Common,580868,inferred
+LON-E045,Common,580869,inferred
+LON-E046,Rare,580870,inferred
+LON-E047,Super Rare,580871,inferred
+LON-E048,Common,580872,inferred
+LON-E049,Ultra Rare,580873,inferred
+LON-E050,Ultra Rare,580874,inferred
+LON-E051,Common,580875,inferred
+LON-E052,Common,580876,inferred
+LON-E053,Common,580877,inferred
+LON-E054,Common,580878,inferred
+LON-E056,Common,580880,inferred
+LON-E057,Common,580881,inferred
+LON-E058,Common,580882,inferred
+LON-E059,Common,580883,inferred
+LON-E060,Common,580884,inferred
+LON-E061,Rare,580885,inferred
+LON-E062,Super Rare,580886,inferred
+LON-E063,Common,580887,inferred
+LON-E064,Super Rare,580888,inferred
+LON-E065,Ultra Rare,580889,inferred
+LON-E066,Common,580890,inferred
+LON-E067,Common,580891,inferred
+LON-E068,Common,580892,inferred
+LON-E069,Common,580893,inferred
+LON-E070,Common,580894,inferred
+LON-E071,Rare,580895,inferred
+LON-E072,Rare,580896,inferred
+LON-E073,Common,580897,inferred
+LON-E074,Common,580898,inferred
+LON-E076,Common,580900,inferred
+LON-E077,Ultra Rare,580901,inferred
+LON-E079,Super Rare,580903,inferred
+LON-E080,Ultra Rare,580904,inferred
+LON-E081,Super Rare,580905,inferred
+LON-E082,Common,580906,inferred
+LON-E083,Common,580907,inferred
+LON-E084,Common,580908,inferred
+LON-E085,Rare,580909,inferred
+LON-E086,Common,580910,inferred
+LON-E087,Common,580911,inferred
+LON-E088,Ultra Rare,580912,inferred
+LON-E089,Rare,580913,inferred
+LON-E090,Rare,580914,inferred
+LON-E091,Rare,580915,inferred
+LON-E092,Rare,580916,inferred
+LON-E093,Common,580917,inferred
+LON-E094,Rare,580918,inferred
+LON-E095,Common,580919,inferred
+LON-E096,Common,580920,inferred
+LON-E097,Super Rare,580921,inferred
+LON-E099,Common,580923,inferred
+LON-E100,Common,580924,inferred
+LON-E101,Common,580925,inferred
+LON-E102,Common,580926,inferred
+LON-E104,Secret Rare,580928,inferred
+LON-EN000,Secret Rare,580941,inferred
+LON-EN001,Ultra Rare,580943,inferred
+LON-EN002,Common,580944,inferred
+LON-EN004,Common,580947,inferred
+LON-EN006,Super Rare,580950,inferred
+LON-EN007,Common,580952,inferred
+LON-EN008,Rare,580953,inferred
+LON-EN009,Common,580955,inferred
+LON-EN010,Common,580956,inferred
+LON-EN011,Common,580958,inferred
+LON-EN012,Common,580960,inferred
+LON-EN013,Rare,580962,inferred
+LON-EN017,Super Rare,580968,inferred
+LON-EN018,Ultra Rare,580969,inferred
+LON-EN019,Super Rare,580971,inferred
+LON-EN020,Rare,580972,inferred
+LON-EN021,Rare,580973,inferred
+LON-EN022,Common,580975,inferred
+LON-EN025,Ultra Rare,580981,inferred
+LON-EN026,Rare,580982,inferred
+LON-EN027,Rare,580984,inferred
+LON-EN029,Ultra Rare,580988,inferred
+LON-EN030,Common,580989,inferred
+LON-EN031,Common,580991,inferred
+LON-EN032,Common,580993,inferred
+LON-EN033,Common,580994,inferred
+LON-EN034,Super Rare,580995,inferred
+LON-EN035,Common,580996,inferred
+LON-EN036,Common,580997,inferred
+LON-EN037,Rare,581000,inferred
+LON-EN038,Common,581002,inferred
+LON-EN039,Common,581004,inferred
+LON-EN040,Common,581006,inferred
+LON-EN041,Common,581007,inferred
+LON-EN042,Common,581008,inferred
+LON-EN043,Common,581009,inferred
+LON-EN044,Common,581011,inferred
+LON-EN045,Common,581013,inferred
+LON-EN046,Rare,581015,inferred
+LON-EN047,Super Rare,581017,inferred
+LON-EN048,Common,581018,inferred
+LON-EN049,Ultra Rare,581019,inferred
+LON-EN050,Ultra Rare,581020,inferred
+LON-EN051,Common,581021,inferred
+LON-EN052,Common,581022,inferred
+LON-EN053,Common,581023,inferred
+LON-EN054,Common,581024,inferred
+LON-EN056,Common,581026,inferred
+LON-EN057,Common,581027,inferred
+LON-EN058,Common,581028,inferred
+LON-EN059,Common,581029,inferred
+LON-EN060,Common,581030,inferred
+LON-EN061,Rare,581031,inferred
+LON-EN062,Super Rare,581032,inferred
+LON-EN063,Common,581033,inferred
+LON-EN064,Super Rare,581034,inferred
+LON-EN065,Ultra Rare,581035,inferred
+LON-EN066,Common,581036,inferred
+LON-EN067,Common,581037,inferred
+LON-EN068,Common,581038,inferred
+LON-EN069,Common,581039,inferred
+LON-EN070,Common,581040,inferred
+LON-EN071,Rare,581041,inferred
+LON-EN072,Rare,581042,inferred
+LON-EN073,Common,581043,inferred
+LON-EN074,Common,581044,inferred
+LON-EN076,Common,581046,inferred
+LON-EN077,Ultra Rare,581047,inferred
+LON-EN079,Super Rare,581049,inferred
+LON-EN080,Ultra Rare,581050,inferred
+LON-EN081,Super Rare,581051,inferred
+LON-EN082,Common,581052,inferred
+LON-EN083,Common,581053,inferred
+LON-EN084,Common,581054,inferred
+LON-EN085,Rare,581055,inferred
+LON-EN086,Common,581056,inferred
+LON-EN087,Common,581057,inferred
+LON-EN088,Ultra Rare,581058,inferred
+LON-EN089,Rare,581059,inferred
+LON-EN090,Rare,581060,inferred
+LON-EN091,Rare,581061,inferred
+LON-EN092,Rare,581062,inferred
+LON-EN093,Common,581063,inferred
+LON-EN094,Rare,581064,inferred
+LON-EN095,Common,581065,inferred
+LON-EN096,Common,581066,inferred
+LON-EN097,Super Rare,581067,inferred
+LON-EN099,Common,581069,inferred
+LON-EN100,Common,581070,inferred
+LON-EN101,Common,581071,inferred
+LON-EN102,Common,581072,inferred
+LON-EN104,Secret Rare,581074,inferred
 LTGY-EN001,Common,261758,unique
 LTGY-EN002,Rare,261759,unique
 LTGY-EN003,Common,261760,unique
@@ -18139,9 +18824,6 @@ MAMO-EN126,Starlight Rare,904769,inferred
 MAMS-EN019,Secret Rare,921637,inferred
 MAMS-EN019,Starlight Rare,921638,inferred
 MAMS-EN019,Ultra Rare,921515,inferred
-MAMS-EN020,Secret Rare,921640,inferred
-MAMS-EN020,Starlight Rare,921639,inferred
-MAMS-EN020,Ultra Rare,921516,inferred
 MAMS-EN021,Secret Rare,921641,inferred
 MAMS-EN021,Starlight Rare,921642,inferred
 MAMS-EN021,Ultra Rare,921517,inferred
@@ -18175,9 +18857,6 @@ MAMS-EN030,Ultra Rare,921529,inferred
 MAMS-EN031,Secret Rare,921661,inferred
 MAMS-EN031,Starlight Rare,921662,inferred
 MAMS-EN031,Ultra Rare,921530,inferred
-MAMS-EN032,Secret Rare,921664,inferred
-MAMS-EN032,Starlight Rare,921663,inferred
-MAMS-EN032,Ultra Rare,921531,inferred
 MAMS-EN033,Secret Rare,921532,inferred
 MAMS-EN033,Starlight Rare,921666,inferred
 MAMS-EN033,Ultra Rare,921665,inferred
@@ -18202,21 +18881,12 @@ MAMS-EN039,Ultra Rare,921538,inferred
 MAMS-EN040,Secret Rare,921539,inferred
 MAMS-EN040,Starlight Rare,921679,inferred
 MAMS-EN040,Ultra Rare,921680,inferred
-MAMS-EN041,Secret Rare,921681,inferred
-MAMS-EN041,Starlight Rare,921683,inferred
-MAMS-EN041,Ultra Rare,921540,inferred
-MAMS-EN042,Secret Rare,921686,inferred
-MAMS-EN042,Starlight Rare,921684,inferred
-MAMS-EN042,Ultra Rare,921541,inferred
 MAMS-EN043,Secret Rare,921687,inferred
 MAMS-EN043,Starlight Rare,921689,inferred
 MAMS-EN043,Ultra Rare,921542,inferred
 MAMS-EN044,Secret Rare,921543,inferred
 MAMS-EN044,Starlight Rare,921690,inferred
 MAMS-EN044,Ultra Rare,921691,inferred
-MAMS-EN045,Secret Rare,921692,inferred
-MAMS-EN045,Starlight Rare,921693,inferred
-MAMS-EN045,Ultra Rare,921545,inferred
 MAMS-EN046,Secret Rare,921546,inferred
 MAMS-EN046,Starlight Rare,921694,inferred
 MAMS-EN046,Ultra Rare,921695,inferred
@@ -18232,9 +18902,6 @@ MAMS-EN049,Ultra Rare,921550,inferred
 MAMS-EN050,Secret Rare,921551,inferred
 MAMS-EN050,Starlight Rare,921703,inferred
 MAMS-EN050,Ultra Rare,921704,inferred
-MAMS-EN051,Secret Rare,921705,inferred
-MAMS-EN051,Starlight Rare,921706,inferred
-MAMS-EN051,Ultra Rare,921552,inferred
 MAMS-EN052,Secret Rare,921553,inferred
 MAMS-EN052,Starlight Rare,921707,inferred
 MAMS-EN052,Ultra Rare,921709,inferred
@@ -22141,6 +22808,633 @@ MP25-EN447,Common,846348,unique
 MP25-EN448,Common,846349,unique
 MP25-EN449,Common,846350,unique
 MP25-EN450,Common,846351,unique
+MRD-000,Secret Rare,103524,inferred
+MRD-001,Common,103357,inferred
+MRD-002,Common,106399,inferred
+MRD-003,Ultra Rare,105790,inferred
+MRD-004,Common,105303,inferred
+MRD-005,Common,102011,inferred
+MRD-006,Common,104128,inferred
+MRD-007,Common,104195,inferred
+MRD-008,Common,103836,inferred
+MRD-009,Super Rare,103844,inferred
+MRD-010,Common,104153,inferred
+MRD-012,Common,102555,inferred
+MRD-013,Common,102015,inferred
+MRD-014,Rare,104470,inferred
+MRD-015,Common,103036,inferred
+MRD-016,Rare,106378,inferred
+MRD-017,Common,102152,inferred
+MRD-018,Ultra Rare,102054,inferred
+MRD-019,Rare,104484,inferred
+MRD-020,Common,105289,inferred
+MRD-021,Common,106360,inferred
+MRD-022,Common,103772,inferred
+MRD-023,Common,104972,inferred
+MRD-024,Rare,103147,inferred
+MRD-025,Super Rare,105394,inferred
+MRD-026,Super Rare,104122,inferred
+MRD-027,Super Rare,105785,inferred
+MRD-028,Short Print,104698,inferred
+MRD-029,Common,105755,inferred
+MRD-030,Common,104863,inferred
+MRD-031,Short Print,104230,inferred
+MRD-032,Short Print,104895,inferred
+MRD-033,Common,104233,inferred
+MRD-034,Common,102202,inferred
+MRD-035,Short Print,104074,inferred
+MRD-036,Rare,104392,inferred
+MRD-037,Common,101903,inferred
+MRD-038,Common,102892,inferred
+MRD-039,Common,102271,inferred
+MRD-040,Common,102959,inferred
+MRD-041,Common,104110,inferred
+MRD-042,Short Print,105125,inferred
+MRD-043,Common,104652,inferred
+MRD-044,Common,104513,inferred
+MRD-045,Common,106072,inferred
+MRD-046,Common,103253,inferred
+MRD-047,Common,104937,inferred
+MRD-048,Common,103141,inferred
+MRD-049,Common,103962,inferred
+MRD-050,Common,101930,inferred
+MRD-051,Short Print,105096,inferred
+MRD-052,Common,106146,inferred
+MRD-053,Common,103017,inferred
+MRD-054,Common,103968,inferred
+MRD-055,Common,103912,inferred
+MRD-056,Rare,103335,inferred
+MRD-057,Super Rare,106161,inferred
+MRD-058,Common,105631,inferred
+MRD-059,Common,105898,inferred
+MRD-060,Ultra Rare,102413,inferred
+MRD-061,Short Print,102061,inferred
+MRD-062,Common,102189,inferred
+MRD-063,Common,105813,inferred
+MRD-064,Common,102111,inferred
+MRD-065,Ultra Rare,106061,inferred
+MRD-066,Common,105375,inferred
+MRD-067,Common,103069,inferred
+MRD-068,Common,103982,inferred
+MRD-069,Rare,105397,inferred
+MRD-070,Rare,103752,inferred
+MRD-071,Super Rare,104170,inferred
+MRD-072,Common,104063,inferred
+MRD-073,Common,102365,inferred
+MRD-074,Common,104138,inferred
+MRD-075,Super Rare,102374,inferred
+MRD-076,Common,104694,inferred
+MRD-077,Common,105104,inferred
+MRD-078,Short Print,102554,inferred
+MRD-079,Common,105081,inferred
+MRD-080,Short Print,103093,inferred
+MRD-081,Common,105856,inferred
+MRD-082,Common,101900,inferred
+MRD-083,Common,103794,inferred
+MRD-084,Common,105058,inferred
+MRD-085,Common,105960,inferred
+MRD-086,Rare,105066,inferred
+MRD-087,Common,105076,inferred
+MRD-088,Common,106145,inferred
+MRD-089,Common,104076,inferred
+MRD-090,Rare,105459,inferred
+MRD-091,Common,104185,inferred
+MRD-092,Common,105361,inferred
+MRD-093,Common,102143,inferred
+MRD-094,Common,103610,inferred
+MRD-095,Common,104208,inferred
+MRD-096,Common,103596,inferred
+MRD-097,Short Print,106048,inferred
+MRD-098,Common,101795,inferred
+MRD-099,Common,105945,inferred
+MRD-100,Common,105082,inferred
+MRD-101,Common,104023,inferred
+MRD-102,Rare,103948,inferred
+MRD-103,Common,104678,inferred
+MRD-104,Common,106456,inferred
+MRD-105,Common,102657,inferred
+MRD-106,Rare,102346,inferred
+MRD-107,Rare,104673,inferred
+MRD-108,Common,105895,inferred
+MRD-109,Rare,105741,inferred
+MRD-110,Rare,104571,inferred
+MRD-111,Common,103407,inferred
+MRD-112,Common,104823,inferred
+MRD-113,Rare,102766,inferred
+MRD-114,Common,104677,inferred
+MRD-115,Common,104209,inferred
+MRD-116,Rare,106419,inferred
+MRD-117,Rare,104288,inferred
+MRD-118,Rare,102195,inferred
+MRD-119,Common,104192,inferred
+MRD-120,Super Rare,106191,inferred
+MRD-121,Rare,106423,inferred
+MRD-122,Common,102250,inferred
+MRD-123,Common,105542,inferred
+MRD-125,Super Rare,103520,inferred
+MRD-126,Ultra Rare,102091,inferred
+MRD-127,Ultra Rare,105599,inferred
+MRD-128,Ultra Rare,104355,inferred
+MRD-129,Ultra Rare,105453,inferred
+MRD-130,Ultra Rare,103936,inferred
+MRD-131,Rare,105475,inferred
+MRD-132,Common,105831,inferred
+MRD-133,Common,102227,inferred
+MRD-134,Short Print,106006,inferred
+MRD-135,Rare,105292,inferred
+MRD-136,Common,103555,inferred
+MRD-137,Common,104944,inferred
+MRD-138,Ultra Rare,104603,inferred
+MRD-139,Common,105269,inferred
+MRD-140,Common,105472,inferred
+MRD-141,Short Print,105757,inferred
+MRD-142,Super Rare,103873,inferred
+MRD-143,Secret Rare,106025,inferred
+MRD-E000,Secret Rare,578974,inferred
+MRD-E001,Common,578975,inferred
+MRD-E002,Common,578976,inferred
+MRD-E003,Ultra Rare,578977,inferred
+MRD-E004,Common,578978,inferred
+MRD-E005,Common,578979,inferred
+MRD-E006,Common,578980,inferred
+MRD-E007,Common,578981,inferred
+MRD-E008,Common,578982,inferred
+MRD-E009,Super Rare,578983,inferred
+MRD-E010,Common,578984,inferred
+MRD-E012,Common,578986,inferred
+MRD-E013,Common,578987,inferred
+MRD-E014,Rare,578988,inferred
+MRD-E015,Common,578989,inferred
+MRD-E016,Rare,578990,inferred
+MRD-E017,Common,578991,inferred
+MRD-E018,Ultra Rare,578992,inferred
+MRD-E019,Rare,578993,inferred
+MRD-E020,Common,578995,inferred
+MRD-E021,Common,578996,inferred
+MRD-E022,Common,578997,inferred
+MRD-E023,Common,578998,inferred
+MRD-E024,Rare,578999,inferred
+MRD-E025,Super Rare,579000,inferred
+MRD-E026,Super Rare,579001,inferred
+MRD-E027,Super Rare,579002,inferred
+MRD-E028,Short Print,579003,inferred
+MRD-E029,Common,579004,inferred
+MRD-E030,Common,579005,inferred
+MRD-E031,Short Print,579006,inferred
+MRD-E032,Short Print,579007,inferred
+MRD-E033,Common,579008,inferred
+MRD-E034,Common,579009,inferred
+MRD-E035,Short Print,579010,inferred
+MRD-E036,Rare,579011,inferred
+MRD-E037,Common,579012,inferred
+MRD-E038,Common,579013,inferred
+MRD-E039,Common,579014,inferred
+MRD-E040,Common,579015,inferred
+MRD-E041,Common,579016,inferred
+MRD-E042,Short Print,579017,inferred
+MRD-E043,Common,579018,inferred
+MRD-E044,Common,579019,inferred
+MRD-E045,Common,579020,inferred
+MRD-E046,Common,579021,inferred
+MRD-E047,Common,579022,inferred
+MRD-E048,Common,579023,inferred
+MRD-E049,Common,579024,inferred
+MRD-E050,Common,579025,inferred
+MRD-E051,Short Print,579026,inferred
+MRD-E052,Common,579027,inferred
+MRD-E053,Common,579028,inferred
+MRD-E054,Common,579029,inferred
+MRD-E055,Common,579030,inferred
+MRD-E056,Rare,579031,inferred
+MRD-E057,Super Rare,579032,inferred
+MRD-E058,Common,579033,inferred
+MRD-E059,Common,579034,inferred
+MRD-E060,Ultra Rare,579035,inferred
+MRD-E061,Short Print,579036,inferred
+MRD-E062,Common,579037,inferred
+MRD-E063,Common,579038,inferred
+MRD-E064,Common,579039,inferred
+MRD-E065,Ultra Rare,579040,inferred
+MRD-E066,Common,579041,inferred
+MRD-E067,Common,579042,inferred
+MRD-E068,Common,579043,inferred
+MRD-E069,Rare,579044,inferred
+MRD-E070,Rare,579045,inferred
+MRD-E071,Super Rare,579046,inferred
+MRD-E072,Common,579047,inferred
+MRD-E073,Common,579048,inferred
+MRD-E074,Common,579049,inferred
+MRD-E075,Super Rare,579050,inferred
+MRD-E076,Common,579051,inferred
+MRD-E077,Common,579052,inferred
+MRD-E078,Short Print,579053,inferred
+MRD-E079,Common,579054,inferred
+MRD-E080,Short Print,579055,inferred
+MRD-E081,Common,579056,inferred
+MRD-E082,Common,579057,inferred
+MRD-E083,Common,579058,inferred
+MRD-E084,Common,579059,inferred
+MRD-E085,Common,579060,inferred
+MRD-E086,Rare,579061,inferred
+MRD-E087,Common,579062,inferred
+MRD-E088,Common,579063,inferred
+MRD-E089,Common,579064,inferred
+MRD-E090,Rare,579065,inferred
+MRD-E091,Common,579066,inferred
+MRD-E092,Common,579067,inferred
+MRD-E093,Common,579068,inferred
+MRD-E094,Common,579069,inferred
+MRD-E095,Common,579070,inferred
+MRD-E096,Common,579071,inferred
+MRD-E097,Short Print,579072,inferred
+MRD-E098,Common,579073,inferred
+MRD-E099,Common,579074,inferred
+MRD-E100,Common,579075,inferred
+MRD-E101,Common,579076,inferred
+MRD-E102,Rare,579077,inferred
+MRD-E103,Common,579078,inferred
+MRD-E104,Common,579079,inferred
+MRD-E105,Common,579080,inferred
+MRD-E106,Rare,579081,inferred
+MRD-E107,Rare,579082,inferred
+MRD-E108,Common,579083,inferred
+MRD-E109,Rare,579084,inferred
+MRD-E110,Rare,579085,inferred
+MRD-E111,Common,579086,inferred
+MRD-E112,Common,579087,inferred
+MRD-E113,Rare,579088,inferred
+MRD-E114,Common,579090,inferred
+MRD-E115,Common,579093,inferred
+MRD-E116,Rare,579096,inferred
+MRD-E117,Rare,579097,inferred
+MRD-E118,Rare,579099,inferred
+MRD-E119,Common,579101,inferred
+MRD-E120,Super Rare,579103,inferred
+MRD-E121,Rare,579107,inferred
+MRD-E122,Common,579110,inferred
+MRD-E123,Common,579111,inferred
+MRD-E125,Super Rare,579114,inferred
+MRD-E126,Ultra Rare,579115,inferred
+MRD-E127,Ultra Rare,579116,inferred
+MRD-E128,Ultra Rare,579118,inferred
+MRD-E129,Ultra Rare,579119,inferred
+MRD-E130,Ultra Rare,579120,inferred
+MRD-E131,Rare,579121,inferred
+MRD-E132,Common,579124,inferred
+MRD-E133,Common,579127,inferred
+MRD-E134,Short Print,579129,inferred
+MRD-E135,Rare,579132,inferred
+MRD-E136,Common,579134,inferred
+MRD-E137,Common,579136,inferred
+MRD-E138,Ultra Rare,579138,inferred
+MRD-E139,Common,579141,inferred
+MRD-E140,Common,579143,inferred
+MRD-E141,Short Print,579145,inferred
+MRD-E142,Super Rare,579148,inferred
+MRD-E143,Secret Rare,579150,inferred
+MRD-EN000,Secret Rare,579180,inferred
+MRD-EN001,Common,579181,inferred
+MRD-EN002,Common,579182,inferred
+MRD-EN003,Ultra Rare,579183,inferred
+MRD-EN004,Common,579184,inferred
+MRD-EN005,Common,579185,inferred
+MRD-EN006,Common,579186,inferred
+MRD-EN007,Common,579187,inferred
+MRD-EN008,Common,579188,inferred
+MRD-EN009,Super Rare,579189,inferred
+MRD-EN010,Common,579190,inferred
+MRD-EN012,Common,579192,inferred
+MRD-EN013,Common,579193,inferred
+MRD-EN014,Rare,579194,inferred
+MRD-EN015,Common,579195,inferred
+MRD-EN016,Rare,579196,inferred
+MRD-EN017,Common,579197,inferred
+MRD-EN018,Ultra Rare,579201,inferred
+MRD-EN019,Rare,579202,inferred
+MRD-EN020,Common,579203,inferred
+MRD-EN021,Common,579205,inferred
+MRD-EN022,Common,579206,inferred
+MRD-EN023,Common,579208,inferred
+MRD-EN024,Rare,579209,inferred
+MRD-EN025,Super Rare,579211,inferred
+MRD-EN026,Super Rare,579212,inferred
+MRD-EN027,Super Rare,579213,inferred
+MRD-EN028,Short Print,579214,inferred
+MRD-EN029,Common,579215,inferred
+MRD-EN030,Common,579216,inferred
+MRD-EN031,Short Print,579217,inferred
+MRD-EN032,Short Print,579218,inferred
+MRD-EN033,Common,579219,inferred
+MRD-EN034,Common,579220,inferred
+MRD-EN035,Short Print,579221,inferred
+MRD-EN036,Rare,579222,inferred
+MRD-EN037,Common,579223,inferred
+MRD-EN038,Common,579224,inferred
+MRD-EN039,Common,579225,inferred
+MRD-EN040,Common,579227,inferred
+MRD-EN041,Common,579228,inferred
+MRD-EN042,Short Print,579229,inferred
+MRD-EN043,Common,579230,inferred
+MRD-EN044,Common,579231,inferred
+MRD-EN045,Common,579232,inferred
+MRD-EN046,Common,579233,inferred
+MRD-EN047,Common,579234,inferred
+MRD-EN048,Common,579235,inferred
+MRD-EN049,Common,579237,inferred
+MRD-EN050,Common,579238,inferred
+MRD-EN051,Short Print,579240,inferred
+MRD-EN052,Common,579241,inferred
+MRD-EN053,Common,579242,inferred
+MRD-EN054,Common,579243,inferred
+MRD-EN055,Common,579244,inferred
+MRD-EN056,Rare,579245,inferred
+MRD-EN057,Super Rare,579246,inferred
+MRD-EN058,Common,579247,inferred
+MRD-EN059,Common,579248,inferred
+MRD-EN060,Ultra Rare,579250,inferred
+MRD-EN061,Short Print,579251,inferred
+MRD-EN062,Common,579252,inferred
+MRD-EN063,Common,579253,inferred
+MRD-EN064,Common,579254,inferred
+MRD-EN065,Ultra Rare,579255,inferred
+MRD-EN066,Common,579256,inferred
+MRD-EN067,Common,579257,inferred
+MRD-EN068,Common,579258,inferred
+MRD-EN069,Rare,579259,inferred
+MRD-EN070,Rare,579260,inferred
+MRD-EN071,Super Rare,579261,inferred
+MRD-EN072,Common,579262,inferred
+MRD-EN073,Common,579263,inferred
+MRD-EN074,Common,579264,inferred
+MRD-EN075,Super Rare,579265,inferred
+MRD-EN076,Common,579266,inferred
+MRD-EN077,Common,579267,inferred
+MRD-EN078,Short Print,579268,inferred
+MRD-EN079,Common,579269,inferred
+MRD-EN080,Short Print,579270,inferred
+MRD-EN081,Common,579271,inferred
+MRD-EN082,Common,579272,inferred
+MRD-EN083,Common,579273,inferred
+MRD-EN084,Common,579274,inferred
+MRD-EN085,Common,579275,inferred
+MRD-EN086,Rare,579276,inferred
+MRD-EN087,Common,579277,inferred
+MRD-EN088,Common,579278,inferred
+MRD-EN089,Common,579279,inferred
+MRD-EN090,Rare,579280,inferred
+MRD-EN091,Common,579281,inferred
+MRD-EN092,Common,579282,inferred
+MRD-EN093,Common,579283,inferred
+MRD-EN094,Common,579284,inferred
+MRD-EN095,Common,579285,inferred
+MRD-EN096,Common,579286,inferred
+MRD-EN097,Short Print,579287,inferred
+MRD-EN098,Common,579288,inferred
+MRD-EN099,Common,579289,inferred
+MRD-EN100,Common,579290,inferred
+MRD-EN101,Common,579291,inferred
+MRD-EN102,Rare,579292,inferred
+MRD-EN103,Common,579293,inferred
+MRD-EN104,Common,579294,inferred
+MRD-EN105,Common,579295,inferred
+MRD-EN106,Rare,579296,inferred
+MRD-EN107,Rare,579297,inferred
+MRD-EN108,Common,579298,inferred
+MRD-EN109,Rare,579299,inferred
+MRD-EN110,Rare,579300,inferred
+MRD-EN111,Common,579301,inferred
+MRD-EN112,Common,579302,inferred
+MRD-EN113,Rare,579303,inferred
+MRD-EN114,Common,579304,inferred
+MRD-EN115,Common,579305,inferred
+MRD-EN116,Rare,579306,inferred
+MRD-EN117,Rare,579307,inferred
+MRD-EN118,Rare,579308,inferred
+MRD-EN119,Common,579309,inferred
+MRD-EN120,Super Rare,579310,inferred
+MRD-EN121,Rare,579311,inferred
+MRD-EN122,Common,579312,inferred
+MRD-EN123,Common,579313,inferred
+MRD-EN125,Super Rare,579315,inferred
+MRD-EN126,Ultra Rare,579316,inferred
+MRD-EN127,Ultra Rare,579317,inferred
+MRD-EN128,Ultra Rare,579318,inferred
+MRD-EN129,Ultra Rare,579319,inferred
+MRD-EN130,Ultra Rare,579320,inferred
+MRD-EN131,Rare,579321,inferred
+MRD-EN132,Common,579322,inferred
+MRD-EN133,Common,579323,inferred
+MRD-EN134,Short Print,579324,inferred
+MRD-EN135,Rare,579325,inferred
+MRD-EN136,Common,579326,inferred
+MRD-EN137,Common,579327,inferred
+MRD-EN138,Ultra Rare,579328,inferred
+MRD-EN139,Common,579329,inferred
+MRD-EN140,Common,579330,inferred
+MRD-EN141,Short Print,579331,inferred
+MRD-EN142,Super Rare,579332,inferred
+MRD-EN143,Secret Rare,579333,inferred
+MRL-000,Secret Rare,102238,inferred
+MRL-001,Common,104958,inferred
+MRL-002,Ultra Rare,102046,inferred
+MRL-003,Super Rare,102179,inferred
+MRL-004,Common,103939,inferred
+MRL-005,Common,104422,inferred
+MRL-006,Ultra Rare,105683,inferred
+MRL-007,Common,104542,inferred
+MRL-008,Common,103143,inferred
+MRL-009,Common,105093,inferred
+MRL-010,Rare,101887,inferred
+MRL-011,Common,104955,inferred
+MRL-012,Super Rare,104405,inferred
+MRL-013,Common,103795,inferred
+MRL-014,Common,103386,inferred
+MRL-015,Common,104574,inferred
+MRL-016,Common,103770,inferred
+MRL-017,Common,106207,inferred
+MRL-018,Common,101931,inferred
+MRL-019,Common,102855,inferred
+MRL-020,Common,106366,inferred
+MRL-021,Common,104503,inferred
+MRL-022,Common,103587,inferred
+MRL-023,Common,104286,inferred
+MRL-024,Rare,103929,inferred
+MRL-025,Common,103920,inferred
+MRL-026,Super Rare,104037,inferred
+MRL-027,Common,106369,inferred
+MRL-028,Super Short Print,105569,inferred
+MRL-029,Ultra Rare,105212,inferred
+MRL-030,Common,105171,inferred
+MRL-031,Short Print,103717,inferred
+MRL-032,Short Print,102619,inferred
+MRL-033,Common,106259,inferred
+MRL-034,Super Short Print,106070,inferred
+MRL-035,Common,103380,inferred
+MRL-036,Ultra Rare,105580,inferred
+MRL-037,Common,102451,inferred
+MRL-038,Super Rare,102524,inferred
+MRL-039,Ultra Rare,102900,inferred
+MRL-040,Super Short Print,102872,inferred
+MRL-041,Short Print,103331,inferred
+MRL-042,Short Print,105855,inferred
+MRL-043,Rare,105346,inferred
+MRL-044,Common,105970,inferred
+MRL-045,Ultra Rare,105931,inferred
+MRL-046,Common,102404,inferred
+MRL-047,Ultra Rare,104729,inferred
+MRL-048,Super Rare,103583,inferred
+MRL-049,Super Rare,104933,inferred
+MRL-050,Common,105576,inferred
+MRL-051,Super Rare,102170,inferred
+MRL-052,Common,104862,inferred
+MRL-053,Common,105079,inferred
+MRL-054,Rare,103941,inferred
+MRL-055,Common,104187,inferred
+MRL-056,Common,106341,inferred
+MRL-057,Common,106182,inferred
+MRL-058,Common,105759,inferred
+MRL-059,Common,104373,inferred
+MRL-060,Super Short Print,103279,inferred
+MRL-061,Ultra Rare,104517,inferred
+MRL-062,Common,102514,inferred
+MRL-063,Common,103814,inferred
+MRL-064,Common,103949,inferred
+MRL-065,Common,103132,inferred
+MRL-066,Common,106177,inferred
+MRL-067,Common,104967,inferred
+MRL-068,Common,103959,inferred
+MRL-069,Common,102551,inferred
+MRL-070,Common,105364,inferred
+MRL-071,Rare,104444,inferred
+MRL-072,Ultra Rare,260646,inferred
+MRL-074,Short Print,104066,inferred
+MRL-075,Rare,103970,inferred
+MRL-076,Super Rare,106094,inferred
+MRL-077,Rare,102644,inferred
+MRL-078,Super Rare,102079,inferred
+MRL-079,Rare,103571,inferred
+MRL-080,Rare,105443,inferred
+MRL-081,Rare,106216,inferred
+MRL-082,Common,103422,inferred
+MRL-083,Rare,104116,inferred
+MRL-084,Common,102860,inferred
+MRL-086,Rare,104811,inferred
+MRL-087,Common,105653,inferred
+MRL-089,Common,102251,inferred
+MRL-090,Rare,104663,inferred
+MRL-091,Rare,103432,inferred
+MRL-092,Common,102393,inferred
+MRL-093,Common,105605,inferred
+MRL-094,Rare,104711,inferred
+MRL-095,Common,104157,inferred
+MRL-096,Short Print,103502,inferred
+MRL-097,Short Print,106243,inferred
+MRL-098,Short Print,104629,inferred
+MRL-099,Short Print,105279,inferred
+MRL-100,Short Print,104313,inferred
+MRL-101,Common,104700,inferred
+MRL-102,Super Rare,104536,inferred
+MRL-103,Secret Rare,105448,inferred
+MRL-E000,Secret Rare,579737,inferred
+MRL-E001,Common,579738,inferred
+MRL-E002,Ultra Rare,579739,inferred
+MRL-E003,Super Rare,579740,inferred
+MRL-E004,Common,579741,inferred
+MRL-E005,Common,579742,inferred
+MRL-E006,Ultra Rare,579743,inferred
+MRL-E007,Common,579744,inferred
+MRL-E008,Common,579745,inferred
+MRL-E009,Common,579746,inferred
+MRL-E010,Rare,579747,inferred
+MRL-E011,Common,579748,inferred
+MRL-E012,Super Rare,579749,inferred
+MRL-E013,Common,579750,inferred
+MRL-E014,Common,579751,inferred
+MRL-E015,Common,579752,inferred
+MRL-E016,Common,579753,inferred
+MRL-E017,Common,579754,inferred
+MRL-E018,Common,579755,inferred
+MRL-E019,Common,579756,inferred
+MRL-E020,Common,579757,inferred
+MRL-E021,Common,579758,inferred
+MRL-E022,Common,579759,inferred
+MRL-E023,Common,579760,inferred
+MRL-E024,Rare,579761,inferred
+MRL-E025,Common,579762,inferred
+MRL-E026,Super Rare,579763,inferred
+MRL-E027,Common,579764,inferred
+MRL-E028,Super Short Print,579765,inferred
+MRL-E029,Ultra Rare,579766,inferred
+MRL-E030,Common,579767,inferred
+MRL-E031,Short Print,579768,inferred
+MRL-E032,Short Print,579769,inferred
+MRL-E033,Common,579770,inferred
+MRL-E034,Super Short Print,579771,inferred
+MRL-E035,Common,579772,inferred
+MRL-E036,Ultra Rare,579773,inferred
+MRL-E037,Common,579774,inferred
+MRL-E038,Super Rare,579775,inferred
+MRL-E039,Ultra Rare,579776,inferred
+MRL-E040,Super Short Print,579777,inferred
+MRL-E041,Short Print,579778,inferred
+MRL-E042,Short Print,579779,inferred
+MRL-E043,Rare,579780,inferred
+MRL-E044,Common,579781,inferred
+MRL-E045,Ultra Rare,579782,inferred
+MRL-E046,Common,579783,inferred
+MRL-E047,Ultra Rare,579784,inferred
+MRL-E048,Super Rare,579785,inferred
+MRL-E049,Super Rare,579786,inferred
+MRL-E050,Common,579787,inferred
+MRL-E051,Super Rare,579788,inferred
+MRL-E052,Common,579789,inferred
+MRL-E053,Common,579790,inferred
+MRL-E054,Rare,579791,inferred
+MRL-E055,Common,579792,inferred
+MRL-E056,Common,579793,inferred
+MRL-E057,Common,579794,inferred
+MRL-E058,Common,579795,inferred
+MRL-E059,Common,579796,inferred
+MRL-E060,Super Short Print,579797,inferred
+MRL-E061,Ultra Rare,579798,inferred
+MRL-E062,Common,579799,inferred
+MRL-E063,Common,579800,inferred
+MRL-E064,Common,579801,inferred
+MRL-E065,Common,579802,inferred
+MRL-E066,Common,579803,inferred
+MRL-E067,Common,579804,inferred
+MRL-E068,Common,579805,inferred
+MRL-E069,Common,579806,inferred
+MRL-E070,Common,579807,inferred
+MRL-E071,Rare,579808,inferred
+MRL-E072,Ultra Rare,579809,inferred
+MRL-E074,Short Print,579811,inferred
+MRL-E075,Rare,579812,inferred
+MRL-E076,Super Rare,579813,inferred
+MRL-E077,Rare,579814,inferred
+MRL-E078,Super Rare,579815,inferred
+MRL-E079,Rare,579816,inferred
+MRL-E080,Rare,579817,inferred
+MRL-E081,Rare,579818,inferred
+MRL-E082,Common,579819,inferred
+MRL-E083,Rare,579820,inferred
+MRL-E084,Common,579821,inferred
+MRL-E086,Rare,579823,inferred
+MRL-E087,Common,579824,inferred
+MRL-E089,Common,579826,inferred
+MRL-E090,Rare,579827,inferred
+MRL-E091,Rare,579828,inferred
+MRL-E092,Common,579829,inferred
+MRL-E093,Common,579830,inferred
+MRL-E094,Rare,579831,inferred
+MRL-E095,Common,579832,inferred
+MRL-E096,Short Print,579833,inferred
+MRL-E097,Short Print,579834,inferred
+MRL-E098,Short Print,579835,inferred
+MRL-E099,Short Print,579836,inferred
+MRL-E100,Short Print,579837,inferred
+MRL-E101,Common,579838,inferred
+MRL-E102,Super Rare,579839,inferred
 MRL-E103,Common,260650,inferred
 MRL-E104,Common,260651,inferred
 MRL-E105,Common,260652,inferred
@@ -22168,6 +23462,7 @@ MRL-E126,Rare,260673,inferred
 MRL-E127,Common,260674,inferred
 MRL-E128,Common,260675,inferred
 MRL-E129,Rare,260676,inferred
+MRL-E130,Secret Rare,579840,inferred
 MYFI-EN001,Super Rare,413734,unique
 MYFI-EN002,Super Rare,413739,unique
 MYFI-EN003,Super Rare,413744,unique
@@ -24825,6 +26120,288 @@ PRIO-EN096,Common,266917,unique
 PRIO-EN097,Common,266918,unique
 PRIO-EN098,Common,266919,unique
 PRIO-EN099,Common,266920,unique
+PSV-000,Secret Rare,104070,inferred
+PSV-001,Common,105754,inferred
+PSV-002,Common,106041,inferred
+PSV-003,Super Rare,104946,inferred
+PSV-004,Common,101798,inferred
+PSV-005,Rare,104268,inferred
+PSV-006,Ultra Rare,102398,inferred
+PSV-008,Super Rare,103728,inferred
+PSV-011,Super Rare,103112,inferred
+PSV-012,Ultra Rare,102335,inferred
+PSV-013,Common,105602,inferred
+PSV-014,Common,103131,inferred
+PSV-015,Common,103256,inferred
+PSV-016,Super Rare,104607,inferred
+PSV-017,Common,103804,inferred
+PSV-018,Common,103101,inferred
+PSV-019,Common,102009,inferred
+PSV-020,Common,106431,inferred
+PSV-021,Common,104702,inferred
+PSV-022,Common,104540,inferred
+PSV-023,Short Print,104848,inferred
+PSV-024,Rare,101951,inferred
+PSV-025,Rare,103440,inferred
+PSV-026,Common,103030,inferred
+PSV-027,Common,105968,inferred
+PSV-028,Super Rare,102070,inferred
+PSV-029,Common,104417,inferred
+PSV-030,Ultra Rare,102380,inferred
+PSV-031,Common,104259,inferred
+PSV-032,Common,105235,inferred
+PSV-033,Super Rare,104372,inferred
+PSV-034,Super Rare,104826,inferred
+PSV-035,Rare,104834,inferred
+PSV-036,Rare,105982,inferred
+PSV-037,Ultra Rare,105049,inferred
+PSV-038,Common,104024,inferred
+PSV-039,Rare,105071,inferred
+PSV-040,Rare,104659,inferred
+PSV-041,Common,103408,inferred
+PSV-042,Common,106189,inferred
+PSV-043,Common,102868,inferred
+PSV-044,Common,104667,inferred
+PSV-045,Common,102870,inferred
+PSV-047,Common,102639,inferred
+PSV-048,Common,103433,inferred
+PSV-049,Common,103848,inferred
+PSV-050,Ultra Rare,102323,inferred
+PSV-051,Rare,104560,inferred
+PSV-053,Common,103515,inferred
+PSV-054,Common,102035,inferred
+PSV-056,Rare,105541,inferred
+PSV-057,Common,102304,inferred
+PSV-058,Common,102734,inferred
+PSV-059,Common,104894,inferred
+PSV-060,Common,104927,inferred
+PSV-061,Common,102312,inferred
+PSV-062,Common,102504,inferred
+PSV-063,Super Rare,103324,inferred
+PSV-064,Super Rare,104283,inferred
+PSV-065,Common,105121,inferred
+PSV-066,Rare,104646,inferred
+PSV-067,Rare,105484,inferred
+PSV-068,Common,104017,inferred
+PSV-069,Rare,103007,inferred
+PSV-070,Common,103774,inferred
+PSV-071,Rare,104350,inferred
+PSV-072,Common,104009,inferred
+PSV-073,Rare,103737,inferred
+PSV-074,Common,106209,inferred
+PSV-075,Common,105461,inferred
+PSV-076,Ultra Rare,105958,inferred
+PSV-078,Common,103097,inferred
+PSV-079,Common,102894,inferred
+PSV-080,Common,102167,inferred
+PSV-081,Common,105688,inferred
+PSV-082,Common,104040,inferred
+PSV-084,Ultra Rare,106038,inferred
+PSV-085,Common,103611,inferred
+PSV-086,Rare,103860,inferred
+PSV-088,Common,101792,inferred
+PSV-090,Rare,105189,inferred
+PSV-091,Rare,104339,inferred
+PSV-092,Common,105547,inferred
+PSV-093,Common,105891,inferred
+PSV-094,Ultra Rare,103637,inferred
+PSV-096,Common,106414,inferred
+PSV-097,Common,105413,inferred
+PSV-098,Common,105644,inferred
+PSV-099,Common,103035,inferred
+PSV-100,Ultra Rare,105923,inferred
+PSV-101,Super Rare,103539,inferred
+PSV-102,Common,104016,inferred
+PSV-103,Ultra Rare,102119,inferred
+PSV-104,Secret Rare,103986,inferred
+PSV-E000,Secret Rare,580383,inferred
+PSV-E001,Common,580384,inferred
+PSV-E002,Common,580385,inferred
+PSV-E003,Super Rare,580386,inferred
+PSV-E004,Common,580387,inferred
+PSV-E005,Rare,580388,inferred
+PSV-E006,Ultra Rare,580389,inferred
+PSV-E008,Super Rare,580391,inferred
+PSV-E011,Super Rare,580394,inferred
+PSV-E012,Ultra Rare,580395,inferred
+PSV-E013,Common,580396,inferred
+PSV-E014,Common,580397,inferred
+PSV-E015,Common,580398,inferred
+PSV-E016,Super Rare,580399,inferred
+PSV-E017,Common,580400,inferred
+PSV-E018,Common,580401,inferred
+PSV-E019,Common,580402,inferred
+PSV-E020,Common,580403,inferred
+PSV-E021,Common,580404,inferred
+PSV-E022,Common,580405,inferred
+PSV-E023,Short Print,580406,inferred
+PSV-E024,Rare,580407,inferred
+PSV-E025,Rare,580408,inferred
+PSV-E026,Common,580409,inferred
+PSV-E027,Common,580410,inferred
+PSV-E028,Super Rare,580411,inferred
+PSV-E029,Common,580412,inferred
+PSV-E030,Ultra Rare,580413,inferred
+PSV-E031,Common,580414,inferred
+PSV-E032,Common,580415,inferred
+PSV-E033,Super Rare,580416,inferred
+PSV-E034,Super Rare,580417,inferred
+PSV-E035,Rare,580418,inferred
+PSV-E036,Rare,580419,inferred
+PSV-E037,Ultra Rare,580420,inferred
+PSV-E038,Common,580421,inferred
+PSV-E039,Rare,580422,inferred
+PSV-E040,Rare,580423,inferred
+PSV-E041,Common,580424,inferred
+PSV-E042,Common,580425,inferred
+PSV-E043,Common,580426,inferred
+PSV-E044,Common,580427,inferred
+PSV-E045,Common,580428,inferred
+PSV-E047,Common,580430,inferred
+PSV-E048,Common,580431,inferred
+PSV-E049,Common,580432,inferred
+PSV-E050,Ultra Rare,580433,inferred
+PSV-E051,Rare,580434,inferred
+PSV-E053,Common,580436,inferred
+PSV-E054,Common,580437,inferred
+PSV-E056,Rare,580439,inferred
+PSV-E057,Common,580440,inferred
+PSV-E058,Common,580441,inferred
+PSV-E059,Common,580442,inferred
+PSV-E060,Common,580443,inferred
+PSV-E061,Common,580444,inferred
+PSV-E062,Common,580445,inferred
+PSV-E063,Super Rare,580446,inferred
+PSV-E064,Super Rare,580447,inferred
+PSV-E065,Common,580448,inferred
+PSV-E066,Rare,580449,inferred
+PSV-E067,Rare,580450,inferred
+PSV-E068,Common,580451,inferred
+PSV-E069,Rare,580452,inferred
+PSV-E070,Common,580453,inferred
+PSV-E071,Rare,580454,inferred
+PSV-E072,Common,580455,inferred
+PSV-E073,Rare,580456,inferred
+PSV-E074,Common,580457,inferred
+PSV-E075,Common,580458,inferred
+PSV-E076,Ultra Rare,580459,inferred
+PSV-E078,Common,580461,inferred
+PSV-E079,Common,580462,inferred
+PSV-E080,Common,580463,inferred
+PSV-E081,Common,580464,inferred
+PSV-E082,Common,580465,inferred
+PSV-E084,Ultra Rare,580467,inferred
+PSV-E085,Common,580468,inferred
+PSV-E086,Rare,580469,inferred
+PSV-E088,Common,580471,inferred
+PSV-E090,Rare,580473,inferred
+PSV-E091,Rare,580474,inferred
+PSV-E092,Common,580475,inferred
+PSV-E093,Common,580476,inferred
+PSV-E094,Ultra Rare,580477,inferred
+PSV-E096,Common,580479,inferred
+PSV-E097,Common,580480,inferred
+PSV-E098,Common,580481,inferred
+PSV-E099,Common,580482,inferred
+PSV-E100,Ultra Rare,580483,inferred
+PSV-E101,Super Rare,580484,inferred
+PSV-E102,Common,580485,inferred
+PSV-E103,Ultra Rare,580486,inferred
+PSV-E104,Secret Rare,580487,inferred
+PSV-EN000,Secret Rare,580488,inferred
+PSV-EN001,Common,580489,inferred
+PSV-EN002,Common,580490,inferred
+PSV-EN003,Super Rare,580491,inferred
+PSV-EN004,Common,580492,inferred
+PSV-EN005,Rare,580493,inferred
+PSV-EN006,Ultra Rare,580494,inferred
+PSV-EN008,Super Rare,580496,inferred
+PSV-EN011,Super Rare,580499,inferred
+PSV-EN012,Ultra Rare,580500,inferred
+PSV-EN013,Common,580501,inferred
+PSV-EN014,Common,580502,inferred
+PSV-EN015,Common,580503,inferred
+PSV-EN016,Super Rare,580504,inferred
+PSV-EN017,Common,580505,inferred
+PSV-EN018,Common,580506,inferred
+PSV-EN019,Common,580507,inferred
+PSV-EN020,Common,580508,inferred
+PSV-EN021,Common,580509,inferred
+PSV-EN022,Common,580510,inferred
+PSV-EN023,Short Print,580511,inferred
+PSV-EN024,Rare,580512,inferred
+PSV-EN025,Rare,580513,inferred
+PSV-EN026,Common,580514,inferred
+PSV-EN027,Common,580515,inferred
+PSV-EN028,Super Rare,580516,inferred
+PSV-EN029,Common,580517,inferred
+PSV-EN030,Ultra Rare,580518,inferred
+PSV-EN031,Common,580519,inferred
+PSV-EN032,Common,580520,inferred
+PSV-EN033,Super Rare,580521,inferred
+PSV-EN034,Super Rare,580522,inferred
+PSV-EN035,Rare,580523,inferred
+PSV-EN036,Rare,580524,inferred
+PSV-EN037,Ultra Rare,580525,inferred
+PSV-EN038,Common,580526,inferred
+PSV-EN039,Rare,580527,inferred
+PSV-EN040,Rare,580528,inferred
+PSV-EN041,Common,580529,inferred
+PSV-EN042,Common,580530,inferred
+PSV-EN043,Common,580531,inferred
+PSV-EN044,Common,580532,inferred
+PSV-EN045,Common,580533,inferred
+PSV-EN047,Common,580535,inferred
+PSV-EN048,Common,580536,inferred
+PSV-EN049,Common,580537,inferred
+PSV-EN050,Ultra Rare,580538,inferred
+PSV-EN051,Rare,580539,inferred
+PSV-EN053,Common,580541,inferred
+PSV-EN054,Common,580542,inferred
+PSV-EN056,Rare,580544,inferred
+PSV-EN057,Common,580545,inferred
+PSV-EN058,Common,580546,inferred
+PSV-EN059,Common,580547,inferred
+PSV-EN060,Common,580548,inferred
+PSV-EN061,Common,580549,inferred
+PSV-EN062,Common,580550,inferred
+PSV-EN063,Super Rare,580551,inferred
+PSV-EN064,Super Rare,580552,inferred
+PSV-EN065,Common,580553,inferred
+PSV-EN066,Rare,580554,inferred
+PSV-EN067,Rare,580555,inferred
+PSV-EN068,Common,580556,inferred
+PSV-EN069,Rare,580557,inferred
+PSV-EN070,Common,580558,inferred
+PSV-EN071,Rare,580559,inferred
+PSV-EN072,Common,580560,inferred
+PSV-EN073,Rare,580561,inferred
+PSV-EN074,Common,580562,inferred
+PSV-EN075,Common,580563,inferred
+PSV-EN076,Ultra Rare,580564,inferred
+PSV-EN078,Common,580566,inferred
+PSV-EN079,Common,580567,inferred
+PSV-EN080,Common,580568,inferred
+PSV-EN081,Common,580569,inferred
+PSV-EN082,Common,580570,inferred
+PSV-EN084,Ultra Rare,580572,inferred
+PSV-EN085,Common,580573,inferred
+PSV-EN086,Rare,580574,inferred
+PSV-EN088,Common,580576,inferred
+PSV-EN090,Rare,580578,inferred
+PSV-EN091,Rare,580579,inferred
+PSV-EN092,Common,580580,inferred
+PSV-EN093,Common,580581,inferred
+PSV-EN094,Ultra Rare,580582,inferred
+PSV-EN096,Common,580584,inferred
+PSV-EN097,Common,580585,inferred
+PSV-EN098,Common,580586,inferred
+PSV-EN099,Common,580587,inferred
+PSV-EN100,Ultra Rare,580588,inferred
+PSV-EN101,Super Rare,580589,inferred
+PSV-EN102,Common,580590,inferred
+PSV-EN103,Ultra Rare,580591,inferred
+PSV-EN104,Secret Rare,580592,inferred
 PT02-EN001,Ultra Rare,244645,unique
 PT02-EN002,Common,106078,unique
 PT03-EN001,Ultra Rare,244648,unique
@@ -25004,13 +26581,6 @@ RA01-EN009,Secret Rare,741218,inferred
 RA01-EN009,Super Rare,741210,inferred
 RA01-EN009,Ultimate Rare,741213,inferred
 RA01-EN009,Ultra Rare,741212,inferred
-RA01-EN010,Collector's Rare,741230,inferred
-RA01-EN010,Platinum Secret Rare,741227,inferred
-RA01-EN010,Quarter Century Secret Rare,741228,inferred
-RA01-EN010,Secret Rare,741229,inferred
-RA01-EN010,Super Rare,741223,inferred
-RA01-EN010,Ultimate Rare,741226,inferred
-RA01-EN010,Ultra Rare,741225,inferred
 RA01-EN011,Collector's Rare,741238,inferred
 RA01-EN011,Platinum Secret Rare,741235,inferred
 RA01-EN011,Quarter Century Secret Rare,741236,inferred
@@ -25060,13 +26630,6 @@ RA01-EN017,Secret Rare,741293,inferred
 RA01-EN017,Super Rare,741288,inferred
 RA01-EN017,Ultimate Rare,741289,inferred
 RA01-EN017,Ultra Rare,741287,inferred
-RA01-EN018,Collector's Rare,741297,inferred
-RA01-EN018,Platinum Secret Rare,741300,inferred
-RA01-EN018,Quarter Century Secret Rare,741298,inferred
-RA01-EN018,Secret Rare,741299,inferred
-RA01-EN018,Super Rare,741294,inferred
-RA01-EN018,Ultimate Rare,741296,inferred
-RA01-EN018,Ultra Rare,741295,inferred
 RA01-EN020,Collector's Rare,741327,inferred
 RA01-EN020,Platinum Secret Rare,741323,inferred
 RA01-EN020,Quarter Century Secret Rare,741324,inferred
@@ -25095,13 +26658,6 @@ RA01-EN023,Secret Rare,741356,inferred
 RA01-EN023,Super Rare,741348,inferred
 RA01-EN023,Ultimate Rare,741352,inferred
 RA01-EN023,Ultra Rare,741350,inferred
-RA01-EN024,Collector's Rare,741363,inferred
-RA01-EN024,Platinum Secret Rare,741367,inferred
-RA01-EN024,Quarter Century Secret Rare,741365,inferred
-RA01-EN024,Secret Rare,741366,inferred
-RA01-EN024,Super Rare,741359,inferred
-RA01-EN024,Ultimate Rare,741361,inferred
-RA01-EN024,Ultra Rare,741360,inferred
 RA01-EN025,Collector's Rare,741374,inferred
 RA01-EN025,Platinum Secret Rare,741372,inferred
 RA01-EN025,Quarter Century Secret Rare,741373,inferred
@@ -25186,13 +26742,6 @@ RA01-EN036,Secret Rare,741492,inferred
 RA01-EN036,Super Rare,741488,inferred
 RA01-EN036,Ultimate Rare,741491,inferred
 RA01-EN036,Ultra Rare,741490,inferred
-RA01-EN037,Collector's Rare,741515,inferred
-RA01-EN037,Platinum Secret Rare,741510,inferred
-RA01-EN037,Quarter Century Secret Rare,741512,inferred
-RA01-EN037,Secret Rare,741514,inferred
-RA01-EN037,Super Rare,741500,inferred
-RA01-EN037,Ultimate Rare,741503,inferred
-RA01-EN037,Ultra Rare,741501,inferred
 RA01-EN038,Collector's Rare,741528,inferred
 RA01-EN038,Platinum Secret Rare,741524,inferred
 RA01-EN038,Quarter Century Secret Rare,741526,inferred
@@ -25291,13 +26840,6 @@ RA01-EN052,Secret Rare,741635,inferred
 RA01-EN052,Super Rare,741630,inferred
 RA01-EN052,Ultimate Rare,741632,inferred
 RA01-EN052,Ultra Rare,741631,inferred
-RA01-EN053,Collector's Rare,741643,inferred
-RA01-EN053,Platinum Secret Rare,741640,inferred
-RA01-EN053,Quarter Century Secret Rare,741641,inferred
-RA01-EN053,Secret Rare,741642,inferred
-RA01-EN053,Super Rare,741637,inferred
-RA01-EN053,Ultimate Rare,741639,inferred
-RA01-EN053,Ultra Rare,741638,inferred
 RA01-EN054,Collector's Rare,741646,inferred
 RA01-EN054,Platinum Secret Rare,741647,inferred
 RA01-EN054,Quarter Century Secret Rare,741648,inferred
@@ -25340,13 +26882,6 @@ RA01-EN059,Secret Rare,741684,inferred
 RA01-EN059,Super Rare,741680,inferred
 RA01-EN059,Ultimate Rare,741681,inferred
 RA01-EN059,Ultra Rare,741679,inferred
-RA01-EN060,Collector's Rare,741688,inferred
-RA01-EN060,Platinum Secret Rare,741689,inferred
-RA01-EN060,Quarter Century Secret Rare,741690,inferred
-RA01-EN060,Secret Rare,741692,inferred
-RA01-EN060,Super Rare,741687,inferred
-RA01-EN060,Ultimate Rare,741691,inferred
-RA01-EN060,Ultra Rare,741686,inferred
 RA01-EN061,Collector's Rare,741696,inferred
 RA01-EN061,Platinum Secret Rare,741698,inferred
 RA01-EN061,Quarter Century Secret Rare,741697,inferred
@@ -25452,13 +26987,6 @@ RA01-EN075,Secret Rare,741799,inferred
 RA01-EN075,Super Rare,741793,inferred
 RA01-EN075,Ultimate Rare,741798,inferred
 RA01-EN075,Ultra Rare,741794,inferred
-RA01-EN076,Collector's Rare,741806,inferred
-RA01-EN076,Platinum Secret Rare,741803,inferred
-RA01-EN076,Quarter Century Secret Rare,741804,inferred
-RA01-EN076,Secret Rare,741802,inferred
-RA01-EN076,Super Rare,741800,inferred
-RA01-EN076,Ultimate Rare,741805,inferred
-RA01-EN076,Ultra Rare,741801,inferred
 RA01-EN077,Collector's Rare,741816,inferred
 RA01-EN077,Platinum Secret Rare,741811,inferred
 RA01-EN077,Quarter Century Secret Rare,741812,inferred
@@ -25473,13 +27001,6 @@ RA01-EN078,Secret Rare,741820,inferred
 RA01-EN078,Super Rare,741819,inferred
 RA01-EN078,Ultimate Rare,741824,inferred
 RA01-EN078,Ultra Rare,741817,inferred
-RA01-EN079,Collector's Rare,741835,inferred
-RA01-EN079,Platinum Secret Rare,741832,inferred
-RA01-EN079,Quarter Century Secret Rare,741834,inferred
-RA01-EN079,Secret Rare,741837,inferred
-RA01-EN079,Super Rare,741828,inferred
-RA01-EN079,Ultimate Rare,741831,inferred
-RA01-EN079,Ultra Rare,741829,inferred
 RA02-EN002,Collector's Rare,770171,inferred
 RA02-EN002,Platinum Secret Rare,769921,inferred
 RA02-EN002,Quarter Century Secret Rare,770009,inferred
@@ -25494,20 +27015,6 @@ RA02-EN003,Secret Rare,770172,inferred
 RA02-EN003,Super Rare,769679,inferred
 RA02-EN003,Ultimate Rare,770091,inferred
 RA02-EN003,Ultra Rare,769760,inferred
-RA02-EN004,Collector's Rare,770173,inferred
-RA02-EN004,Platinum Secret Rare,769923,inferred
-RA02-EN004,Quarter Century Secret Rare,770011,inferred
-RA02-EN004,Secret Rare,770092,inferred
-RA02-EN004,Super Rare,769680,inferred
-RA02-EN004,Ultimate Rare,769842,inferred
-RA02-EN004,Ultra Rare,769761,inferred
-RA02-EN005,Collector's Rare,770174,inferred
-RA02-EN005,Platinum Secret Rare,769924,inferred
-RA02-EN005,Quarter Century Secret Rare,770012,inferred
-RA02-EN005,Secret Rare,770093,inferred
-RA02-EN005,Super Rare,769681,inferred
-RA02-EN005,Ultimate Rare,769843,inferred
-RA02-EN005,Ultra Rare,769762,inferred
 RA02-EN007,Collector's Rare,770177,inferred
 RA02-EN007,Platinum Secret Rare,769927,inferred
 RA02-EN007,Quarter Century Secret Rare,770015,inferred
@@ -25697,13 +27204,6 @@ RA02-EN033,Secret Rare,770203,inferred
 RA02-EN033,Super Rare,769791,inferred
 RA02-EN033,Ultimate Rare,769872,inferred
 RA02-EN033,Ultra Rare,769710,inferred
-RA02-EN034,Collector's Rare,770123,inferred
-RA02-EN034,Platinum Secret Rare,769960,inferred
-RA02-EN034,Quarter Century Secret Rare,770042,inferred
-RA02-EN034,Secret Rare,770204,inferred
-RA02-EN034,Super Rare,769711,inferred
-RA02-EN034,Ultimate Rare,769873,inferred
-RA02-EN034,Ultra Rare,769792,inferred
 RA02-EN035,Collector's Rare,770205,inferred
 RA02-EN035,Platinum Secret Rare,769961,inferred
 RA02-EN035,Quarter Century Secret Rare,770043,inferred
@@ -25809,13 +27309,6 @@ RA02-EN049,Secret Rare,770219,inferred
 RA02-EN049,Super Rare,769726,inferred
 RA02-EN049,Ultimate Rare,769888,inferred
 RA02-EN049,Ultra Rare,769807,inferred
-RA02-EN050,Collector's Rare,770220,inferred
-RA02-EN050,Platinum Secret Rare,769976,inferred
-RA02-EN050,Quarter Century Secret Rare,770058,inferred
-RA02-EN050,Secret Rare,770139,inferred
-RA02-EN050,Super Rare,769727,inferred
-RA02-EN050,Ultimate Rare,769889,inferred
-RA02-EN050,Ultra Rare,769808,inferred
 RA02-EN051,Collector's Rare,770140,inferred
 RA02-EN051,Platinum Secret Rare,769977,inferred
 RA02-EN051,Quarter Century Secret Rare,770059,inferred
@@ -25823,13 +27316,6 @@ RA02-EN051,Secret Rare,770221,inferred
 RA02-EN051,Super Rare,769728,inferred
 RA02-EN051,Ultimate Rare,769890,inferred
 RA02-EN051,Ultra Rare,769809,inferred
-RA02-EN052,Collector's Rare,770222,inferred
-RA02-EN052,Platinum Secret Rare,769978,inferred
-RA02-EN052,Quarter Century Secret Rare,770060,inferred
-RA02-EN052,Secret Rare,769891,inferred
-RA02-EN052,Super Rare,769729,inferred
-RA02-EN052,Ultimate Rare,770141,inferred
-RA02-EN052,Ultra Rare,769810,inferred
 RA02-EN053,Collector's Rare,770223,inferred
 RA02-EN053,Platinum Secret Rare,769979,inferred
 RA02-EN053,Quarter Century Secret Rare,770061,inferred
@@ -25865,13 +27351,6 @@ RA02-EN057,Secret Rare,769896,inferred
 RA02-EN057,Super Rare,769734,inferred
 RA02-EN057,Ultimate Rare,770146,inferred
 RA02-EN057,Ultra Rare,769815,inferred
-RA02-EN058,Collector's Rare,770147,inferred
-RA02-EN058,Platinum Secret Rare,769984,inferred
-RA02-EN058,Quarter Century Secret Rare,770066,inferred
-RA02-EN058,Secret Rare,770228,inferred
-RA02-EN058,Super Rare,769735,inferred
-RA02-EN058,Ultimate Rare,769897,inferred
-RA02-EN058,Ultra Rare,769816,inferred
 RA02-EN059,Collector's Rare,769985,inferred
 RA02-EN059,Platinum Secret Rare,770229,inferred
 RA02-EN059,Quarter Century Secret Rare,770067,inferred
@@ -25921,13 +27400,6 @@ RA02-EN065,Secret Rare,770154,inferred
 RA02-EN065,Super Rare,769823,inferred
 RA02-EN065,Ultimate Rare,769904,inferred
 RA02-EN065,Ultra Rare,769742,inferred
-RA02-EN066,Collector's Rare,769905,inferred
-RA02-EN066,Platinum Secret Rare,770236,inferred
-RA02-EN066,Quarter Century Secret Rare,770074,inferred
-RA02-EN066,Secret Rare,769992,inferred
-RA02-EN066,Super Rare,769743,inferred
-RA02-EN066,Ultimate Rare,770155,inferred
-RA02-EN066,Ultra Rare,769824,inferred
 RA02-EN067,Collector's Rare,769993,inferred
 RA02-EN067,Platinum Secret Rare,770156,inferred
 RA02-EN067,Quarter Century Secret Rare,770075,inferred
@@ -25977,13 +27449,6 @@ RA02-EN073,Secret Rare,770243,inferred
 RA02-EN073,Super Rare,769750,inferred
 RA02-EN073,Ultimate Rare,769912,inferred
 RA02-EN073,Ultra Rare,769831,inferred
-RA02-EN074,Collector's Rare,770244,inferred
-RA02-EN074,Platinum Secret Rare,770163,inferred
-RA02-EN074,Quarter Century Secret Rare,770082,inferred
-RA02-EN074,Secret Rare,770000,inferred
-RA02-EN074,Super Rare,769751,inferred
-RA02-EN074,Ultimate Rare,769913,inferred
-RA02-EN074,Ultra Rare,769832,inferred
 RA02-EN075,Collector's Rare,770245,inferred
 RA02-EN075,Platinum Secret Rare,770001,inferred
 RA02-EN075,Quarter Century Secret Rare,770083,inferred
@@ -25998,13 +27463,6 @@ RA02-EN076,Secret Rare,770165,inferred
 RA02-EN076,Super Rare,769834,inferred
 RA02-EN076,Ultimate Rare,769915,inferred
 RA02-EN076,Ultra Rare,769753,inferred
-RA02-EN077,Collector's Rare,770247,inferred
-RA02-EN077,Platinum Secret Rare,770003,inferred
-RA02-EN077,Quarter Century Secret Rare,770085,inferred
-RA02-EN077,Secret Rare,770166,inferred
-RA02-EN077,Super Rare,769754,inferred
-RA02-EN077,Ultimate Rare,769835,inferred
-RA02-EN077,Ultra Rare,769916,inferred
 RA02-EN078,Collector's Rare,770167,inferred
 RA02-EN078,Platinum Secret Rare,770004,inferred
 RA02-EN078,Quarter Century Secret Rare,770086,inferred
@@ -26012,13 +27470,6 @@ RA02-EN078,Secret Rare,769917,inferred
 RA02-EN078,Super Rare,769836,inferred
 RA02-EN078,Ultimate Rare,770248,inferred
 RA02-EN078,Ultra Rare,769755,inferred
-RA02-EN079,Collector's Rare,770168,inferred
-RA02-EN079,Platinum Secret Rare,770005,inferred
-RA02-EN079,Quarter Century Secret Rare,770087,inferred
-RA02-EN079,Secret Rare,770249,inferred
-RA02-EN079,Super Rare,769756,inferred
-RA02-EN079,Ultimate Rare,769918,inferred
-RA02-EN079,Ultra Rare,769837,inferred
 RA03-EN001,Collector's Rare,798257,inferred
 RA03-EN001,Platinum Secret Rare,797813,inferred
 RA03-EN001,Quarter Century Secret Rare,798015,inferred
@@ -26082,13 +27533,6 @@ RA03-EN009,Secret Rare,798269,inferred
 RA03-EN009,Super Rare,797577,inferred
 RA03-EN009,Ultimate Rare,798162,inferred
 RA03-EN009,Ultra Rare,797658,inferred
-RA03-EN010,Collector's Rare,798270,inferred
-RA03-EN010,Platinum Secret Rare,797829,inferred
-RA03-EN010,Quarter Century Secret Rare,798026,inferred
-RA03-EN010,Secret Rare,797740,inferred
-RA03-EN010,Super Rare,797578,inferred
-RA03-EN010,Ultimate Rare,798163,inferred
-RA03-EN010,Ultra Rare,797659,inferred
 RA03-EN011,Collector's Rare,798272,inferred
 RA03-EN011,Platinum Secret Rare,797830,inferred
 RA03-EN011,Quarter Century Secret Rare,798027,inferred
@@ -26159,13 +27603,6 @@ RA03-EN023,Secret Rare,797862,inferred
 RA03-EN023,Super Rare,797592,inferred
 RA03-EN023,Ultimate Rare,797754,inferred
 RA03-EN023,Ultra Rare,797673,inferred
-RA03-EN024,Collector's Rare,798294,inferred
-RA03-EN024,Platinum Secret Rare,797864,inferred
-RA03-EN024,Quarter Century Secret Rare,798049,inferred
-RA03-EN024,Secret Rare,798178,inferred
-RA03-EN024,Super Rare,797593,inferred
-RA03-EN024,Ultimate Rare,797755,inferred
-RA03-EN024,Ultra Rare,797674,inferred
 RA03-EN025,Collector's Rare,798296,inferred
 RA03-EN025,Platinum Secret Rare,797866,inferred
 RA03-EN025,Quarter Century Secret Rare,798050,inferred
@@ -26194,20 +27631,6 @@ RA03-EN028,Secret Rare,798300,inferred
 RA03-EN028,Super Rare,797678,inferred
 RA03-EN028,Ultimate Rare,797759,inferred
 RA03-EN028,Ultra Rare,797597,inferred
-RA03-EN029,Collector's Rare,798302,inferred
-RA03-EN029,Platinum Secret Rare,797876,inferred
-RA03-EN029,Quarter Century Secret Rare,798058,inferred
-RA03-EN029,Secret Rare,798183,inferred
-RA03-EN029,Super Rare,797679,inferred
-RA03-EN029,Ultimate Rare,797760,inferred
-RA03-EN029,Ultra Rare,797598,inferred
-RA03-EN030,Collector's Rare,798184,inferred
-RA03-EN030,Platinum Secret Rare,797878,inferred
-RA03-EN030,Quarter Century Secret Rare,798059,inferred
-RA03-EN030,Secret Rare,798303,inferred
-RA03-EN030,Super Rare,797599,inferred
-RA03-EN030,Ultimate Rare,797761,inferred
-RA03-EN030,Ultra Rare,797680,inferred
 RA03-EN031,Collector's Rare,797880,inferred
 RA03-EN031,Platinum Secret Rare,798185,inferred
 RA03-EN031,Quarter Century Secret Rare,798060,inferred
@@ -26221,13 +27644,6 @@ RA03-EN032,Secret Rare,798186,inferred
 RA03-EN032,Super Rare,797682,inferred
 RA03-EN032,Ultimate Rare,797763,inferred
 RA03-EN032,Ultra Rare,797601,inferred
-RA03-EN034,Collector's Rare,798189,inferred
-RA03-EN034,Platinum Secret Rare,798309,inferred
-RA03-EN034,Quarter Century Secret Rare,798063,inferred
-RA03-EN034,Secret Rare,797888,inferred
-RA03-EN034,Super Rare,797603,inferred
-RA03-EN034,Ultimate Rare,797765,inferred
-RA03-EN034,Ultra Rare,797684,inferred
 RA03-EN035,Collector's Rare,797891,inferred
 RA03-EN035,Platinum Secret Rare,798311,inferred
 RA03-EN035,Quarter Century Secret Rare,798065,inferred
@@ -26372,13 +27788,6 @@ RA03-EN060,Secret Rare,798226,inferred
 RA03-EN060,Super Rare,797631,inferred
 RA03-EN060,Ultimate Rare,797712,inferred
 RA03-EN060,Ultra Rare,797793,inferred
-RA03-EN061,Collector's Rare,798357,inferred
-RA03-EN061,Platinum Secret Rare,797952,inferred
-RA03-EN061,Quarter Century Secret Rare,798117,inferred
-RA03-EN061,Secret Rare,798227,inferred
-RA03-EN061,Super Rare,797713,inferred
-RA03-EN061,Ultimate Rare,797794,inferred
-RA03-EN061,Ultra Rare,797632,inferred
 RA03-EN062,Collector's Rare,798359,inferred
 RA03-EN062,Platinum Secret Rare,797953,inferred
 RA03-EN062,Quarter Century Secret Rare,798119,inferred
@@ -26435,13 +27844,6 @@ RA03-EN070,Secret Rare,798372,inferred
 RA03-EN070,Super Rare,797641,inferred
 RA03-EN070,Ultimate Rare,797803,inferred
 RA03-EN070,Ultra Rare,797722,inferred
-RA03-EN071,Collector's Rare,798238,inferred
-RA03-EN071,Platinum Secret Rare,797972,inferred
-RA03-EN071,Quarter Century Secret Rare,798130,inferred
-RA03-EN071,Secret Rare,797804,inferred
-RA03-EN071,Super Rare,797642,inferred
-RA03-EN071,Ultimate Rare,798374,inferred
-RA03-EN071,Ultra Rare,797723,inferred
 RA03-EN072,Collector's Rare,797975,inferred
 RA03-EN072,Platinum Secret Rare,798239,inferred
 RA03-EN072,Quarter Century Secret Rare,798131,inferred
@@ -26469,13 +27871,6 @@ RA03-EN075,Secret Rare,797979,inferred
 RA03-EN075,Super Rare,797646,inferred
 RA03-EN075,Ultimate Rare,797808,inferred
 RA03-EN075,Ultra Rare,797727,inferred
-RA03-EN076,Collector's Rare,798244,inferred
-RA03-EN076,Platinum Secret Rare,797982,inferred
-RA03-EN076,Quarter Century Secret Rare,798142,inferred
-RA03-EN076,Secret Rare,797809,inferred
-RA03-EN076,Super Rare,797647,inferred
-RA03-EN076,Ultimate Rare,798379,inferred
-RA03-EN076,Ultra Rare,797728,inferred
 RA03-EN077,Collector's Rare,798245,inferred
 RA03-EN077,Platinum Secret Rare,797983,inferred
 RA03-EN077,Quarter Century Secret Rare,798143,inferred
@@ -26483,13 +27878,6 @@ RA03-EN077,Secret Rare,798380,inferred
 RA03-EN077,Super Rare,797729,inferred
 RA03-EN077,Ultimate Rare,797810,inferred
 RA03-EN077,Ultra Rare,797648,inferred
-RA03-EN078,Collector's Rare,798381,inferred
-RA03-EN078,Platinum Secret Rare,797986,inferred
-RA03-EN078,Quarter Century Secret Rare,798146,inferred
-RA03-EN078,Secret Rare,798246,inferred
-RA03-EN078,Super Rare,797649,inferred
-RA03-EN078,Ultimate Rare,797811,inferred
-RA03-EN078,Ultra Rare,797730,inferred
 RA03-EN079,Platinum Secret Rare,798466,inferred
 RA03-EN079,Quarter Century Secret Rare,798544,inferred
 RA03-EN080,Platinum Secret Rare,798469,inferred
@@ -26886,13 +28274,6 @@ RA03-EN276,Platinum Secret Rare,798781,inferred
 RA03-EN276,Quarter Century Secret Rare,798784,inferred
 RA04-EN003,Quarter Century Secret Rare,820697,unique
 RA04-EN004,Quarter Century Secret Rare,820698,unique
-RA04-EN005,Collector's Rare,820880,inferred
-RA04-EN005,Platinum Secret Rare,820613,inferred
-RA04-EN005,Quarter Century Secret Rare,820699,inferred
-RA04-EN005,Secret Rare,820799,inferred
-RA04-EN005,Super Rare,820339,inferred
-RA04-EN005,Ultimate Rare,820509,inferred
-RA04-EN005,Ultra Rare,820424,inferred
 RA04-EN006,Collector's Rare,820800,inferred
 RA04-EN006,Platinum Secret Rare,820881,inferred
 RA04-EN006,Quarter Century Secret Rare,820700,inferred
@@ -26922,13 +28303,6 @@ RA04-EN010,Secret Rare,820617,inferred
 RA04-EN010,Super Rare,820429,inferred
 RA04-EN010,Ultimate Rare,820513,inferred
 RA04-EN010,Ultra Rare,820343,inferred
-RA04-EN011,Collector's Rare,820804,inferred
-RA04-EN011,Platinum Secret Rare,820885,inferred
-RA04-EN011,Quarter Century Secret Rare,820705,inferred
-RA04-EN011,Secret Rare,820618,inferred
-RA04-EN011,Super Rare,820430,inferred
-RA04-EN011,Ultimate Rare,820514,inferred
-RA04-EN011,Ultra Rare,820344,inferred
 RA04-EN012,Collector's Rare,820805,inferred
 RA04-EN012,Platinum Secret Rare,820886,inferred
 RA04-EN012,Quarter Century Secret Rare,820706,inferred
@@ -26943,13 +28317,6 @@ RA04-EN013,Secret Rare,820806,inferred
 RA04-EN013,Super Rare,820346,inferred
 RA04-EN013,Ultimate Rare,820516,inferred
 RA04-EN013,Ultra Rare,820432,inferred
-RA04-EN014,Collector's Rare,820621,inferred
-RA04-EN014,Platinum Secret Rare,820888,inferred
-RA04-EN014,Quarter Century Secret Rare,820708,inferred
-RA04-EN014,Secret Rare,820517,inferred
-RA04-EN014,Super Rare,820347,inferred
-RA04-EN014,Ultimate Rare,820807,inferred
-RA04-EN014,Ultra Rare,820433,inferred
 RA04-EN015,Collector's Rare,820622,inferred
 RA04-EN015,Platinum Secret Rare,820889,inferred
 RA04-EN015,Quarter Century Secret Rare,820709,inferred
@@ -26964,13 +28331,6 @@ RA04-EN016,Secret Rare,820519,inferred
 RA04-EN016,Super Rare,820349,inferred
 RA04-EN016,Ultimate Rare,820809,inferred
 RA04-EN016,Ultra Rare,820436,inferred
-RA04-EN017,Collector's Rare,820624,inferred
-RA04-EN017,Platinum Secret Rare,820891,inferred
-RA04-EN017,Quarter Century Secret Rare,820711,inferred
-RA04-EN017,Secret Rare,820520,inferred
-RA04-EN017,Super Rare,820437,inferred
-RA04-EN017,Ultimate Rare,820810,inferred
-RA04-EN017,Ultra Rare,820350,inferred
 RA04-EN018,Collector's Rare,820892,inferred
 RA04-EN018,Platinum Secret Rare,820625,inferred
 RA04-EN018,Quarter Century Secret Rare,820712,inferred
@@ -26985,13 +28345,6 @@ RA04-EN019,Secret Rare,820812,inferred
 RA04-EN019,Super Rare,820352,inferred
 RA04-EN019,Ultimate Rare,820522,inferred
 RA04-EN019,Ultra Rare,820439,inferred
-RA04-EN020,Collector's Rare,820894,inferred
-RA04-EN020,Platinum Secret Rare,820627,inferred
-RA04-EN020,Quarter Century Secret Rare,820714,inferred
-RA04-EN020,Secret Rare,820813,inferred
-RA04-EN020,Super Rare,820440,inferred
-RA04-EN020,Ultimate Rare,820353,inferred
-RA04-EN020,Ultra Rare,820523,inferred
 RA04-EN021,Collector's Rare,820895,inferred
 RA04-EN021,Platinum Secret Rare,820628,inferred
 RA04-EN021,Quarter Century Secret Rare,820715,inferred
@@ -27027,13 +28380,6 @@ RA04-EN027,Secret Rare,820529,inferred
 RA04-EN027,Super Rare,820359,inferred
 RA04-EN027,Ultimate Rare,820900,inferred
 RA04-EN027,Ultra Rare,820447,inferred
-RA04-EN028,Collector's Rare,820820,inferred
-RA04-EN028,Platinum Secret Rare,820901,inferred
-RA04-EN028,Quarter Century Secret Rare,820722,inferred
-RA04-EN028,Secret Rare,820634,inferred
-RA04-EN028,Super Rare,820360,inferred
-RA04-EN028,Ultimate Rare,820530,inferred
-RA04-EN028,Ultra Rare,820448,inferred
 RA04-EN029,Collector's Rare,820635,inferred
 RA04-EN029,Platinum Secret Rare,820531,inferred
 RA04-EN029,Quarter Century Secret Rare,820723,inferred
@@ -27052,13 +28398,6 @@ RA04-EN032,Ultimate Rare,820450,inferred
 RA04-EN032,Ultra Rare,820903,inferred
 RA04-EN033,Quarter Century Secret Rare,820732,unique
 RA04-EN034,Quarter Century Secret Rare,820733,unique
-RA04-EN035,Collector's Rare,820904,inferred
-RA04-EN035,Platinum Secret Rare,820638,inferred
-RA04-EN035,Quarter Century Secret Rare,820725,inferred
-RA04-EN035,Secret Rare,820533,inferred
-RA04-EN035,Super Rare,820363,inferred
-RA04-EN035,Ultimate Rare,820823,inferred
-RA04-EN035,Ultra Rare,820451,inferred
 RA04-EN036,Collector's Rare,820824,inferred
 RA04-EN036,Platinum Secret Rare,820639,inferred
 RA04-EN036,Quarter Century Secret Rare,820726,inferred
@@ -27091,13 +28430,6 @@ RA04-EN043,Secret Rare,820827,inferred
 RA04-EN043,Super Rare,820455,inferred
 RA04-EN043,Ultimate Rare,820537,inferred
 RA04-EN043,Ultra Rare,820367,inferred
-RA04-EN044,Collector's Rare,820828,inferred
-RA04-EN044,Platinum Secret Rare,820643,inferred
-RA04-EN044,Quarter Century Secret Rare,820740,inferred
-RA04-EN044,Secret Rare,820909,inferred
-RA04-EN044,Super Rare,820368,inferred
-RA04-EN044,Ultimate Rare,820538,inferred
-RA04-EN044,Ultra Rare,820457,inferred
 RA04-EN045,Collector's Rare,820829,inferred
 RA04-EN045,Platinum Secret Rare,820644,inferred
 RA04-EN045,Quarter Century Secret Rare,820741,inferred
@@ -27133,13 +28465,6 @@ RA04-EN050,Super Rare,820373,inferred
 RA04-EN050,Ultimate Rare,820914,inferred
 RA04-EN050,Ultra Rare,820462,inferred
 RA04-EN051,Quarter Century Secret Rare,820747,unique
-RA04-EN053,Collector's Rare,820915,inferred
-RA04-EN053,Platinum Secret Rare,820649,inferred
-RA04-EN053,Quarter Century Secret Rare,820749,inferred
-RA04-EN053,Secret Rare,820834,inferred
-RA04-EN053,Super Rare,820374,inferred
-RA04-EN053,Ultimate Rare,820547,inferred
-RA04-EN053,Ultra Rare,820463,inferred
 RA04-EN054,Collector's Rare,820916,inferred
 RA04-EN054,Platinum Secret Rare,820650,inferred
 RA04-EN054,Quarter Century Secret Rare,820750,inferred
@@ -27168,13 +28493,6 @@ RA04-EN058,Secret Rare,820838,inferred
 RA04-EN058,Super Rare,820467,inferred
 RA04-EN058,Ultimate Rare,820553,inferred
 RA04-EN058,Ultra Rare,820379,inferred
-RA04-EN059,Collector's Rare,820920,inferred
-RA04-EN059,Platinum Secret Rare,820654,inferred
-RA04-EN059,Quarter Century Secret Rare,820754,inferred
-RA04-EN059,Secret Rare,820839,inferred
-RA04-EN059,Super Rare,820380,inferred
-RA04-EN059,Ultimate Rare,820555,inferred
-RA04-EN059,Ultra Rare,820468,inferred
 RA04-EN060,Collector's Rare,820921,inferred
 RA04-EN060,Platinum Secret Rare,820655,inferred
 RA04-EN060,Quarter Century Secret Rare,820755,inferred
@@ -27202,13 +28520,6 @@ RA04-EN063,Secret Rare,820843,inferred
 RA04-EN063,Super Rare,820384,inferred
 RA04-EN063,Ultimate Rare,820561,inferred
 RA04-EN063,Ultra Rare,820472,inferred
-RA04-EN064,Collector's Rare,820925,inferred
-RA04-EN064,Platinum Secret Rare,820659,inferred
-RA04-EN064,Quarter Century Secret Rare,820758,inferred
-RA04-EN064,Secret Rare,820844,inferred
-RA04-EN064,Super Rare,820473,inferred
-RA04-EN064,Ultimate Rare,820562,inferred
-RA04-EN064,Ultra Rare,820385,inferred
 RA04-EN065,Collector's Rare,820926,inferred
 RA04-EN065,Platinum Secret Rare,820660,inferred
 RA04-EN065,Quarter Century Secret Rare,820759,inferred
@@ -27258,13 +28569,6 @@ RA04-EN075,Secret Rare,820853,inferred
 RA04-EN075,Super Rare,820394,inferred
 RA04-EN075,Ultimate Rare,820482,inferred
 RA04-EN075,Ultra Rare,820574,inferred
-RA04-EN076,Collector's Rare,820935,inferred
-RA04-EN076,Platinum Secret Rare,820669,inferred
-RA04-EN076,Quarter Century Secret Rare,820769,inferred
-RA04-EN076,Secret Rare,820854,inferred
-RA04-EN076,Super Rare,820395,inferred
-RA04-EN076,Ultimate Rare,820576,inferred
-RA04-EN076,Ultra Rare,820483,inferred
 RA04-EN077,Collector's Rare,820855,inferred
 RA04-EN077,Platinum Secret Rare,820670,inferred
 RA04-EN077,Quarter Century Secret Rare,820770,inferred
@@ -27280,13 +28584,6 @@ RA04-EN078,Super Rare,820397,inferred
 RA04-EN078,Ultimate Rare,820579,inferred
 RA04-EN078,Ultra Rare,820485,inferred
 RA04-EN079,Quarter Century Secret Rare,820772,unique
-RA04-EN080,Collector's Rare,820938,inferred
-RA04-EN080,Platinum Secret Rare,820672,inferred
-RA04-EN080,Quarter Century Secret Rare,820773,inferred
-RA04-EN080,Secret Rare,820857,inferred
-RA04-EN080,Super Rare,820398,inferred
-RA04-EN080,Ultimate Rare,820581,inferred
-RA04-EN080,Ultra Rare,820486,inferred
 RA04-EN081,Collector's Rare,820858,inferred
 RA04-EN081,Platinum Secret Rare,820673,inferred
 RA04-EN081,Quarter Century Secret Rare,820774,inferred
@@ -27373,13 +28670,6 @@ RA04-EN096,Secret Rare,820870,inferred
 RA04-EN096,Super Rare,820412,inferred
 RA04-EN096,Ultimate Rare,820499,inferred
 RA04-EN096,Ultra Rare,820602,inferred
-RA04-EN097,Collector's Rare,820871,inferred
-RA04-EN097,Platinum Secret Rare,820686,inferred
-RA04-EN097,Quarter Century Secret Rare,820789,inferred
-RA04-EN097,Secret Rare,820604,inferred
-RA04-EN097,Super Rare,820413,inferred
-RA04-EN097,Ultimate Rare,820500,inferred
-RA04-EN097,Ultra Rare,820952,inferred
 RA04-EN098,Collector's Rare,820953,inferred
 RA04-EN098,Platinum Secret Rare,820687,inferred
 RA04-EN098,Quarter Century Secret Rare,820790,inferred
@@ -27401,13 +28691,6 @@ RA04-EN100,Secret Rare,820955,inferred
 RA04-EN100,Super Rare,820416,inferred
 RA04-EN100,Ultimate Rare,820607,inferred
 RA04-EN100,Ultra Rare,820503,inferred
-RA04-EN101,Collector's Rare,820875,inferred
-RA04-EN101,Platinum Secret Rare,820690,inferred
-RA04-EN101,Quarter Century Secret Rare,820793,inferred
-RA04-EN101,Secret Rare,820956,inferred
-RA04-EN101,Super Rare,820417,inferred
-RA04-EN101,Ultimate Rare,820608,inferred
-RA04-EN101,Ultra Rare,820504,inferred
 RA04-EN102,Collector's Rare,820877,inferred
 RA04-EN102,Platinum Secret Rare,820692,inferred
 RA04-EN102,Quarter Century Secret Rare,820795,inferred
@@ -27827,13 +29110,6 @@ RA05-EN006,Starlight Rare,880594,inferred
 RA05-EN006,Super Rare,880588,inferred
 RA05-EN006,Ultimate Rare,880590,inferred
 RA05-EN006,Ultra Rare,880589,inferred
-RA05-EN007,Collector's Rare,880598,inferred
-RA05-EN007,PLatinum Secret Rare,880599,inferred
-RA05-EN007,Secret Rare,880601,inferred
-RA05-EN007,Starlight Rare,880600,inferred
-RA05-EN007,Super Rare,880595,inferred
-RA05-EN007,Ultimate Rare,880597,inferred
-RA05-EN007,Ultra Rare,880596,inferred
 RA05-EN008,Collector's Rare,880605,inferred
 RA05-EN008,PLatinum Secret Rare,880606,inferred
 RA05-EN008,Secret Rare,880608,inferred
@@ -27855,20 +29131,6 @@ RA05-EN010,Starlight Rare,880622,inferred
 RA05-EN010,Super Rare,880616,inferred
 RA05-EN010,Ultimate Rare,880619,inferred
 RA05-EN010,Ultra Rare,880618,inferred
-RA05-EN011,Collector's Rare,880627,inferred
-RA05-EN011,PLatinum Secret Rare,880628,inferred
-RA05-EN011,Secret Rare,880630,inferred
-RA05-EN011,Starlight Rare,880629,inferred
-RA05-EN011,Super Rare,880625,inferred
-RA05-EN011,Ultimate Rare,880624,inferred
-RA05-EN011,Ultra Rare,880626,inferred
-RA05-EN012,Collector's Rare,880634,inferred
-RA05-EN012,PLatinum Secret Rare,880635,inferred
-RA05-EN012,Secret Rare,880636,inferred
-RA05-EN012,Starlight Rare,880637,inferred
-RA05-EN012,Super Rare,880632,inferred
-RA05-EN012,Ultimate Rare,880631,inferred
-RA05-EN012,Ultra Rare,880633,inferred
 RA05-EN013,Collector's Rare,880643,inferred
 RA05-EN013,PLatinum Secret Rare,880642,inferred
 RA05-EN013,Secret Rare,880644,inferred
@@ -27876,13 +29138,6 @@ RA05-EN013,Starlight Rare,880641,inferred
 RA05-EN013,Super Rare,880640,inferred
 RA05-EN013,Ultimate Rare,880639,inferred
 RA05-EN013,Ultra Rare,880638,inferred
-RA05-EN014,Collector's Rare,880659,inferred
-RA05-EN014,PLatinum Secret Rare,880657,inferred
-RA05-EN014,Secret Rare,880658,inferred
-RA05-EN014,Starlight Rare,880656,inferred
-RA05-EN014,Super Rare,880651,inferred
-RA05-EN014,Ultimate Rare,880654,inferred
-RA05-EN014,Ultra Rare,880653,inferred
 RA05-EN015,Collector's Rare,880663,inferred
 RA05-EN015,PLatinum Secret Rare,880666,inferred
 RA05-EN015,Secret Rare,880662,inferred
@@ -27897,13 +29152,6 @@ RA05-EN016,Starlight Rare,880673,inferred
 RA05-EN016,Super Rare,880669,inferred
 RA05-EN016,Ultimate Rare,880672,inferred
 RA05-EN016,Ultra Rare,880671,inferred
-RA05-EN017,Collector's Rare,880683,inferred
-RA05-EN017,PLatinum Secret Rare,880684,inferred
-RA05-EN017,Secret Rare,880682,inferred
-RA05-EN017,Starlight Rare,880687,inferred
-RA05-EN017,Super Rare,880679,inferred
-RA05-EN017,Ultimate Rare,880685,inferred
-RA05-EN017,Ultra Rare,880681,inferred
 RA05-EN018,Collector's Rare,880770,inferred
 RA05-EN018,PLatinum Secret Rare,880771,inferred
 RA05-EN018,Secret Rare,880773,inferred
@@ -27918,13 +29166,6 @@ RA05-EN019,Starlight Rare,880779,inferred
 RA05-EN019,Super Rare,880774,inferred
 RA05-EN019,Ultimate Rare,880780,inferred
 RA05-EN019,Ultra Rare,880775,inferred
-RA05-EN020,Collector's Rare,880784,inferred
-RA05-EN020,PLatinum Secret Rare,880785,inferred
-RA05-EN020,Secret Rare,880786,inferred
-RA05-EN020,Starlight Rare,880787,inferred
-RA05-EN020,Super Rare,880781,inferred
-RA05-EN020,Ultimate Rare,880783,inferred
-RA05-EN020,Ultra Rare,880782,inferred
 RA05-EN021,Collector's Rare,880791,inferred
 RA05-EN021,PLatinum Secret Rare,880792,inferred
 RA05-EN021,Secret Rare,880794,inferred
@@ -27960,13 +29201,6 @@ RA05-EN025,Starlight Rare,880822,inferred
 RA05-EN025,Super Rare,880817,inferred
 RA05-EN025,Ultimate Rare,880821,inferred
 RA05-EN025,Ultra Rare,880816,inferred
-RA05-EN026,Collector's Rare,880828,inferred
-RA05-EN026,PLatinum Secret Rare,880827,inferred
-RA05-EN026,Secret Rare,880826,inferred
-RA05-EN026,Starlight Rare,880829,inferred
-RA05-EN026,Super Rare,880823,inferred
-RA05-EN026,Ultimate Rare,880825,inferred
-RA05-EN026,Ultra Rare,880824,inferred
 RA05-EN027,Collector's Rare,880833,inferred
 RA05-EN027,PLatinum Secret Rare,880834,inferred
 RA05-EN027,Secret Rare,880836,inferred
@@ -28098,13 +29332,6 @@ RA05-EN045,Starlight Rare,880969,inferred
 RA05-EN045,Super Rare,880964,inferred
 RA05-EN045,Ultimate Rare,880970,inferred
 RA05-EN045,Ultra Rare,880965,inferred
-RA05-EN046,Collector's Rare,880974,inferred
-RA05-EN046,PLatinum Secret Rare,880975,inferred
-RA05-EN046,Secret Rare,880976,inferred
-RA05-EN046,Starlight Rare,880977,inferred
-RA05-EN046,Super Rare,880971,inferred
-RA05-EN046,Ultimate Rare,880973,inferred
-RA05-EN046,Ultra Rare,880972,inferred
 RA05-EN047,Collector's Rare,880984,inferred
 RA05-EN047,PLatinum Secret Rare,880982,inferred
 RA05-EN047,Secret Rare,880985,inferred
@@ -28112,13 +29339,6 @@ RA05-EN047,Starlight Rare,880981,inferred
 RA05-EN047,Super Rare,880979,inferred
 RA05-EN047,Ultimate Rare,880980,inferred
 RA05-EN047,Ultra Rare,880978,inferred
-RA05-EN048,Collector's Rare,880995,inferred
-RA05-EN048,PLatinum Secret Rare,880994,inferred
-RA05-EN048,Secret Rare,880992,inferred
-RA05-EN048,Starlight Rare,880996,inferred
-RA05-EN048,Super Rare,880989,inferred
-RA05-EN048,Ultimate Rare,880991,inferred
-RA05-EN048,Ultra Rare,880988,inferred
 RA05-EN049,Collector's Rare,881003,inferred
 RA05-EN049,PLatinum Secret Rare,881001,inferred
 RA05-EN049,Secret Rare,881000,inferred
@@ -28126,13 +29346,6 @@ RA05-EN049,Starlight Rare,881002,inferred
 RA05-EN049,Super Rare,880998,inferred
 RA05-EN049,Ultimate Rare,880999,inferred
 RA05-EN049,Ultra Rare,880997,inferred
-RA05-EN050,Collector's Rare,881013,inferred
-RA05-EN050,PLatinum Secret Rare,881010,inferred
-RA05-EN050,Secret Rare,881011,inferred
-RA05-EN050,Starlight Rare,881008,inferred
-RA05-EN050,Super Rare,881006,inferred
-RA05-EN050,Ultimate Rare,881007,inferred
-RA05-EN050,Ultra Rare,881005,inferred
 RA05-EN051,Collector's Rare,881021,inferred
 RA05-EN051,PLatinum Secret Rare,881022,inferred
 RA05-EN051,Secret Rare,881025,inferred
@@ -28196,20 +29409,6 @@ RA05-EN059,Starlight Rare,881083,inferred
 RA05-EN059,Super Rare,881077,inferred
 RA05-EN059,Ultimate Rare,881079,inferred
 RA05-EN059,Ultra Rare,881078,inferred
-RA05-EN060,Collector's Rare,881087,inferred
-RA05-EN060,PLatinum Secret Rare,881088,inferred
-RA05-EN060,Secret Rare,881086,inferred
-RA05-EN060,Starlight Rare,881089,inferred
-RA05-EN060,Super Rare,881084,inferred
-RA05-EN060,Ultimate Rare,881090,inferred
-RA05-EN060,Ultra Rare,881085,inferred
-RA05-EN062,Collector's Rare,881101,inferred
-RA05-EN062,PLatinum Secret Rare,881102,inferred
-RA05-EN062,Secret Rare,881103,inferred
-RA05-EN062,Starlight Rare,881104,inferred
-RA05-EN062,Super Rare,881098,inferred
-RA05-EN062,Ultimate Rare,881100,inferred
-RA05-EN062,Ultra Rare,881099,inferred
 RA05-EN063,Collector's Rare,881111,inferred
 RA05-EN063,PLatinum Secret Rare,881109,inferred
 RA05-EN063,Secret Rare,881105,inferred
@@ -28224,13 +29423,6 @@ RA05-EN064,Starlight Rare,881118,inferred
 RA05-EN064,Super Rare,881113,inferred
 RA05-EN064,Ultimate Rare,881114,inferred
 RA05-EN064,Ultra Rare,881112,inferred
-RA05-EN065,Collector's Rare,881122,inferred
-RA05-EN065,PLatinum Secret Rare,881123,inferred
-RA05-EN065,Secret Rare,881125,inferred
-RA05-EN065,Starlight Rare,881124,inferred
-RA05-EN065,Super Rare,881119,inferred
-RA05-EN065,Ultimate Rare,881121,inferred
-RA05-EN065,Ultra Rare,881120,inferred
 RA05-EN066,Collector's Rare,881131,inferred
 RA05-EN066,PLatinum Secret Rare,881130,inferred
 RA05-EN066,Secret Rare,881128,inferred
@@ -28245,13 +29437,6 @@ RA05-EN067,Starlight Rare,881135,inferred
 RA05-EN067,Super Rare,881133,inferred
 RA05-EN067,Ultimate Rare,881138,inferred
 RA05-EN067,Ultra Rare,881134,inferred
-RA05-EN068,Collector's Rare,881146,inferred
-RA05-EN068,PLatinum Secret Rare,881144,inferred
-RA05-EN068,Secret Rare,881142,inferred
-RA05-EN068,Starlight Rare,881143,inferred
-RA05-EN068,Super Rare,881140,inferred
-RA05-EN068,Ultimate Rare,881145,inferred
-RA05-EN068,Ultra Rare,881141,inferred
 RA05-EN069,Collector's Rare,881149,inferred
 RA05-EN069,PLatinum Secret Rare,881151,inferred
 RA05-EN069,Secret Rare,881152,inferred
@@ -31575,6 +32760,9 @@ SDWA-EN037,Common,256722,unique
 SDWA-EN038,Common,256731,unique
 SDWA-EN039,Common,256735,unique
 SDWA-EN040,Common,256736,unique
+SDWD-EN001,Common,809641,inferred
+SDWD-EN002,Common,809642,inferred
+SDWD-EN003,Common,809643,inferred
 SDWD-EN004,Super Rare,809648,unique
 SDWD-EN005,Common,809649,unique
 SDWD-EN006,Common,809650,unique
@@ -31906,6 +33094,7 @@ SGX3-ENC11,Common,702614,unique
 SGX3-ENC12,Common,702615,unique
 SGX3-ENC13,Common,702616,unique
 SGX3-ENC14,Common,702617,unique
+SGX3-ENC16,Common,702619,inferred
 SGX3-ENC17,Common,702620,unique
 SGX3-ENC18,Common,702621,unique
 SGX3-ENC19,Common,702622,unique
@@ -31944,6 +33133,7 @@ SGX3-ENE08,Common,702654,unique
 SGX3-ENE09,Common,702655,unique
 SGX3-ENE11,Common,702657,unique
 SGX3-ENE12,Common,702658,unique
+SGX3-ENE13,Common,702659,inferred
 SGX3-ENE14,Common,702660,unique
 SGX3-ENE15,Common,702661,unique
 SGX3-ENE16,Common,702662,unique
@@ -31970,6 +33160,7 @@ SGX3-ENF13,Common,702682,unique
 SGX3-ENF14,Common,702683,unique
 SGX3-ENF15,Common,702684,unique
 SGX3-ENF16,Common,702685,unique
+SGX3-ENF17,Common,702686,inferred
 SGX3-ENF18,Common,702687,unique
 SGX3-ENF19,Common,702688,inferred
 SGX3-ENF19,Secret Rare,702689,inferred
@@ -31984,6 +33175,7 @@ SGX3-ENG10,Common,702700,unique
 SGX3-ENG11,Common,702701,unique
 SGX3-ENG12,Common,702702,unique
 SGX3-ENG13,Common,702703,unique
+SGX3-ENG14,Common,702704,inferred
 SGX3-ENG15,Common,702705,unique
 SGX3-ENG16,Common,702706,unique
 SGX3-ENG17,Common,702707,unique
@@ -32797,8 +33989,6 @@ SP13-EN047,Common,260730,inferred
 SP13-EN047,Starfoil Rare,260780,inferred
 SP13-EN048,Common,260731,inferred
 SP13-EN048,Starfoil Rare,260781,inferred
-SP13-EN049,Common,260732,inferred
-SP13-EN049,Starfoil Rare,260782,inferred
 SP13-EN050,Common,260733,inferred
 SP13-EN050,Starfoil Rare,260783,inferred
 SP14-EN001,Common,266211,inferred
@@ -32807,8 +33997,6 @@ SP14-EN002,Common,266212,inferred
 SP14-EN002,Starfoil Rare,266262,inferred
 SP14-EN003,Common,266213,inferred
 SP14-EN003,Starfoil Rare,266263,inferred
-SP14-EN004,Common,266214,inferred
-SP14-EN004,Starfoil Rare,266264,inferred
 SP14-EN005,Common,266215,inferred
 SP14-EN005,Starfoil Rare,266265,inferred
 SP14-EN006,Common,266266,inferred
@@ -32843,8 +34031,6 @@ SP14-EN020,Common,266230,inferred
 SP14-EN020,Starfoil Rare,266280,inferred
 SP14-EN021,Common,266231,inferred
 SP14-EN021,Starfoil Rare,266281,inferred
-SP14-EN022,Common,266232,inferred
-SP14-EN022,Starfoil Rare,266282,inferred
 SP14-EN023,Common,266233,inferred
 SP14-EN023,Starfoil Rare,266283,inferred
 SP14-EN024,Common,266234,inferred
@@ -32940,8 +34126,6 @@ SP15-EN019,Common,283238,inferred
 SP15-EN019,Shatterfoil Rare,283239,inferred
 SP15-EN020,Common,283240,inferred
 SP15-EN020,Shatterfoil Rare,283241,inferred
-SP15-EN021,Common,283242,inferred
-SP15-EN021,Shatterfoil Rare,283243,inferred
 SP15-EN022,Common,283244,inferred
 SP15-EN022,Shatterfoil Rare,283245,inferred
 SP15-EN023,Common,283246,inferred
@@ -32973,8 +34157,6 @@ SP15-EN035,Shatterfoil Rare,283270,inferred
 SP15-EN036,Shatterfoil Rare,283272,unique
 SP15-EN037,Common,283273,inferred
 SP15-EN037,Shatterfoil Rare,283274,inferred
-SP15-EN038,Common,283275,inferred
-SP15-EN038,Shatterfoil Rare,283276,inferred
 SP15-EN039,Common,283277,inferred
 SP15-EN039,Shatterfoil Rare,283278,inferred
 SP15-EN040,Common,283279,inferred
@@ -33083,8 +34265,6 @@ SP17-EN041,Common,296140,inferred
 SP17-EN041,Starfoil Rare,296141,inferred
 SP17-EN042,Common,296143,inferred
 SP17-EN042,Starfoil Rare,296142,inferred
-SP17-EN043,Common,296144,inferred
-SP17-EN043,Starfoil Rare,296145,inferred
 SP17-EN044,Starfoil Rare,296146,unique
 SP17-EN045,Common,296147,inferred
 SP17-EN045,Starfoil Rare,296148,inferred
@@ -33838,6 +35018,7 @@ SS03-ENA18,Common,389167,unique
 SS03-ENA19,Common,389172,unique
 SS03-ENA20,Common,389177,unique
 SS03-ENA21,Common,389182,unique
+SS03-ENA22,Common,389187,inferred
 SS03-ENA23,Common,389192,unique
 SS03-ENA24,Common,389197,unique
 SS03-ENA25,Common,389202,unique
@@ -33867,6 +35048,7 @@ SS03-ENB20,Common,389317,unique
 SS03-ENB21,Common,389322,unique
 SS03-ENB22,Common,389327,unique
 SS03-ENB23,Common,389332,unique
+SS03-ENB24,Common,390072,inferred
 SS03-ENB25,Common,389337,unique
 SS03-ENB26,Common,389342,unique
 SS03-ENB27,Common,389347,unique
@@ -33891,6 +35073,7 @@ SS04-ENA14,Common,460209,unique
 SS04-ENA15,Common,460214,unique
 SS04-ENA16,Common,460219,unique
 SS04-ENA17,Common,460224,unique
+SS04-ENA18,Common,460229,inferred
 SS04-ENA19,Common,460234,unique
 SS04-ENA20,Common,460239,unique
 SS04-ENA21,Common,460244,unique
@@ -33925,6 +35108,7 @@ SS04-ENB18,Common,460384,unique
 SS04-ENB19,Common,460389,unique
 SS04-ENB20,Common,460394,unique
 SS04-ENB21,Common,460399,unique
+SS04-ENB22,Common,460404,inferred
 SS04-ENB23,Common,460409,unique
 SS04-ENB24,Common,460414,unique
 SS04-ENB25,Common,460419,unique
@@ -34016,6 +35200,7 @@ STAS-EN016,Common,750951,unique
 STAS-EN017,Common,750952,unique
 STAS-EN018,Common,750953,unique
 STAS-EN019,Common,750954,unique
+STAS-EN020,Common,750955,inferred
 STAS-EN021,Common,750956,unique
 STAS-EN022,Common,750957,unique
 STAS-EN023,Common,750958,unique
@@ -34034,6 +35219,7 @@ STAS-EN035,Common,750970,unique
 STAS-EN036,Common,750971,unique
 STAS-EN037,Common,750972,unique
 STAS-EN038,Common,750973,unique
+STAS-EN039,Common,750974,inferred
 STAS-EN040,Common,750975,unique
 STAS-EN041,Ultra Rare,750976,unique
 STAS-EN042,Ultra Rare,750977,unique
@@ -35232,8 +36418,64 @@ TOCH-EN058,Rare,465854,unique
 TOCH-EN059,Collector's Rare,472479,inferred
 TOCH-EN059,Ultra Rare,465859,inferred
 TOCH-EN060,Rare,465864,unique
+TP1-001,Ultra Rare,104506,inferred
+TP1-002,Super Rare,102049,inferred
+TP1-003,Super Rare,104175,inferred
+TP1-004,Super Rare,104953,inferred
+TP1-005,Super Rare,106375,inferred
+TP1-006,Rare,103238,inferred
+TP1-007,Rare,105756,inferred
+TP1-008,Rare,102234,inferred
+TP1-009,Rare,105119,inferred
+TP1-010,Rare,102313,inferred
+TP1-011,Rare,103805,inferred
+TP1-012,Rare,106056,inferred
+TP1-013,Rare,103657,inferred
+TP1-014,Rare,102121,inferred
+TP1-015,Rare,106299,inferred
 TP1-016,Common,583854,unique
+TP1-017,Common,103563,inferred
+TP1-018,Common,102117,inferred
+TP1-019,Common,105993,inferred
+TP1-020,Common,102542,inferred
+TP1-021,Common,106434,inferred
+TP1-022,Common,106402,inferred
+TP1-023,Common,104916,inferred
+TP1-024,Common,105497,inferred
+TP1-025,Common,103893,inferred
+TP1-026,Common,105948,inferred
+TP1-027,Common,106426,inferred
+TP1-028,Common,102659,inferred
+TP1-029,Common,102496,inferred
+TP1-E001,Ultra Rare,583839,inferred
+TP1-E002,Super Rare,583840,inferred
+TP1-E003,Super Rare,583841,inferred
+TP1-E004,Super Rare,583842,inferred
+TP1-E005,Super Rare,583843,inferred
+TP1-E006,Rare,583844,inferred
+TP1-E007,Rare,583845,inferred
+TP1-E008,Rare,583846,inferred
+TP1-E009,Rare,583847,inferred
+TP1-E010,Rare,583848,inferred
+TP1-E011,Rare,583849,inferred
+TP1-E012,Rare,583850,inferred
+TP1-E013,Rare,583851,inferred
+TP1-E014,Rare,583852,inferred
+TP1-E015,Rare,583853,inferred
 TP1-E016,Common,583854,unique
+TP1-E017,Common,583855,inferred
+TP1-E018,Common,583856,inferred
+TP1-E019,Common,583857,inferred
+TP1-E020,Common,583858,inferred
+TP1-E021,Common,583859,inferred
+TP1-E022,Common,583860,inferred
+TP1-E023,Common,583861,inferred
+TP1-E024,Common,583862,inferred
+TP1-E025,Common,583863,inferred
+TP1-E026,Common,583864,inferred
+TP1-E027,Common,583865,inferred
+TP1-E028,Common,583866,inferred
+TP1-E029,Common,583867,inferred
 TP2-001,Ultra Rare,104656,unique
 TP2-002,Super Rare,103071,unique
 TP2-003,Super Rare,103575,unique
@@ -36215,27 +37457,39 @@ YGLD-ENA18,Ultra Rare,286126,unique
 YGLD-ENA19,Ultra Rare,286127,unique
 YGLD-ENA20,Ultra Rare,286128,unique
 YGLD-ENA21,Ultra Rare,286129,unique
+YGLD-ENA22,Common,286130,inferred
+YGLD-ENA23,Common,286131,inferred
 YGLD-ENA25,Common,286133,unique
 YGLD-ENA26,Common,286134,unique
+YGLD-ENA27,Common,286135,inferred
 YGLD-ENA28,Common,286136,unique
 YGLD-ENA29,Common,286137,unique
 YGLD-ENA30,Common,286138,unique
 YGLD-ENA31,Common,286139,unique
+YGLD-ENA32,Common,286140,inferred
 YGLD-ENA33,Common,286141,unique
 YGLD-ENA34,Common,286142,unique
+YGLD-ENA35,Common,286143,inferred
 YGLD-ENA36,Common,286144,unique
+YGLD-ENA38,Common,286146,inferred
 YGLD-ENA39,Common,286148,unique
 YGLD-ENA40,Common,286147,unique
 YGLD-ENA41,Common,286149,unique
 YGLD-ENB00,Secret Rare,286233,unique
 YGLD-ENB01,Ultra Rare,286150,unique
+YGLD-ENB04,Common,286153,inferred
 YGLD-ENB05,Common,286154,unique
+YGLD-ENB06,Common,286155,inferred
+YGLD-ENB07,Common,286156,inferred
+YGLD-ENB08,Common,286157,inferred
 YGLD-ENB09,Common,286158,unique
 YGLD-ENB10,Common,286159,unique
 YGLD-ENB11,Common,286160,unique
 YGLD-ENB12,Common,286161,unique
 YGLD-ENB13,Common,286162,unique
 YGLD-ENB14,Common,286163,unique
+YGLD-ENB15,Common,286164,inferred
+YGLD-ENB16,Common,286165,inferred
 YGLD-ENB18,Common,286167,unique
 YGLD-ENB19,Common,286168,unique
 YGLD-ENB20,Common,286169,unique
@@ -36247,7 +37501,11 @@ YGLD-ENB25,Common,286174,unique
 YGLD-ENB26,Common,286175,unique
 YGLD-ENB27,Common,286176,unique
 YGLD-ENB28,Common,286177,unique
+YGLD-ENB29,Common,286178,inferred
+YGLD-ENB30,Common,286179,inferred
 YGLD-ENB31,Common,286180,unique
+YGLD-ENB32,Common,286181,inferred
+YGLD-ENB34,Common,286183,inferred
 YGLD-ENB35,Common,286184,unique
 YGLD-ENB36,Common,286185,unique
 YGLD-ENB37,Common,286186,unique
@@ -36264,7 +37522,11 @@ YGLD-ENC05,Common,286195,unique
 YGLD-ENC06,Common,286196,unique
 YGLD-ENC07,Common,286197,unique
 YGLD-ENC08,Common,286198,unique
+YGLD-ENC11,Common,286201,inferred
 YGLD-ENC12,Common,286202,unique
+YGLD-ENC13,Common,286203,inferred
+YGLD-ENC14,Common,286204,inferred
+YGLD-ENC15,Common,286205,inferred
 YGLD-ENC16,Common,286206,unique
 YGLD-ENC17,Common,286207,unique
 YGLD-ENC18,Common,286208,unique
@@ -36272,8 +37534,11 @@ YGLD-ENC19,Common,286209,unique
 YGLD-ENC20,Common,286210,unique
 YGLD-ENC21,Common,286211,unique
 YGLD-ENC22,Common,286212,unique
+YGLD-ENC23,Common,286213,inferred
+YGLD-ENC24,Common,286214,inferred
 YGLD-ENC26,Ultra Rare,286216,unique
 YGLD-ENC27,Common,286217,unique
+YGLD-ENC28,Common,286218,inferred
 YGLD-ENC29,Common,286219,unique
 YGLD-ENC30,Common,286220,unique
 YGLD-ENC31,Common,286221,unique
@@ -36392,12 +37657,14 @@ YS15-END09,Common,283137,unique
 YS15-END10,Common,283138,unique
 YS15-END11,Common,283139,unique
 YS15-END12,Common,283140,unique
+YS15-END13,Common,283120,inferred
 YS15-END14,Common,283142,unique
 YS15-END15,Common,283143,unique
 YS15-END16,Super Rare,283144,unique
 YS15-END17,Common,283145,unique
 YS15-END18,Common,283146,unique
 YS15-END19,Common,283147,unique
+YS15-END20,Common,283126,inferred
 YS15-ENY00,Ultra Rare,283107,unique
 YS15-ENY01,Common,283108,unique
 YS15-ENY02,Common,283109,unique
@@ -36411,11 +37678,13 @@ YS15-ENY09,Common,283116,unique
 YS15-ENY10,Common,283117,unique
 YS15-ENY11,Common,283118,unique
 YS15-ENY12,Super Rare,283119,unique
+YS15-ENY13,Common,283141,inferred
 YS15-ENY14,Common,283121,unique
 YS15-ENY15,Common,283122,unique
 YS15-ENY16,Common,283123,unique
 YS15-ENY17,Common,283124,unique
 YS15-ENY18,Common,283125,unique
+YS15-ENY19,Common,283148,inferred
 YS15-ENY20,Common,283127,unique
 YS16-EN001,Ultra Rare,290146,inferred
 YS16-EN002,Ultra Rare,290147,inferred
