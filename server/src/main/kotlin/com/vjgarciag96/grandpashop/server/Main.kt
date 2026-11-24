@@ -12,7 +12,6 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import org.slf4j.LoggerFactory
 import java.io.IOException
-import java.nio.file.Path
 import kotlin.io.path.Path
 
 private const val DEFAULT_PORT = 43124
@@ -27,15 +26,19 @@ fun main() {
 
     val images = CardImages(cacheDir.resolve("images"), catalogue, Ygoprodeck::smallImage)
 
-    val prices = Prices(CardmarketProducts.fromResource(), priceGuideOrNone(cacheDir))
+    val guide = priceGuideOrNone { PriceGuides.keep(cacheDir, Cardmarket::priceGuide) }
+    val prices = Prices(CardmarketProducts.fromResource(), guide)
 
     embeddedServer(Netty, host = host, port = port) { apiModule(catalogue, images, prices) }.start(wait = true)
 }
 
-/** The kept or downloaded guide, or none when Cardmarket cannot be reached: prices then answer 503, nothing crashes. */
-private fun priceGuideOrNone(cacheDir: Path): PriceGuide? =
+/**
+ * The guide [keep] gives, or none when it cannot (Cardmarket unreachable, a guide that does not read): mapped
+ * printings then answer 503 and the rest of the API serves. [keep] throws [IOException] and nothing else.
+ */
+internal fun priceGuideOrNone(keep: () -> PriceGuide): PriceGuide? =
     try {
-        PriceGuides.keep(cacheDir, Cardmarket::priceGuide)
+        keep()
     } catch (e: IOException) {
         LoggerFactory.getLogger("Main").warn("Could not load Cardmarket's price guide; prices are unavailable", e)
         null

@@ -19,7 +19,7 @@ object PriceGuides {
     /**
      * The newest kept guide by name, or else one download kept under the day Cardmarket made it.
      * A kept file that does not hold a guide is passed over for the download.
-     * Throws [IOException] when the download fails or does not hold a guide; nothing is kept then.
+     * Throws [IOException], and nothing else, when the download fails or does not hold a guide; nothing is kept then.
      */
     fun keep(
         cacheDir: Path,
@@ -55,5 +55,7 @@ object PriceGuides {
             throw IOException("Cardmarket's price guide could not be read", e)
         } catch (e: DateTimeParseException) {
             throw IOException("Cardmarket's price guide is not dated by day", e)
+        } catch (e: ArithmeticException) {
+            throw IOException("Cardmarket's price guide holds a trend too large for cents", e)
         }
 }
