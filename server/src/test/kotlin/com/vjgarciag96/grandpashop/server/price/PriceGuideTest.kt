@@ -11,7 +11,8 @@ class PriceGuideTest {
         {"version":1,"createdAt":"2026-11-23T02:46:00+0100","priceGuides":[
           {"idProduct":579386,"idCategory":5,"avg":41.2,"low":30.0,"trend":40.06,"avg-foil":null},
           {"idProduct":101788,"idCategory":5,"avg":null,"low":null,"trend":null},
-          {"idProduct":105210,"idCategory":5,"trend":0.1}
+          {"idProduct":105210,"idCategory":5,"trend":0.1},
+          {"idProduct":289403,"idCategory":5,"trend":0}
         ]}
         """.trimIndent()
 
@@ -40,6 +41,15 @@ class PriceGuideTest {
         val price = guide.trend(CardmarketProductId(1))
 
         assertNull(price, "an unlisted product is no price")
+    }
+
+    @Test
+    fun gives_a_price_of_zero_cents_for_a_trend_of_zero() {
+        val guide = PriceGuide.parse(text)
+
+        val price = guide.trend(CardmarketProductId(289403))
+
+        assertEquals(Price(0, LocalDate.of(2026, 11, 23)), price, "a zero trend is a price of 0 cents")
     }
 
     @Test
