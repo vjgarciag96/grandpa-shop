@@ -1,8 +1,6 @@
 package com.vjgarciag96.grandpashop.server.price
 
-import com.vjgarciag96.grandpashop.server.apiModule
-import com.vjgarciag96.grandpashop.server.catalogue.CardCatalogue
-import com.vjgarciag96.grandpashop.server.catalogue.CardImages
+import com.vjgarciag96.grandpashop.server.testApi
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
@@ -11,7 +9,6 @@ import io.ktor.server.testing.testApplication
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import java.nio.file.Path
 import java.time.LocalDate
 
 class PriceRouteTest {
@@ -28,10 +25,7 @@ class PriceRouteTest {
         guide: PriceGuide? = this.guide,
         block: suspend ApplicationTestBuilder.() -> Unit,
     ) = testApplication {
-        val fixture = checkNotNull(javaClass.getResource("/cardinfo.json")).readText()
-        val catalogue = CardCatalogue.fromYgoprodeckJson(fixture)
-        val noImages = CardImages(Path.of("unused"), catalogue) { error("prices never fetch an image") }
-        application { apiModule(catalogue, noImages, Prices(table, guide)) }
+        testApi(prices = Prices(table, guide))
         block()
     }
 

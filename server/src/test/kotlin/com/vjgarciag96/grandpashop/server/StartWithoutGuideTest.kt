@@ -1,7 +1,5 @@
 package com.vjgarciag96.grandpashop.server
 
-import com.vjgarciag96.grandpashop.server.catalogue.CardCatalogue
-import com.vjgarciag96.grandpashop.server.catalogue.CardImages
 import com.vjgarciag96.grandpashop.server.price.CardmarketProducts
 import com.vjgarciag96.grandpashop.server.price.Prices
 import com.vjgarciag96.grandpashop.server.price.Resolution
@@ -14,7 +12,6 @@ import io.ktor.server.testing.testApplication
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.io.IOException
-import java.nio.file.Path
 
 /** The API as `main` builds it when keeping the price guide fails at start. */
 class StartWithoutGuideTest {
@@ -22,11 +19,8 @@ class StartWithoutGuideTest {
 
     private fun withGuideThatCannotBeKept(block: suspend ApplicationTestBuilder.() -> Unit) =
         testApplication {
-            val fixture = checkNotNull(javaClass.getResource("/cardinfo.json")).readText()
-            val catalogue = CardCatalogue.fromYgoprodeckJson(fixture)
-            val noImages = CardImages(Path.of("unused"), catalogue) { error("this test never fetches an image") }
             val guide = priceGuideOrNone { throw IOException("Cardmarket's price guide could not be read") }
-            application { apiModule(catalogue, noImages, Prices(table, guide)) }
+            testApi(prices = Prices(table, guide))
             block()
         }
 

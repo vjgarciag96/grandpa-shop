@@ -1,8 +1,6 @@
 package com.vjgarciag96.grandpashop.server.catalogue
 
-import com.vjgarciag96.grandpashop.server.apiModule
-import com.vjgarciag96.grandpashop.server.price.CardmarketProducts
-import com.vjgarciag96.grandpashop.server.price.Prices
+import com.vjgarciag96.grandpashop.server.testApi
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
@@ -17,17 +15,11 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import java.nio.file.Path
 
 class CatalogueSearchRouteTest {
-    private val noPrices = Prices(CardmarketProducts(emptyList()), guide = null)
-
     private fun withFixtureCatalogue(block: suspend ApplicationTestBuilder.() -> Unit) =
         testApplication {
-            val fixture = checkNotNull(javaClass.getResource("/cardinfo.json")).readText()
-            val catalogue = CardCatalogue.fromYgoprodeckJson(fixture)
-            val noImages = CardImages(Path.of("unused"), catalogue) { error("search never fetches an image") }
-            application { apiModule(catalogue, noImages, noPrices) }
+            testApi()
             block()
         }
 
