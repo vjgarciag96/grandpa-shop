@@ -14,5 +14,7 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     setupFiles: ["src/test/setup.ts"],
+    // West of UTC, so a date formatted in the viewer's zone lands on the wrong day and a test sees it.
+    env: { TZ: "America/Los_Angeles" },
   },
 });
