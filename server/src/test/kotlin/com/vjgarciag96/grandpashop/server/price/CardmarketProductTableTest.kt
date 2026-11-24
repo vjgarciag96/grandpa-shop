@@ -208,6 +208,16 @@ class CardmarketProductTableTest {
     }
 
     @Test
+    fun leaves_a_set_unmatched_when_an_expansion_of_the_same_size_swaps_one_name_for_a_stranger() {
+        val cards = millenniumPack(names = 10)
+        val products = millenniumProducts(expansion = 1700, names = 9) + product(170010, "Stranger", expansion = 1700)
+
+        val generation = CardmarketProductTable.generate(cards, products, noTrends, noRows)
+
+        assertEquals(1 to 0, generation.coverage.setsUnmatched to generation.table.rows.size)
+    }
+
+    @Test
     fun prefers_the_expansion_that_lists_the_set_exactly_over_an_older_near_one() {
         val cards = millenniumPack(names = 10)
         val products =
