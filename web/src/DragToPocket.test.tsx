@@ -1506,7 +1506,7 @@ describe("a filed copy released with its card still on the binder", () => {
     expectCopyKept();
   });
 
-  // The card spans x 385–485 over the spine at x 420–450: 35px of its own pocket and 35px of page 3, slot 1.
+  // The card spans x 385–485 across the spine at x 432–438: 35px of its own pocket and 35px of page 3, slot 1.
   it("keeps the copy when released over the spine", async () => {
     prefersReducedMotion(true);
     const user = openSavedBinder({ 11: savedPlayedSdyDarkMagician });
