@@ -15,12 +15,16 @@ class CardmarketProductTableTest {
 
     @Test
     fun maps_a_printing_to_the_only_product_of_its_name_when_one_expansion_lists_the_set() {
-        val cards = listOf(card(1, "Jinzo", Printing("MIL1-EN008", "Millennium Pack", "Common")))
-        val products = listOf(product(289403, "Jinzo", expansion = 1700))
+        val jinzo = card(1, "Jinzo", Printing("MIL1-EN008", "Millennium Pack", "Common"))
+        val cards = listOf(jinzo) + fillers("Millennium Pack", "MIL1")
+        val products = listOf(product(289403, "Jinzo", expansion = 1700)) + fillerProducts(1700)
 
         val generation = CardmarketProductTable.generate(cards, products, noTrends, noRows)
 
-        assertEquals(listOf(row("MIL1-EN008", "Common", 289403, Resolution.Unique)), generation.table.rows)
+        assertEquals(
+            listOf(row("MIL1-EN008", "Common", 289403, Resolution.Unique)) + fillerRows("MIL1", 1700),
+            generation.table.rows,
+        )
     }
 
     @Test
@@ -33,8 +37,8 @@ class CardmarketProductTableTest {
                     Printing("SRL-029", "Spell Ruler", "Ultra Rare"),
                     Printing("SRL-EN029", "Spell Ruler", "Ultra Rare"),
                 ),
-            )
-        val products = listOf(product(579386, "Relinquished", expansion = 4416))
+            ) + fillers("Spell Ruler", "SRL")
+        val products = listOf(product(579386, "Relinquished", expansion = 4416)) + fillerProducts(4416)
 
         val generation = CardmarketProductTable.generate(cards, products, noTrends, noRows)
 
@@ -42,20 +46,20 @@ class CardmarketProductTableTest {
             listOf(
                 row("SRL-029", "Ultra Rare", 579386, Resolution.Unique),
                 row("SRL-EN029", "Ultra Rare", 579386, Resolution.Unique),
-            ),
+            ) + fillerRows("SRL", 4416),
             generation.table.rows,
         )
     }
 
     @Test
     fun pairs_set_codes_of_one_rarity_with_products_in_the_order_cardmarket_added_them() {
-        val cards = listOf(summonedSkull("MRD-003", "MRD-E003", "MRD-EN003"))
+        val cards = listOf(summonedSkull("MRD-003", "MRD-E003", "MRD-EN003")) + fillers("Metal Raiders", "MRD")
         val products =
             listOf(
                 product(579183, "Summoned Skull", expansion = 1016, added = LocalDate.of(2021, 10, 19)),
                 product(105790, "Summoned Skull", expansion = 1016, added = LocalDate.of(2007, 1, 1)),
                 product(578977, "Summoned Skull", expansion = 1016, added = LocalDate.of(2021, 10, 18)),
-            )
+            ) + fillerProducts(1016)
 
         val generation = CardmarketProductTable.generate(cards, products, noTrends, noRows)
 
@@ -64,19 +68,19 @@ class CardmarketProductTableTest {
                 row("MRD-003", "Ultra Rare", 105790, Resolution.Inferred),
                 row("MRD-E003", "Ultra Rare", 578977, Resolution.Inferred),
                 row("MRD-EN003", "Ultra Rare", 579183, Resolution.Inferred),
-            ),
+            ) + fillerRows("MRD", 1016),
             generation.table.rows,
         )
     }
 
     @Test
     fun pairs_set_codes_with_products_added_the_same_day_by_product_id() {
-        val cards = listOf(summonedSkull("MRD-003", "MRD-E003"))
+        val cards = listOf(summonedSkull("MRD-003", "MRD-E003")) + fillers("Metal Raiders", "MRD")
         val products =
             listOf(
                 product(578977, "Summoned Skull", expansion = 1016),
                 product(105790, "Summoned Skull", expansion = 1016),
-            )
+            ) + fillerProducts(1016)
 
         val generation = CardmarketProductTable.generate(cards, products, noTrends, noRows)
 
@@ -84,7 +88,7 @@ class CardmarketProductTableTest {
             listOf(
                 row("MRD-003", "Ultra Rare", 105790, Resolution.Inferred),
                 row("MRD-E003", "Ultra Rare", 578977, Resolution.Inferred),
-            ),
+            ) + fillerRows("MRD", 1016),
             generation.table.rows,
         )
     }
@@ -101,13 +105,13 @@ class CardmarketProductTableTest {
                     Printing("MRD-003", "Metal Raiders", "Common"),
                     Printing("MRD-E003", "Metal Raiders", "Common"),
                 ),
-            )
-        val products = (11L..14L).map { product(it, "Summoned Skull", expansion = 1016) }
+            ) + fillers("Metal Raiders", "MRD")
+        val products = (11L..14L).map { product(it, "Summoned Skull", expansion = 1016) } + fillerProducts(1016)
         val guide = guide(11 to 5000, 12 to 4000, 13 to 50, 14 to 40)
 
         val generation = CardmarketProductTable.generate(cards, products, guide, noRows)
 
-        assertEquals(emptyList<ProductRow>(), generation.table.rows)
+        assertEquals(fillerRows("MRD", 1016), generation.table.rows)
     }
 
     @Test
@@ -142,6 +146,31 @@ class CardmarketProductTableTest {
                 product(245197, "Machine King", expansion = 1251),
                 product(104331, "Machine King", expansion = 4449, added = LocalDate.of(2021, 1, 1)),
             )
+
+        val generation = CardmarketProductTable.generate(cards, products, noTrends, noRows)
+
+        assertEquals(emptyList<ProductRow>() to 1, generation.table.rows to generation.coverage.setsUnmatched)
+    }
+
+    @Test
+    fun leaves_a_set_of_one_name_unmatched_when_one_expansion_alone_lists_it() {
+        val printing = Printing("LDPP-EN001", "Light and Darkness Dragon Promo", "Ultra Rare")
+        val cards = listOf(card(1, "Light and Darkness Dragon", printing))
+        val products = listOf(product(253171, "Light and Darkness Dragon", expansion = 1353))
+
+        val generation = CardmarketProductTable.generate(cards, products, noTrends, noRows)
+
+        assertEquals(emptyList<ProductRow>() to 1, generation.table.rows to generation.coverage.setsUnmatched)
+    }
+
+    @Test
+    fun leaves_a_set_of_two_names_unmatched_when_one_expansion_alone_lists_it() {
+        val cards =
+            listOf(
+                card(1, "Relinquished", Printing("SRL-029", "Spell Ruler", "Ultra Rare")),
+                card(2, "Toon World", Printing("SRL-073", "Spell Ruler", "Super Rare")),
+            )
+        val products = listOf(product(579386, "Relinquished", 4416), product(579387, "Toon World", 4416))
 
         val generation = CardmarketProductTable.generate(cards, products, noTrends, noRows)
 
@@ -193,8 +222,9 @@ class CardmarketProductTableTest {
     @Test
     fun matches_names_that_differ_only_in_quoting_case_and_accents() {
         val printing = Printing("FOTB-EN001", "Force of the Breaker", "Common")
-        val cards = listOf(card(1, "\"A\" Cell Breeding Device", printing))
-        val products = listOf(product(101788, "\"\"A\"\" CELL Breeding Dévice", expansion = 1011))
+        val cards = listOf(card(1, "\"A\" Cell Breeding Device", printing)) + fillers("Force of the Breaker", "FOTB")
+        val products =
+            listOf(product(101788, "\"\"A\"\" CELL Breeding Dévice", expansion = 1011)) + fillerProducts(1011)
 
         val generation = CardmarketProductTable.generate(cards, products, noTrends, noRows)
 
@@ -211,8 +241,9 @@ class CardmarketProductTableTest {
                     Printing("PSV-000", "Pharaoh's Servant", "Secret Rare"),
                     Printing("PSV-EN000", "Pharaoh's Servant", "Common"),
                 ),
-            )
-        val products = listOf(product(11, "Jinzo", expansion = 1), product(12, "Jinzo", expansion = 1))
+            ) + fillers("Pharaoh's Servant", "PSV")
+        val products =
+            listOf(product(11, "Jinzo", expansion = 1), product(12, "Jinzo", expansion = 1)) + fillerProducts(1)
         val guide = guide(11 to 5000, 12 to 50)
 
         val generation = CardmarketProductTable.generate(cards, products, guide, noRows)
@@ -221,7 +252,7 @@ class CardmarketProductTableTest {
             listOf(
                 row("PSV-000", "Secret Rare", 11, Resolution.Inferred),
                 row("PSV-EN000", "Common", 12, Resolution.Inferred),
-            ),
+            ) + fillerRows("PSV", 1),
             generation.table.rows,
         )
     }
@@ -237,13 +268,13 @@ class CardmarketProductTableTest {
                     Printing("JUSH-EN057", "Justice Hunters", "Rare"),
                     Printing("JUSH-EN057", "Justice Hunters", "Super Rare"),
                 ),
-            )
+            ) + fillers("Justice Hunters", "JUSH")
         val products =
             listOf(
                 product(11, "Jinzo", expansion = 1),
                 product(12, "Jinzo", expansion = 1),
                 product(13, "Jinzo", expansion = 1),
-            )
+            ) + fillerProducts(1)
         val guide = guide(11 to 500, 12 to 5, 13 to 50)
 
         val generation = CardmarketProductTable.generate(cards, products, guide, noRows)
@@ -253,7 +284,7 @@ class CardmarketProductTableTest {
                 row("JUSH-EN057", "Rare", 12, Resolution.Inferred),
                 row("JUSH-EN057", "Super Rare", 13, Resolution.Inferred),
                 row("JUSH-EN057", "Ultra Rare", 11, Resolution.Inferred),
-            ),
+            ) + fillerRows("JUSH", 1),
             generation.table.rows,
         )
     }
@@ -268,13 +299,14 @@ class CardmarketProductTableTest {
                     Printing("JUSH-EN057", "Justice Hunters", "Rare"),
                     Printing("JUSH-EN057", "Justice Hunters", "Super Rare"),
                 ),
-            )
-        val products = listOf(product(837608, "Jinzo", expansion = 1), product(840049, "Jinzo", expansion = 1))
+            ) + fillers("Justice Hunters", "JUSH")
+        val products =
+            listOf(product(837608, "Jinzo", expansion = 1), product(840049, "Jinzo", expansion = 1)) + fillerProducts(1)
         val guide = guide(837608 to 18, 840049 to 18)
 
         val generation = CardmarketProductTable.generate(cards, products, guide, noRows)
 
-        assertEquals(emptyList<ProductRow>(), generation.table.rows)
+        assertEquals(fillerRows("JUSH", 1), generation.table.rows)
     }
 
     @Test
@@ -287,8 +319,9 @@ class CardmarketProductTableTest {
                     Printing("RA01-EN001", "Rarity Collection", "PLatinum Secret Rare"),
                     Printing("RA01-EN001", "Rarity Collection", "Common"),
                 ),
-            )
-        val products = listOf(product(11, "Jinzo", expansion = 1), product(12, "Jinzo", expansion = 1))
+            ) + fillers("Rarity Collection", "RA01")
+        val products =
+            listOf(product(11, "Jinzo", expansion = 1), product(12, "Jinzo", expansion = 1)) + fillerProducts(1)
         val guide = guide(11 to 5000, 12 to 50)
 
         val generation = CardmarketProductTable.generate(cards, products, guide, noRows)
@@ -307,12 +340,12 @@ class CardmarketProductTableTest {
                     Printing("PSV-000", "Pharaoh's Servant", "Secret Rare"),
                     Printing("PSV-000", "Pharaoh's Servant", "Ultra Rare"),
                 ),
-            )
-        val products = listOf(product(11, "Jinzo", expansion = 1))
+            ) + fillers("Pharaoh's Servant", "PSV")
+        val products = listOf(product(11, "Jinzo", expansion = 1)) + fillerProducts(1)
 
         val generation = CardmarketProductTable.generate(cards, products, noTrends, noRows)
 
-        assertEquals(emptyList<ProductRow>(), generation.table.rows)
+        assertEquals(fillerRows("PSV", 1), generation.table.rows)
     }
 
     @Test
@@ -326,13 +359,14 @@ class CardmarketProductTableTest {
                     Printing("PSV-000", "Pharaoh's Servant", "Ultra Rare"),
                     Printing("PSV-000", "Pharaoh's Servant", "Common"),
                 ),
-            )
-        val products = listOf(product(11, "Jinzo", expansion = 1), product(12, "Jinzo", expansion = 1))
+            ) + fillers("Pharaoh's Servant", "PSV")
+        val products =
+            listOf(product(11, "Jinzo", expansion = 1), product(12, "Jinzo", expansion = 1)) + fillerProducts(1)
         val guide = guide(11 to 5000, 12 to 50)
 
         val generation = CardmarketProductTable.generate(cards, products, guide, noRows)
 
-        assertEquals(emptyList<ProductRow>(), generation.table.rows)
+        assertEquals(fillerRows("PSV", 1), generation.table.rows)
     }
 
     @Test
@@ -345,13 +379,14 @@ class CardmarketProductTableTest {
                     Printing("PSV-000", "Pharaoh's Servant", "New"),
                     Printing("PSV-EN000", "Pharaoh's Servant", "Common"),
                 ),
-            )
-        val products = listOf(product(11, "Jinzo", expansion = 1), product(12, "Jinzo", expansion = 1))
+            ) + fillers("Pharaoh's Servant", "PSV")
+        val products =
+            listOf(product(11, "Jinzo", expansion = 1), product(12, "Jinzo", expansion = 1)) + fillerProducts(1)
         val guide = guide(11 to 5000, 12 to 50)
 
         val generation = CardmarketProductTable.generate(cards, products, guide, noRows)
 
-        assertEquals(emptyList<ProductRow>(), generation.table.rows)
+        assertEquals(fillerRows("PSV", 1), generation.table.rows)
     }
 
     @Test
@@ -364,13 +399,14 @@ class CardmarketProductTableTest {
                     Printing("PSV-000", "Pharaoh's Servant", "Secret Rare"),
                     Printing("PSV-EN000", "Pharaoh's Servant", "Common"),
                 ),
-            )
-        val products = listOf(product(11, "Jinzo", expansion = 1), product(12, "Jinzo", expansion = 1))
+            ) + fillers("Pharaoh's Servant", "PSV")
+        val products =
+            listOf(product(11, "Jinzo", expansion = 1), product(12, "Jinzo", expansion = 1)) + fillerProducts(1)
         val guide = guide(11 to 5000)
 
         val generation = CardmarketProductTable.generate(cards, products, guide, noRows)
 
-        assertEquals(emptyList<ProductRow>(), generation.table.rows)
+        assertEquals(fillerRows("PSV", 1), generation.table.rows)
     }
 
     @Test
@@ -379,23 +415,30 @@ class CardmarketProductTableTest {
             listOf(
                 card(1, "Jinzo", Printing("LOB-001", "Legend of Blue Eyes", "Common")),
                 card(2, "Kuriboh", Printing("LOB-001", "Legend of Blue Eyes", "Common")),
-            )
-        val products = listOf(product(11, "Jinzo", expansion = 1), product(12, "Kuriboh", expansion = 1))
+            ) + fillers("Legend of Blue Eyes", "LOB")
+        val products =
+            listOf(product(11, "Jinzo", expansion = 1), product(12, "Kuriboh", expansion = 1)) + fillerProducts(1)
 
         val generation = CardmarketProductTable.generate(cards, products, noTrends, noRows)
 
-        assertEquals(emptyList<ProductRow>() to 1, generation.table.rows to generation.coverage.excluded)
+        assertEquals(fillerRows("LOB", 1) to 1, generation.table.rows to generation.coverage.excluded)
     }
 
     @Test
     fun keeps_an_existing_row_over_what_it_would_decide_now() {
-        val cards = listOf(card(1, "Jinzo", Printing("MIL1-EN008", "Millennium Pack", "Common")))
-        val products = listOf(product(289403, "Jinzo", expansion = 1700), product(999, "Other", expansion = 2))
+        val jinzo = card(1, "Jinzo", Printing("MIL1-EN008", "Millennium Pack", "Common"))
+        val cards = listOf(jinzo) + fillers("Millennium Pack", "MIL1")
+        val products =
+            listOf(product(289403, "Jinzo", expansion = 1700), product(999, "Other", expansion = 2)) +
+                fillerProducts(1700)
         val existing = CardmarketProducts(listOf(row("MIL1-EN008", "Common", 999, Resolution.Unique)))
 
         val generation = CardmarketProductTable.generate(cards, products, noTrends, existing)
 
-        assertEquals(listOf(row("MIL1-EN008", "Common", 999, Resolution.Unique)), generation.table.rows)
+        assertEquals(
+            listOf(row("MIL1-EN008", "Common", 999, Resolution.Unique)) + fillerRows("MIL1", 1700),
+            generation.table.rows,
+        )
     }
 
     @Test
@@ -410,8 +453,9 @@ class CardmarketProductTableTest {
 
     @Test
     fun stops_when_a_set_code_holds_a_comma() {
-        val cards = listOf(card(1, "Jinzo", Printing("MIL1,EN008", "Millennium Pack", "Common")))
-        val products = listOf(product(289403, "Jinzo", expansion = 1700))
+        val jinzo = card(1, "Jinzo", Printing("MIL1,EN008", "Millennium Pack", "Common"))
+        val cards = listOf(jinzo) + fillers("Millennium Pack", "MIL1")
+        val products = listOf(product(289403, "Jinzo", expansion = 1700)) + fillerProducts(1700)
 
         assertThrows(IllegalArgumentException::class.java) {
             CardmarketProductTable.generate(cards, products, noTrends, noRows)
@@ -424,9 +468,9 @@ class CardmarketProductTableTest {
             listOf(
                 card(1, "Jinzo", Printing("MIL1-EN008", "Millennium Pack", "Common")),
                 card(3, "Kuriboh", Printing("SD1-EN001", "Starter Deck", "Common")),
-            ) + spellRuler()
+            ) + fillers("Millennium Pack", "MIL1") + spellRuler()
         val products =
-            listOf(product(289403, "Jinzo", expansion = 1700)) +
+            listOf(product(289403, "Jinzo", expansion = 1700)) + fillerProducts(1700) +
                 spellRulerProducts(expansion = 5341, firstId = 700001, added = LocalDate.of(2023, 3, 1)) +
                 spellRulerProducts(expansion = 4416, firstId = 579386, added = LocalDate.of(2021, 10, 18))
 
@@ -438,8 +482,8 @@ class CardmarketProductTableTest {
                 setsMatched = 2,
                 setsTied = 1,
                 setsUnmatched = 1,
-                printings = 5,
-                unique = 1,
+                printings = 7,
+                unique = 3,
                 inferred = 3,
                 excluded = 0,
                 unmapped = 1,
@@ -476,6 +520,37 @@ class CardmarketProductTableTest {
     ) = millenniumNames.take(names).mapIndexed { index, name ->
         product(expansion * 100 + index + 1, name, expansion, added)
     }
+
+    /**
+     * Sangan and Mystical Elf as Commons of [set], under codes that sort after any real one, so the set has the
+     * three names a join needs and the rows under test come first.
+     */
+    private fun fillers(
+        set: String,
+        prefix: String,
+    ) = listOf(
+        card(98, "Sangan", Printing("$prefix-Z01", set, "Common")),
+        card(99, "Mystical Elf", Printing("$prefix-Z02", set, "Common")),
+    )
+
+    /** The products of [fillers] in [expansion], with ids [expansion]901 and [expansion]902. */
+    private fun fillerProducts(
+        expansion: Long,
+        added: LocalDate = LocalDate.of(2007, 1, 1),
+    ) = listOf(
+        product(expansion * 1000 + 901, "Sangan", expansion, added),
+        product(expansion * 1000 + 902, "Mystical Elf", expansion, added),
+    )
+
+    /** The rows [fillers] get from [fillerProducts]. */
+    private fun fillerRows(
+        prefix: String,
+        expansion: Long,
+        how: Resolution = Resolution.Unique,
+    ) = listOf(
+        row("$prefix-Z01", "Common", expansion * 1000 + 901, how),
+        row("$prefix-Z02", "Common", expansion * 1000 + 902, how),
+    )
 
     /** Summoned Skull as an Ultra Rare under each of the given Metal Raiders set codes. */
     private fun summonedSkull(vararg setCodes: String) =
