@@ -82,9 +82,9 @@ class PriceRouteTest {
     @Test
     fun rejects_a_blank_set_code() =
         withPrices {
-            val status = client.get("/api/printings/price?setCode=%20&rarity=Ultra%20Rare").status
+            val response = client.get("/api/printings/price?setCode=%20%20&rarity=Ultra%20Rare")
 
-            assertEquals(HttpStatusCode.BadRequest, status)
+            assertEquals(HttpStatusCode.BadRequest to "setCode is required", response.status to response.bodyAsText())
         }
 
     @Test
@@ -98,9 +98,17 @@ class PriceRouteTest {
     @Test
     fun rejects_a_blank_rarity() =
         withPrices {
-            val status = client.get("/api/printings/price?setCode=SRL-029&rarity=").status
+            val response = client.get("/api/printings/price?setCode=SRL-029&rarity=%20%20")
 
-            assertEquals(HttpStatusCode.BadRequest, status)
+            assertEquals(HttpStatusCode.BadRequest to "rarity is required", response.status to response.bodyAsText())
+        }
+
+    @Test
+    fun rejects_an_empty_rarity() =
+        withPrices {
+            val response = client.get("/api/printings/price?setCode=SRL-029&rarity=")
+
+            assertEquals(HttpStatusCode.BadRequest to "rarity is required", response.status to response.bodyAsText())
         }
 
     @Test
