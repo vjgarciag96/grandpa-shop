@@ -10,6 +10,8 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertSame
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import java.io.IOException
 
@@ -31,6 +33,15 @@ class StartWithoutGuideTest {
 
             assertEquals(HttpStatusCode.OK, status)
         }
+
+    @Test
+    fun lets_a_failure_other_than_a_read_failure_stop_the_start() {
+        val failure = IllegalStateException("the keeper is broken")
+
+        val thrown = assertThrows(IllegalStateException::class.java) { priceGuideOrNone { throw failure } }
+
+        assertSame(failure, thrown, "only a read failure leaves the server without a guide")
+    }
 
     @Test
     fun answers_service_unavailable_for_a_mapped_printing_when_the_price_guide_could_not_be_kept() =
