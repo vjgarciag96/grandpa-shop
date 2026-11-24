@@ -368,11 +368,4 @@ class CardmarketProductTableTest {
             LocalDate.of(2026, 11, 23),
             trends.associate { (product, cents) -> CardmarketProductId(product.toLong()) to cents.toLong() },
         )
-
-    private fun row(
-        setCode: String,
-        rarity: String,
-        product: Long,
-        how: Resolution,
-    ) = ProductRow(PrintingKey(setCode, rarity), CardmarketProductId(product), how)
 }

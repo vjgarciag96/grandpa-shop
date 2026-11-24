@@ -16,7 +16,7 @@ import kotlin.io.path.writeText
  */
 fun main(args: Array<String>) {
     val cacheDir = Path(args.getOrElse(0) { ".cache" })
-    val tablePath = Path(args.getOrElse(1) { "src/main/resources/cardmarket-products.csv" })
+    val tablePath = Path(args.getOrElse(1) { "src/main/resources/${CardmarketProducts.FILE_NAME}" })
 
     val cards = YgoprodeckCards.parse(cachedText(cacheDir.resolve("cardinfo.json"), Ygoprodeck::cardInfo))
     val products =

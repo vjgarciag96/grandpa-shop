@@ -9,10 +9,11 @@ class CardmarketProductsTest {
     private val relinquished = row("SRL-029", "Ultra Rare", 579386, Resolution.Inferred)
     private val jinzo = row("MIL1-EN008", "Common", 289403, Resolution.Unique)
     private val rareJinzo = row("MIL1-EN008", "Ultra Rare", 289404, Resolution.Unique)
+    private val commonRelinquished = row("SRL-029", "Common", 579385, Resolution.Unique)
 
     @Test
     fun writes_rows_sorted_by_set_code_then_rarity_under_a_header() {
-        val table = CardmarketProducts(listOf(relinquished, rareJinzo, jinzo))
+        val table = CardmarketProducts(listOf(relinquished, rareJinzo, commonRelinquished, jinzo))
 
         val csv = table.toCsv()
 
@@ -20,6 +21,7 @@ class CardmarketProductsTest {
             "set_code,rarity,product,how\n" +
                 "MIL1-EN008,Common,289403,unique\n" +
                 "MIL1-EN008,Ultra Rare,289404,unique\n" +
+                "SRL-029,Common,579385,unique\n" +
                 "SRL-029,Ultra Rare,579386,inferred\n",
             csv,
         )
@@ -67,6 +69,27 @@ class CardmarketProductsTest {
     }
 
     @Test
+    fun refuses_a_key_that_holds_a_tab() {
+        val withTab = row("SRL-029", "Ultra\tRare", 1, Resolution.Unique)
+
+        assertThrows(IllegalArgumentException::class.java) { CardmarketProducts(listOf(withTab)) }
+    }
+
+    @Test
+    fun refuses_a_key_that_holds_a_quote() {
+        val withQuote = row("SRL-029", "\"Ultra Rare\"", 1, Resolution.Unique)
+
+        assertThrows(IllegalArgumentException::class.java) { CardmarketProducts(listOf(withQuote)) }
+    }
+
+    @Test
+    fun refuses_a_key_that_holds_a_line_break() {
+        val withLineBreak = row("SRL-029\nMIL1-EN008", "Ultra Rare", 1, Resolution.Unique)
+
+        assertThrows(IllegalArgumentException::class.java) { CardmarketProducts(listOf(withLineBreak)) }
+    }
+
+    @Test
     fun refuses_a_table_without_the_header() {
         val csv = "SRL-029,Ultra Rare,579386,inferred\n"
 
@@ -82,10 +105,21 @@ class CardmarketProductsTest {
         assertEquals("Line 2: 'relinquished' is not a product id", failure.message)
     }
 
-    private fun row(
-        setCode: String,
-        rarity: String,
-        product: Long,
-        how: Resolution,
-    ) = ProductRow(PrintingKey(setCode, rarity), CardmarketProductId(product), how)
+    @Test
+    fun refuses_a_line_with_the_wrong_number_of_fields() {
+        val csv = "set_code,rarity,product,how\nSRL-029,Ultra Rare,579386\n"
+
+        val failure = assertThrows(IllegalArgumentException::class.java) { CardmarketProducts.fromCsv(csv) }
+
+        assertEquals("Line 2 has 3 fields, not 4", failure.message)
+    }
+
+    @Test
+    fun refuses_a_line_whose_resolution_is_unknown() {
+        val csv = "set_code,rarity,product,how\nSRL-029,Ultra Rare,579386,guessed\n"
+
+        val failure = assertThrows(IllegalArgumentException::class.java) { CardmarketProducts.fromCsv(csv) }
+
+        assertEquals("Line 2: 'guessed' is not a resolution", failure.message)
+    }
 }
