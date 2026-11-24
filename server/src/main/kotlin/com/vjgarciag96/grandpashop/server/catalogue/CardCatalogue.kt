@@ -6,10 +6,9 @@ class CardCatalogue(
     private val entries = cards.map(::SearchEntry)
     private val passcodes = cards.map { it.passcode }.toSet()
     private val sets: Map<String, SetEntry> =
-        cards
-            .flatMap { card -> card.printings.map { SetPrinting(card, it) } }
-            .groupBy { it.printing.setName }
-            .mapValues { (name, printings) -> SetEntry(name, printings.sortedBy { it.printing.setCode }) }
+        cards.printingsBySet().mapValues { (name, printings) ->
+            SetEntry(name, printings.sortedBy { it.printing.setCode })
+        }
 
     fun contains(passcode: Passcode): Boolean = passcode in passcodes
 

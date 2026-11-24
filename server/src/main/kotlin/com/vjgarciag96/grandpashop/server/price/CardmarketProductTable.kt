@@ -2,9 +2,15 @@ package com.vjgarciag96.grandpashop.server.price
 
 import com.vjgarciag96.grandpashop.server.catalogue.Card
 import com.vjgarciag96.grandpashop.server.catalogue.SetPrinting
+import com.vjgarciag96.grandpashop.server.catalogue.printingsBySet
 import java.text.Normalizer
 import java.time.LocalDateTime
 
+/**
+ * What one run of the generator settled. The `sets` counts are catalogue sets; `printings` and `unmapped` count
+ * catalogue printings; `unique` and `inferred` count table rows, kept ones included, so they add up to the table
+ * and not to `printings`; `excluded` counts keys two cards reached with different products.
+ */
 data class Coverage(
     val sets: Int,
     val setsMatched: Int,
@@ -15,7 +21,15 @@ data class Coverage(
     val inferred: Int,
     val excluded: Int,
     val unmapped: Int,
-)
+) {
+    /** The counts as the generator reports them, one line per kind of thing counted. */
+    fun report(): String =
+        listOf(
+            "Sets: $sets (matched $setsMatched, of them tied $setsTied; unmatched $setsUnmatched)",
+            "Printings: $printings (unmapped $unmapped)",
+            "Rows: ${unique + inferred} (unique $unique, inferred $inferred); keys excluded: $excluded",
+        ).joinToString("\n")
+}
 
 data class Generation(
     val table: CardmarketProducts,
@@ -28,7 +42,7 @@ data class Generation(
  */
 object CardmarketProductTable {
     /** Rarities from the least to the most scarce; only the order within one card's pairing matters. */
-    val rarityRank: List<String> =
+    private val rarityRank: List<String> =
         listOf(
             "Common",
             "Short Print",
@@ -83,37 +97,60 @@ object CardmarketProductTable {
         guide: PriceGuide,
         existing: CardmarketProducts,
     ): Generation {
+        val sets = cards.printingsBySet().values
+        val matching = match(sets, products, guide)
+        val table = CardmarketProducts(existing.rows + matching.rows.filter { existing.productOf(it.key) == null })
+        requireListed(table, products)
+        return Generation(table, coverageOf(sets.flatten(), matching, table))
+    }
+
+    private class Matching(
+        val matches: List<ExpansionMatch?>,
+        val rows: List<ProductRow>,
+        val excludedKeys: Int,
+    )
+
+    /** Every set against the expansions, and every printing of a matched set against its products. */
+    private fun match(
+        sets: Collection<List<SetPrinting>>,
+        products: List<CardmarketProduct>,
+        guide: PriceGuide,
+    ): Matching {
         val expansions = expansionsOf(products)
-        val sets =
-            cards.flatMap { card -> card.printings.map { SetPrinting(card, it) } }.groupBy { it.printing.setName }
-        val matches = sets.values.map { printings -> printings to matchExpansion(printings, expansions) }
+        val matches = sets.map { printings -> matchExpansion(printings, expansions) }
         val proposed =
-            matches.flatMap { (printings, match) ->
+            sets.zip(matches).flatMap { (printings, match) ->
                 if (match == null) emptyList() else rowsOf(printings, match, guide)
             }
         val (settled, excluded) = settle(proposed)
-        val rows = existing.rows + settled.filter { existing.productOf(it.key) == null }
-        val table = CardmarketProducts(rows)
+        return Matching(matches, settled, excluded)
+    }
 
+    /** A row may only name a product Cardmarket lists, whether the run made it or kept it. */
+    private fun requireListed(
+        table: CardmarketProducts,
+        products: List<CardmarketProduct>,
+    ) {
         val known = products.map { it.id }.toSet()
         val unknown = table.rows.filter { it.product !in known }
         require(unknown.isEmpty()) { "These rows name a product Cardmarket does not list: $unknown" }
-
-        val printings = sets.values.flatten()
-        val coverage =
-            Coverage(
-                sets = sets.size,
-                setsMatched = matches.count { (_, match) -> match != null },
-                setsTied = matches.count { (_, match) -> match?.tied == true },
-                setsUnmatched = matches.count { (_, match) -> match == null },
-                printings = printings.size,
-                unique = table.rows.count { it.how == Resolution.Unique },
-                inferred = table.rows.count { it.how == Resolution.Inferred },
-                excluded = excluded,
-                unmapped = printings.count { table.productOf(it.key()) == null },
-            )
-        return Generation(table, coverage)
     }
+
+    private fun coverageOf(
+        printings: List<SetPrinting>,
+        matching: Matching,
+        table: CardmarketProducts,
+    ) = Coverage(
+        sets = matching.matches.size,
+        setsMatched = matching.matches.count { it != null },
+        setsTied = matching.matches.count { it?.tied == true },
+        setsUnmatched = matching.matches.count { it == null },
+        printings = printings.size,
+        unique = table.rows.count { it.how == Resolution.Unique },
+        inferred = table.rows.count { it.how == Resolution.Inferred },
+        excluded = matching.excludedKeys,
+        unmapped = printings.count { table.productOf(it.key()) == null },
+    )
 
     private class Expansion(
         val id: Long,
@@ -123,6 +160,7 @@ object CardmarketProductTable {
         val names: Set<String> = productsByName.keys
 
         fun isNear(setNames: Set<String>): Boolean {
+            // The size ratio bounds Jaccard from above, so this only skips the count; the Jaccard line decides.
             val smaller = minOf(names.size, setNames.size).toDouble()
             if (smaller / maxOf(names.size, setNames.size) < NEAR) return false
             val common = setNames.count { it in names }
@@ -214,15 +252,15 @@ object CardmarketProductTable {
         val agreed = byKey.values.filter { rows -> rows.distinctBy { it.product }.size == 1 }.map { it.first() }
         return agreed to byKey.size - agreed.size
     }
-
-    private fun SetPrinting.key() = PrintingKey(printing.setCode, printing.rarity)
-
-    private fun SetPrinting.row(
-        product: CardmarketProduct,
-        how: Resolution,
-    ) = ProductRow(key(), product.id, how)
-
-    // What makes Cardmarket's `""A"" Cell Breeding Device` equal YGOPRODeck's `"A" Cell Breeding Device`.
-    private fun normalise(name: String): String =
-        Normalizer.normalize(name, Normalizer.Form.NFKD).lowercase().filter { it in 'a'..'z' || it in '0'..'9' }
 }
+
+private fun SetPrinting.key() = PrintingKey(printing.setCode, printing.rarity)
+
+private fun SetPrinting.row(
+    product: CardmarketProduct,
+    how: Resolution,
+) = ProductRow(key(), product.id, how)
+
+// What makes Cardmarket's `""A"" Cell Breeding Device` equal YGOPRODeck's `"A" Cell Breeding Device`.
+private fun normalise(name: String): String =
+    Normalizer.normalize(name, Normalizer.Form.NFKD).lowercase().filter { it in 'a'..'z' || it in '0'..'9' }

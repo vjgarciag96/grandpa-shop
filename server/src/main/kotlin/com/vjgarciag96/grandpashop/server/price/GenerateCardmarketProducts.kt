@@ -9,9 +9,12 @@ import kotlin.io.path.readText
 import kotlin.io.path.writeText
 
 /**
- * Writes the product table from the kept catalogue, product list, and price guide, downloading whichever is
+ * Writes the product table from the kept catalogue, product list, and price guide, downloading only whichever is
  * not kept yet. Rows already in the table stay as they are. Run with `./gradlew :server:generateCardmarketProducts`.
  * Arguments: the cache directory and the table path.
+ *
+ * A re-run sees the same files as the last one, so to take in new sets or prices delete `cardinfo.json`,
+ * `cardmarket-products.json` and the kept `price-guide-*.json` from the cache directory first.
  */
 fun main(args: Array<String>) {
     val cacheDir = Path(args.getOrElse(0) { ".cache" })
@@ -28,10 +31,6 @@ fun main(args: Array<String>) {
     tablePath.writeText(table.toCsv())
 
     println("Guide: ${guide.createdOn}; existing rows kept: ${existing.rows.size}")
-    val sets = "matched ${coverage.setsMatched}, of them tied ${coverage.setsTied}; unmatched ${coverage.setsUnmatched}"
-    println("Sets: ${coverage.sets} ($sets)")
-    println("Printings: ${coverage.printings} (unmapped ${coverage.unmapped})")
-    val rows = "unique ${coverage.unique}, inferred ${coverage.inferred}"
-    println("Rows: ${table.rows.size} ($rows); keys excluded: ${coverage.excluded}")
+    println(coverage.report())
     println("Wrote $tablePath")
 }

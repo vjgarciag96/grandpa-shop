@@ -150,31 +150,8 @@ class CardmarketProductTableTest {
 
     @Test
     fun matches_an_expansion_whose_names_nearly_equal_the_set_when_none_equals_it() {
-        val cards =
-            listOf(
-                card(1, "Jinzo", Printing("MIL1-EN008", "Millennium Pack", "Common")),
-                card(2, "Relinquished", Printing("MIL1-EN009", "Millennium Pack", "Common")),
-                card(3, "Kuriboh", Printing("MIL1-EN010", "Millennium Pack", "Common")),
-                card(4, "Sangan", Printing("MIL1-EN011", "Millennium Pack", "Common")),
-                card(5, "Raigeki", Printing("MIL1-EN012", "Millennium Pack", "Common")),
-                card(6, "Mirror Force", Printing("MIL1-EN013", "Millennium Pack", "Common")),
-                card(7, "Dark Hole", Printing("MIL1-EN014", "Millennium Pack", "Common")),
-                card(8, "Pot of Greed", Printing("MIL1-EN015", "Millennium Pack", "Common")),
-                card(9, "Monster Reborn", Printing("MIL1-EN016", "Millennium Pack", "Common")),
-                card(10, "Exodia the Forbidden One", Printing("MIL1-EN017", "Millennium Pack", "Common")),
-            )
-        val products =
-            listOf(
-                product(1, "Jinzo", expansion = 1700),
-                product(2, "Relinquished", expansion = 1700),
-                product(3, "Kuriboh", expansion = 1700),
-                product(4, "Sangan", expansion = 1700),
-                product(5, "Raigeki", expansion = 1700),
-                product(6, "Mirror Force", expansion = 1700),
-                product(7, "Dark Hole", expansion = 1700),
-                product(8, "Pot of Greed", expansion = 1700),
-                product(9, "Monster Reborn", expansion = 1700),
-            )
+        val cards = millenniumPack(names = 10)
+        val products = millenniumProducts(expansion = 1700, names = 9)
 
         val generation = CardmarketProductTable.generate(cards, products, noTrends, noRows)
 
@@ -183,34 +160,34 @@ class CardmarketProductTableTest {
 
     @Test
     fun leaves_a_set_unmatched_when_the_nearest_expansion_shares_fewer_than_nine_names_in_ten() {
-        val cards =
-            listOf(
-                card(1, "Jinzo", Printing("MIL1-EN008", "Millennium Pack", "Common")),
-                card(2, "Relinquished", Printing("MIL1-EN009", "Millennium Pack", "Common")),
-                card(3, "Kuriboh", Printing("MIL1-EN010", "Millennium Pack", "Common")),
-                card(4, "Sangan", Printing("MIL1-EN011", "Millennium Pack", "Common")),
-                card(5, "Raigeki", Printing("MIL1-EN012", "Millennium Pack", "Common")),
-                card(6, "Mirror Force", Printing("MIL1-EN013", "Millennium Pack", "Common")),
-                card(7, "Dark Hole", Printing("MIL1-EN014", "Millennium Pack", "Common")),
-                card(8, "Pot of Greed", Printing("MIL1-EN015", "Millennium Pack", "Common")),
-                card(9, "Monster Reborn", Printing("MIL1-EN016", "Millennium Pack", "Common")),
-                card(10, "Exodia the Forbidden One", Printing("MIL1-EN017", "Millennium Pack", "Common")),
-            )
-        val products =
-            listOf(
-                product(1, "Jinzo", expansion = 1700),
-                product(2, "Relinquished", expansion = 1700),
-                product(3, "Kuriboh", expansion = 1700),
-                product(4, "Sangan", expansion = 1700),
-                product(5, "Raigeki", expansion = 1700),
-                product(6, "Mirror Force", expansion = 1700),
-                product(7, "Dark Hole", expansion = 1700),
-                product(8, "Pot of Greed", expansion = 1700),
-            )
+        val cards = millenniumPack(names = 10)
+        val products = millenniumProducts(expansion = 1700, names = 8)
 
         val generation = CardmarketProductTable.generate(cards, products, noTrends, noRows)
 
         assertEquals(1 to 0, generation.coverage.setsUnmatched to generation.table.rows.size)
+    }
+
+    @Test
+    fun leaves_a_set_unmatched_when_the_nearest_expansion_shares_eight_names_in_nine() {
+        val cards = millenniumPack(names = 9)
+        val products = millenniumProducts(expansion = 1700, names = 8)
+
+        val generation = CardmarketProductTable.generate(cards, products, noTrends, noRows)
+
+        assertEquals(1 to 0, generation.coverage.setsUnmatched to generation.table.rows.size)
+    }
+
+    @Test
+    fun prefers_the_expansion_that_lists_the_set_exactly_over_an_older_near_one() {
+        val cards = millenniumPack(names = 10)
+        val products =
+            millenniumProducts(expansion = 1700, names = 9, added = LocalDate.of(2007, 1, 1)) +
+                millenniumProducts(expansion = 1800, names = 10, added = LocalDate.of(2023, 3, 1))
+
+        val generation = CardmarketProductTable.generate(cards, products, noTrends, noRows)
+
+        assertEquals(row("MIL1-EN008", "Common", 180001, Resolution.Unique), generation.table.rows.first())
     }
 
     @Test
@@ -469,6 +446,35 @@ class CardmarketProductTableTest {
             ),
             generation.coverage,
         )
+    }
+
+    private val millenniumNames =
+        listOf(
+            "Jinzo",
+            "Relinquished",
+            "Kuriboh",
+            "Sangan",
+            "Raigeki",
+            "Mirror Force",
+            "Dark Hole",
+            "Pot of Greed",
+            "Monster Reborn",
+            "Exodia the Forbidden One",
+        )
+
+    /** The first [names] Millennium Pack cards, Commons from MIL1-EN008 on. */
+    private fun millenniumPack(names: Int) =
+        millenniumNames.take(names).mapIndexed { index, name ->
+            card(index + 1L, name, Printing("MIL1-EN%03d".format(index + 8), "Millennium Pack", "Common"))
+        }
+
+    /** Products for the first [names] Millennium Pack cards in [expansion], with ids from [expansion]01 on. */
+    private fun millenniumProducts(
+        expansion: Long,
+        names: Int,
+        added: LocalDate = LocalDate.of(2007, 1, 1),
+    ) = millenniumNames.take(names).mapIndexed { index, name ->
+        product(expansion * 100 + index + 1, name, expansion, added)
     }
 
     /** Summoned Skull as an Ultra Rare under each of the given Metal Raiders set codes. */

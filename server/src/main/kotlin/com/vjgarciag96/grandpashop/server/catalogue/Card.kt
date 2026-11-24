@@ -58,6 +58,10 @@ data class SetPrinting(
     val printing: Printing,
 )
 
+/** The printings of these cards under the name of the set each came in; what the catalogue calls a set. */
+fun List<Card>.printingsBySet(): Map<String, List<SetPrinting>> =
+    flatMap { card -> card.printings.map { SetPrinting(card, it) } }.groupBy { it.printing.setName }
+
 /** A set and its printings in set-code order. */
 data class SetContents(
     val set: CardSet,
