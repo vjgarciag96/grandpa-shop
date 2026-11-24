@@ -1,5 +1,5 @@
-import { useLayoutEffect, useRef, useState, type PointerEvent } from "react";
-import { sameSlot, type Copy, type SlotAddress } from "./binder";
+import { useLayoutEffect, useRef, useState, type PointerEvent } from 'react';
+import { sameSlot, type Copy, type SlotAddress } from './binder';
 import {
   coveredMost,
   ghostAt,
@@ -9,18 +9,14 @@ import {
   type Point,
   type Rect,
   type Size,
-} from "./pocketGeometry";
-import {
-  binderOnScreen,
-  pocketSizeOnScreen,
-  pocketsOnScreen,
-} from "./pocketsOnPage";
-import type { Card, Printing } from "./catalogue";
-import { DRAG_START_PX, DROP_MIN_COVER_SHARE } from "./tokens";
+} from './pocketGeometry';
+import { binderOnScreen, pocketSizeOnScreen, pocketsOnScreen } from './pocketsOnPage';
+import type { Card, Printing } from './catalogue';
+import { DRAG_START_PX, DROP_MIN_COVER_SHARE } from './tokens';
 
 export type DragOrigin =
-  | { kind: "printing"; card: Card; printing: Printing }
-  | { kind: "copy"; from: SlotAddress; copy: Copy };
+  | { kind: 'printing'; card: Card; printing: Printing }
+  | { kind: 'copy'; from: SlotAddress; copy: Copy };
 
 /**
  * What a release would do: place a printing in a pocket, move a filed copy to another pocket,
@@ -28,19 +24,19 @@ export type DragOrigin =
  */
 export type Drop =
   | {
-      readonly kind: "place";
+      readonly kind: 'place';
       readonly card: Card;
       readonly printing: Printing;
       readonly to: SlotAddress;
     }
   | {
-      readonly kind: "move";
+      readonly kind: 'move';
       readonly from: SlotAddress;
       readonly copy: Copy;
       readonly to: SlotAddress;
     }
   | {
-      readonly kind: "remove";
+      readonly kind: 'remove';
       readonly from: SlotAddress;
       readonly copy: Copy;
     };
@@ -60,7 +56,7 @@ type Press = {
   pointerType: string;
   startX: number;
   startY: number;
-  phase: "pressed" | "dragging" | "canceled";
+  phase: 'pressed' | 'dragging' | 'canceled';
   source: Element;
   /** Where the press landed in the pressed pocket or row, as a fraction of its size. */
   grab: Point;
@@ -80,10 +76,7 @@ type Press = {
  * A filed copy whose card touches no part of the binder is off the binder instead.
  * Pass a memoized `allowed`: each new object rechecks the active press and rebinds the listeners.
  */
-export function useDragToPocket(
-  allowed: Allowed,
-  onDrop: (drop: Drop) => void,
-) {
+export function useDragToPocket(allowed: Allowed, onDrop: (drop: Drop) => void) {
   const [drag, setDrag] = useState<Drag | null>(null);
   const press = useRef<Press | null>(null);
   const escapeCanceledCopyDrag = useRef(false);
@@ -96,7 +89,7 @@ export function useDragToPocket(
   useLayoutEffect(() => {
     const cancel = () => {
       if (press.current) {
-        press.current.phase = "canceled";
+        press.current.phase = 'canceled';
         setDrag(null);
       }
     };
@@ -104,7 +97,7 @@ export function useDragToPocket(
     if (
       active &&
       (!mayDrag(active.origin, allowed) ||
-        (active.origin.kind === "copy" && active.spread !== allowed.spread))
+        (active.origin.kind === 'copy' && active.spread !== allowed.spread))
     ) {
       cancel();
     } else if (active && active.spread !== allowed.spread) {
@@ -128,17 +121,14 @@ export function useDragToPocket(
     const onMove = (event: globalThis.PointerEvent) => {
       const current = press.current;
       if (!current || current.pointerId !== event.pointerId) return;
-      if (current.phase === "canceled") return;
+      if (current.phase === 'canceled') return;
       if ((event.buttons & 1) === 0) {
         cancel();
         return;
       }
-      const moved = Math.hypot(
-        event.clientX - current.startX,
-        event.clientY - current.startY,
-      );
-      if (current.phase === "pressed" && moved < DRAG_START_PX) return;
-      current.phase = "dragging";
+      const moved = Math.hypot(event.clientX - current.startX, event.clientY - current.startY);
+      if (current.phase === 'pressed' && moved < DRAG_START_PX) return;
+      current.phase = 'dragging';
       current.armed = true;
       current.pointer = { x: event.clientX, y: event.clientY };
       follow(current);
@@ -146,13 +136,13 @@ export function useDragToPocket(
     // A scroll or a resize moves the pockets under a still pointer.
     const onLayout = () => {
       const current = press.current;
-      if (current?.phase === "dragging") follow(current);
+      if (current?.phase === 'dragging') follow(current);
     };
     const onUp = (event: globalThis.PointerEvent) => {
       const current = press.current;
       if (!current || current.pointerId !== event.pointerId) return;
-      if (current.phase !== "pressed") swallowSourceClick(current.source);
-      if (current.phase === "dragging" && event.button === 0) {
+      if (current.phase !== 'pressed') swallowSourceClick(current.source);
+      if (current.phase === 'dragging' && event.button === 0) {
         current.pointer = { x: event.clientX, y: event.clientY };
         sizeGhost(current);
         const { drop } = hold(current);
@@ -166,40 +156,38 @@ export function useDragToPocket(
       if (press.current?.pointerId === event.pointerId) end();
     };
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return;
+      if (event.key !== 'Escape') return;
       // Escape repeats still belong to the same press after the pointer is released.
       if (!event.repeat) escapeCanceledCopyDrag.current = false;
-      if (press.current?.phase === "dragging") {
-        if (press.current.origin.kind === "copy") {
+      if (press.current?.phase === 'dragging') {
+        if (press.current.origin.kind === 'copy') {
           escapeCanceledCopyDrag.current = true;
         }
         cancel();
       }
       if (escapeCanceledCopyDrag.current) event.stopPropagation();
     };
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
-    window.addEventListener("pointercancel", onCancel);
-    window.addEventListener("keydown", onKeyDown, true);
-    window.addEventListener("scroll", onLayout, true);
-    window.addEventListener("resize", onLayout);
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onCancel);
+    window.addEventListener('keydown', onKeyDown, true);
+    window.addEventListener('scroll', onLayout, true);
+    window.addEventListener('resize', onLayout);
     return () => {
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
-      window.removeEventListener("pointercancel", onCancel);
-      window.removeEventListener("keydown", onKeyDown, true);
-      window.removeEventListener("scroll", onLayout, true);
-      window.removeEventListener("resize", onLayout);
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onCancel);
+      window.removeEventListener('keydown', onKeyDown, true);
+      window.removeEventListener('scroll', onLayout, true);
+      window.removeEventListener('resize', onLayout);
     };
   }, [allowed]);
 
   const start = (origin: DragOrigin, event: PointerEvent): boolean => {
     if (event.button !== 0 || !event.isPrimary) return false;
-    if (press.current && press.current.pointerId !== event.pointerId)
-      return false;
+    if (press.current && press.current.pointerId !== event.pointerId) return false;
     if (!mayDrag(origin, allowed)) return false;
-    if (origin.kind === "copy" && !["mouse", "pen"].includes(event.pointerType))
-      return false;
+    if (origin.kind === 'copy' && !['mouse', 'pen'].includes(event.pointerType)) return false;
     press.current = {
       origin,
       spread: allowed.spread,
@@ -207,7 +195,7 @@ export function useDragToPocket(
       pointerType: event.pointerType,
       startX: event.clientX,
       startY: event.clientY,
-      phase: "pressed",
+      phase: 'pressed',
       source: event.currentTarget,
       grab: grabFraction(
         { x: event.clientX, y: event.clientY },
@@ -240,10 +228,10 @@ function hold(press: Press): { ghost: Rect | null; drop: Drop | null } {
   const ghost = press.size && ghostAt(press.pointer, press.grab, press.size);
   if (!ghost) return { ghost, drop: null };
   const { origin } = press;
-  if (origin.kind === "copy" && isOffBinder(ghost)) {
+  if (origin.kind === 'copy' && isOffBinder(ghost)) {
     return {
       ghost,
-      drop: { kind: "remove", from: origin.from, copy: origin.copy },
+      drop: { kind: 'remove', from: origin.from, copy: origin.copy },
     };
   }
   const covered = coveredMost(ghost, pocketsOnScreen(), DROP_MIN_COVER_SHARE);
@@ -253,9 +241,9 @@ function hold(press: Press): { ghost: Rect | null; drop: Drop | null } {
 
 /** Dropping [origin] into the pocket at [to]: a printing is placed, a copy moved. */
 function dropInto(origin: DragOrigin, to: SlotAddress): Drop {
-  return origin.kind === "printing"
-    ? { kind: "place", card: origin.card, printing: origin.printing, to }
-    : { kind: "move", from: origin.from, copy: origin.copy, to };
+  return origin.kind === 'printing'
+    ? { kind: 'place', card: origin.card, printing: origin.printing, to }
+    : { kind: 'move', from: origin.from, copy: origin.copy, to };
 }
 
 /** Whether [ghost] touches no part of the open pages or the spine you can see. */
@@ -265,7 +253,7 @@ function isOffBinder(ghost: Rect): boolean {
 
 /** Whether two drops of the same press do the same: a removal, or a drop into the same pocket. */
 function sameDrop(a: Drop, b: Drop): boolean {
-  if (a.kind === "remove" || b.kind === "remove") return a.kind === b.kind;
+  if (a.kind === 'remove' || b.kind === 'remove') return a.kind === b.kind;
   return sameSlot(a.to, b.to);
 }
 
@@ -277,26 +265,26 @@ function dropAddress(
   { origin, pointerType }: Press,
   { address, filled }: Pocket,
 ): SlotAddress | null {
-  if (origin.kind === "printing") {
-    return filled && pointerType === "touch" ? null : address;
+  if (origin.kind === 'printing') {
+    return filled && pointerType === 'touch' ? null : address;
   }
   return sameSlot(address, origin.from) ? null : address;
 }
 
 /** Whether this kind of origin may be dragged now. */
 function mayDrag(origin: DragOrigin, allowed: Allowed): boolean {
-  return origin.kind === "copy" ? allowed.canMoveCopy : allowed.canDragPrinting;
+  return origin.kind === 'copy' ? allowed.canMoveCopy : allowed.canDragPrinting;
 }
 
 // A release can produce a click on the drag source, even after Escape.
 function swallowSourceClick(source: Element) {
-  const cleanup = () => window.removeEventListener("click", swallow, true);
+  const cleanup = () => window.removeEventListener('click', swallow, true);
   const swallow = (event: MouseEvent) => {
     if (event.detail === 0 || !event.composedPath().includes(source)) return;
     cleanup();
     event.stopPropagation();
     event.preventDefault();
   };
-  window.addEventListener("click", swallow, true);
+  window.addEventListener('click', swallow, true);
   window.setTimeout(cleanup, 0);
 }

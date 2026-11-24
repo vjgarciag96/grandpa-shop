@@ -1,6 +1,6 @@
-import { pocketLabel, text } from "./strings";
-import { useRef, type PointerEvent } from "react";
-import { isTarget, type Aim } from "./aim";
+import { pocketLabel, text } from './strings';
+import { useRef, type PointerEvent } from 'react';
+import { isTarget, type Aim } from './aim';
 import {
   pageSlots,
   sameSlot,
@@ -8,18 +8,14 @@ import {
   type Binder,
   type Copy,
   type SlotAddress,
-} from "./binder";
-import { binderMarker, pocketMarker } from "./pocketsOnPage";
-import type { Catalogue } from "./catalogue";
-import { SWIPE_THRESHOLD_PX } from "./tokens";
-import type { Turn } from "./useSpreadTurns";
+} from './binder';
+import { binderMarker, pocketMarker } from './pocketsOnPage';
+import type { Catalogue } from './catalogue';
+import { SWIPE_THRESHOLD_PX } from './tokens';
+import type { Turn } from './useSpreadTurns';
 
 type OpenSlot = (address: SlotAddress, button: HTMLButtonElement) => void;
-type PressCopy = (
-  from: SlotAddress,
-  copy: Copy,
-  event: PointerEvent,
-) => boolean;
+type PressCopy = (from: SlotAddress, copy: Copy, event: PointerEvent) => boolean;
 
 type Props = {
   binder: Binder;
@@ -35,7 +31,7 @@ type Props = {
   catalogue: Catalogue;
   onSlot: OpenSlot;
   onCopyPress: PressCopy;
-  onSwipe: (direction: Turn["direction"]) => void;
+  onSwipe: (direction: Turn['direction']) => void;
 };
 
 export function BinderSpread({
@@ -54,8 +50,8 @@ export function BinderSpread({
 }: Props) {
   const arriving = spreadPages(spread);
   const leaving = turn ? spreadPages(turn.from) : arriving;
-  const left = turn?.direction === "forward" ? leaving.left : arriving.left;
-  const right = turn?.direction === "back" ? leaving.right : arriving.right;
+  const left = turn?.direction === 'forward' ? leaving.left : arriving.left;
+  const right = turn?.direction === 'back' ? leaving.right : arriving.right;
   const swipeStart = useRef<{ id: number; x: number; y: number } | null>(null);
   const suppressPointerClick = useRef(false);
   const sides = {
@@ -75,7 +71,7 @@ export function BinderSpread({
 
   return (
     <div
-      className={stacked ? "spread spread--stacked" : "spread"}
+      className={stacked ? 'spread spread--stacked' : 'spread'}
       data-testid="spread"
       onPointerDownCapture={(event) => {
         if (event.button === 0 && event.isPrimary !== false) {
@@ -100,7 +96,7 @@ export function BinderSpread({
         const dy = event.clientY - start.y;
         if (Math.abs(dx) >= SWIPE_THRESHOLD_PX && Math.abs(dx) > Math.abs(dy)) {
           suppressPointerClick.current = true;
-          onSwipe(dx < 0 ? "forward" : "back");
+          onSwipe(dx < 0 ? 'forward' : 'back');
         }
       }}
       onClickCapture={(event) => {
@@ -134,18 +130,14 @@ function TurningPage({
   arriving,
   ...sides
 }: {
-  direction: Turn["direction"];
+  direction: Turn['direction'];
   leaving: ReturnType<typeof spreadPages>;
   arriving: ReturnType<typeof spreadPages>;
-} & Omit<SideProps, "page" | "side">) {
-  const [frontSide, backSide]: ["left" | "right", "left" | "right"] =
-    direction === "forward" ? ["right", "left"] : ["left", "right"];
+} & Omit<SideProps, 'page' | 'side'>) {
+  const [frontSide, backSide]: ['left' | 'right', 'left' | 'right'] =
+    direction === 'forward' ? ['right', 'left'] : ['left', 'right'];
   return (
-    <div
-      className={`page-turn page-turn--${direction}`}
-      aria-hidden="true"
-      inert
-    >
+    <div className={`page-turn page-turn--${direction}`} aria-hidden="true" inert>
       <div className="page-turn__face">
         <PageSide page={leaving[frontSide]} side={frontSide} {...sides} />
       </div>
@@ -158,7 +150,7 @@ function TurningPage({
 
 type SideProps = {
   page: number | null;
-  side: "left" | "right";
+  side: 'left' | 'right';
   binder: Binder;
   aim: Aim | null;
   dropTarget: SlotAddress | null;
@@ -198,20 +190,18 @@ function PageSide({
           const address = { page, position };
           const dropping = dropTarget !== null && sameSlot(dropTarget, address);
           const shownCopy =
-            pocketBeingEmptied !== null && sameSlot(pocketBeingEmptied, address)
-              ? null
-              : copy;
+            pocketBeingEmptied !== null && sameSlot(pocketBeingEmptied, address) ? null : copy;
           const aimed =
             isTarget(aim, address) ||
-            ((movingCopy || aim?.kind === "holding") && !copy) ||
+            ((movingCopy || aim?.kind === 'holding') && !copy) ||
             (dropping && copy !== null);
           const className = [
-            shownCopy ? "slot slot--filled" : "slot slot--empty",
-            aimed && "slot--aimed",
-            dropping && !copy && "slot--drop",
+            shownCopy ? 'slot slot--filled' : 'slot slot--empty',
+            aimed && 'slot--aimed',
+            dropping && !copy && 'slot--drop',
           ]
             .filter(Boolean)
-            .join(" ");
+            .join(' ');
           return (
             <button
               key={position}

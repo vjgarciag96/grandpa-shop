@@ -2,7 +2,7 @@
 export type Card = {
   readonly passcode: number;
   readonly name: string;
-  readonly kind: "Monster" | "Spell" | "Trap";
+  readonly kind: 'Monster' | 'Spell' | 'Trap';
   readonly type: string;
   readonly text: string;
   readonly monster?: MonsterStats;
@@ -50,7 +50,7 @@ export interface Catalogue {
   setPrintings(name: string, signal?: AbortSignal): Promise<SetPrinting[]>;
   /** The printing's price, or null when the server has none for it today or has no guide at all. */
   price(
-    printing: Pick<Printing, "setCode" | "rarity">,
+    printing: Pick<Printing, 'setCode' | 'rarity'>,
     signal?: AbortSignal,
   ): Promise<Price | null>;
   imageUrl(passcode: number): string;

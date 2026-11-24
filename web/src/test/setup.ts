@@ -1,8 +1,8 @@
-import { cleanup } from "@testing-library/react";
-import { afterEach, vi } from "vitest";
+import { cleanup } from '@testing-library/react';
+import { afterEach, vi } from 'vitest';
 
 afterEach(() => {
   cleanup();
-  if (typeof window !== "undefined") window.localStorage.clear();
+  if (typeof window !== 'undefined') window.localStorage.clear();
   vi.restoreAllMocks();
 });

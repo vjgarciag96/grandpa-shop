@@ -1,5 +1,5 @@
-import { fireEvent } from "@testing-library/react";
-import { centreOf } from "./layout";
+import { fireEvent } from '@testing-library/react';
+import { centreOf } from './layout';
 
 // These drive a drag on the boxes `stubLayout` lays out, so a test using them stubs the layout first.
 
@@ -7,12 +7,7 @@ import { centreOf } from "./layout";
 export const awayFromBinder = { x: 800, y: 700 } as const;
 
 /** Presses the primary button on [element] at (x, y). */
-export function pressAt(
-  element: Element,
-  x: number,
-  y: number,
-  pointerType = "mouse",
-) {
+export function pressAt(element: Element, x: number, y: number, pointerType = 'mouse') {
   fireEvent.pointerDown(element, {
     pointerType,
     pointerId: 1,
@@ -25,7 +20,7 @@ export function pressAt(
 }
 
 /** Presses the primary button on a catalogue printing row at the centre of its box, so the card is held by its centre. */
-export function press(row: Element, pointerType = "mouse") {
+export function press(row: Element, pointerType = 'mouse') {
   const { x, y } = centreOf(row);
   pressAt(row, x, y, pointerType);
 }
@@ -94,11 +89,7 @@ export function dragPrintingWithMouse(row: Element, destination: Element) {
 }
 
 /** Presses a filed copy at its centre and drags it onto the centre of `target`, or away from the binder for null. */
-export function dragCopy(
-  source: HTMLElement,
-  target: Element | null,
-  pointerType = "mouse",
-) {
+export function dragCopy(source: HTMLElement, target: Element | null, pointerType = 'mouse') {
   const from = centreOf(source);
   pressAt(source, from.x, from.y, pointerType);
   if (target) moveOnto(target);

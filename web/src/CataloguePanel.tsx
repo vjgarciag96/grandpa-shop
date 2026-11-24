@@ -1,25 +1,14 @@
-import { catalogueHeading, text } from "./strings";
-import {
-  useId,
-  useLayoutEffect,
-  useRef,
-  useState,
-  type PointerEvent,
-} from "react";
-import type { Aim } from "./aim";
-import type { Copy } from "./binder";
-import {
-  MIN_QUERY_LENGTH,
-  type Card,
-  type Catalogue,
-  type Printing,
-} from "./catalogue";
-import type { Announcement } from "./announcement";
-import { LiveRegion } from "./LiveRegion";
-import { CatalogueResults, type Opened } from "./CatalogueResults";
-import { PrintingList, SetPrintingList } from "./CataloguePrintings";
-import { SearchIcon } from "./CatalogueStatus";
-import { useCatalogueSearch } from "./useCatalogueSearch";
+import { catalogueHeading, text } from './strings';
+import { useId, useLayoutEffect, useRef, useState, type PointerEvent } from 'react';
+import type { Aim } from './aim';
+import type { Copy } from './binder';
+import { MIN_QUERY_LENGTH, type Card, type Catalogue, type Printing } from './catalogue';
+import type { Announcement } from './announcement';
+import { LiveRegion } from './LiveRegion';
+import { CatalogueResults, type Opened } from './CatalogueResults';
+import { PrintingList, SetPrintingList } from './CataloguePrintings';
+import { SearchIcon } from './CatalogueStatus';
+import { useCatalogueSearch } from './useCatalogueSearch';
 
 type Props = {
   catalogue: Catalogue;
@@ -32,11 +21,7 @@ type Props = {
   /** Each new value moves focus into the panel: to the search, or back to results when a card is open. */
   focusRequest: number;
   /** Tracks a printing press when dragging is available. */
-  onPrintingPress?: (
-    card: Card,
-    printing: Printing,
-    event: PointerEvent,
-  ) => void;
+  onPrintingPress?: (card: Card, printing: Printing, event: PointerEvent) => void;
   onChoose: (card: Card, printing: Printing) => void;
   onClose: () => void;
 };
@@ -54,7 +39,7 @@ export function CataloguePanel({
   onChoose,
   onClose,
 }: Props) {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
   const [opened, setOpened] = useState<Opened | null>(null);
   const results = useRef<HTMLDivElement>(null);
   const searchInput = useRef<HTMLInputElement>(null);
@@ -93,9 +78,7 @@ export function CataloguePanel({
 
   return (
     <aside
-      className={
-        beside ? "catalogue catalogue--beside" : "catalogue catalogue--sheet"
-      }
+      className={beside ? 'catalogue catalogue--beside' : 'catalogue catalogue--sheet'}
       aria-label={text.catalogue.name}
       inert={inert}
     >
@@ -113,11 +96,8 @@ export function CataloguePanel({
           <span className="close-icon" aria-hidden="true" />
         </button>
       </header>
-      <LiveRegion
-        className="catalogue__announcement"
-        announcement={announcement}
-      />
-      {opened?.kind === "card" && (
+      <LiveRegion className="catalogue__announcement" announcement={announcement} />
+      {opened?.kind === 'card' && (
         <PrintingList
           card={opened.card}
           catalogue={catalogue}
@@ -129,7 +109,7 @@ export function CataloguePanel({
           onChoose={onChoose}
         />
       )}
-      {opened?.kind === "set" && (
+      {opened?.kind === 'set' && (
         <SetPrintingList
           set={opened.set}
           catalogue={catalogue}
@@ -160,7 +140,7 @@ export function CataloguePanel({
                   className="control control--icon"
                   aria-label={text.catalogue.clear}
                   onClick={() => {
-                    updateQuery("");
+                    updateQuery('');
                     searchInput.current?.focus();
                   }}
                 >

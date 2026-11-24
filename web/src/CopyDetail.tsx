@@ -1,9 +1,9 @@
-import { priceLine, statsLine, text } from "./strings";
-import { useMemo } from "react";
-import { CONDITIONS, type Condition, type Copy } from "./binder";
-import type { Catalogue, Price, Printing } from "./catalogue";
-import { Dialog } from "./Dialog";
-import { useCatalogueRequest } from "./useCatalogueRequest";
+import { priceLine, statsLine, text } from './strings';
+import { useMemo } from 'react';
+import { CONDITIONS, type Condition, type Copy } from './binder';
+import type { Catalogue, Price, Printing } from './catalogue';
+import { Dialog } from './Dialog';
+import { useCatalogueRequest } from './useCatalogueRequest';
 
 type Props = {
   copy: Copy;
@@ -30,17 +30,11 @@ export function CopyDetail({
   return (
     <Dialog title={title} onClose={onClose}>
       <div className="detail">
-        <img
-          className="detail__image"
-          src={catalogue.imageUrl(card.passcode)}
-          alt={card.name}
-        />
+        <img className="detail__image" src={catalogue.imageUrl(card.passcode)} alt={card.name} />
         <div className="detail__identity">
           <h3>{card.name}</h3>
           <p className="detail__type">{card.type}</p>
-          {card.monster && (
-            <p className="detail__stats">{statsLine(card.monster)}</p>
-          )}
+          {card.monster && <p className="detail__stats">{statsLine(card.monster)}</p>}
         </div>
         <div className="detail__content">
           <ul className="detail__printing" aria-label={text.detail.printing}>
@@ -66,18 +60,10 @@ export function CopyDetail({
           <p className="detail__text">{card.text}</p>
         </div>
         <div className="detail__actions">
-          <button
-            type="button"
-            className="control control--tonal"
-            onClick={onReplace}
-          >
+          <button type="button" className="control control--tonal" onClick={onReplace}>
             {text.detail.replace}
           </button>
-          <button
-            type="button"
-            className="control control--danger"
-            onClick={onRemove}
-          >
+          <button type="button" className="control control--danger" onClick={onRemove}>
             {text.detail.remove}
           </button>
         </div>
@@ -86,7 +72,7 @@ export function CopyDetail({
   );
 }
 
-type PrintingKey = Pick<Printing, "setCode" | "rarity">;
+type PrintingKey = Pick<Printing, 'setCode' | 'rarity'>;
 
 function loadPrice(
   catalogue: Catalogue,
@@ -102,10 +88,5 @@ function loadPrice(
 
 function usePrice(catalogue: Catalogue, { setCode, rarity }: Printing) {
   const key = useMemo(() => ({ setCode, rarity }), [setCode, rarity]);
-  return useCatalogueRequest<PrintingKey, Price | null>(
-    catalogue,
-    key,
-    loadPrice,
-    null,
-  ).result;
+  return useCatalogueRequest<PrintingKey, Price | null>(catalogue, key, loadPrice, null).result;
 }

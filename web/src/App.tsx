@@ -1,17 +1,10 @@
-import { pagesLabel, slotName, text } from "./strings";
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { chooseSlot, choosePrinting, type Aim } from "./aim";
-import { BinderSpread } from "./BinderSpread";
-import { CataloguePanel } from "./CataloguePanel";
-import { CopyDetail } from "./CopyDetail";
-import { loadBinder, saveBinder } from "./savedBinder";
+import { pagesLabel, slotName, text } from './strings';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { chooseSlot, choosePrinting, type Aim } from './aim';
+import { BinderSpread } from './BinderSpread';
+import { CataloguePanel } from './CataloguePanel';
+import { CopyDetail } from './CopyDetail';
+import { loadBinder, saveBinder } from './savedBinder';
 import {
   changeCondition,
   remove,
@@ -19,20 +12,21 @@ import {
   spreadPages,
   type Copy,
   type SlotAddress,
-} from "./binder";
-import type { Card, Catalogue, Printing } from "./catalogue";
-import { announced, silenced } from "./announcement";
-import { LiveRegion } from "./LiveRegion";
-import { PANEL_BESIDE_FROM_PX, STACK_BELOW_PX } from "./tokens";
-import { useMediaQuery } from "./useMediaQuery";
-import { useDragToPocket } from "./useDragToPocket";
-import { useSpreadTurns } from "./useSpreadTurns";
+} from './binder';
+import type { Card, Catalogue, Printing } from './catalogue';
+import { announced, silenced } from './announcement';
+import { LiveRegion } from './LiveRegion';
+import { PANEL_BESIDE_FROM_PX, STACK_BELOW_PX } from './tokens';
+import { useMediaQuery } from './useMediaQuery';
+import { useDragToPocket } from './useDragToPocket';
+import { useSpreadTurns } from './useSpreadTurns';
 
-import { binderState, moveAt, placeAt, removeAt } from "./binderState";
+import { binderState, moveAt, placeAt, removeAt } from './binderState';
 
 export default function App({ catalogue }: { catalogue: Catalogue }) {
-  const [{ binder, aim, moveAnnouncement, announcement }, setBinderState] =
-    useState(() => binderState(loadBinder()));
+  const [{ binder, aim, moveAnnouncement, announcement }, setBinderState] = useState(() =>
+    binderState(loadBinder()),
+  );
   const [detail, setDetail] = useState<SlotAddress | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
   const [panelFocus, setPanelFocus] = useState(0);
@@ -47,12 +41,10 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
     }
   }, [detail]);
 
-  const reducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
+  const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
   const stacked = useMediaQuery(`(width < ${STACK_BELOW_PX}px)`);
   const beside = useMediaQuery(`(width >= ${PANEL_BESIDE_FROM_PX}px)`);
-  const { spread, turn, go, canGoBack, canGoForward } = useSpreadTurns(
-    reducedMotion || stacked,
-  );
+  const { spread, turn, go, canGoBack, canGoForward } = useSpreadTurns(reducedMotion || stacked);
   const { left, right } = spreadPages(spread);
 
   useEffect(() => saveBinder(binder), [binder]);
@@ -74,16 +66,16 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
   useEffect(() => {
     if (detail) return;
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
+      if (event.key === 'Escape') {
         setAim(null);
         silenceCatalogue();
       }
       if (isTextField(event.target)) return;
-      if (event.key === "ArrowRight") go("forward");
-      if (event.key === "ArrowLeft") go("back");
+      if (event.key === 'ArrowRight') go('forward');
+      if (event.key === 'ArrowLeft') go('back');
     };
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
   }, [detail, go, setAim, silenceCatalogue]);
 
   const announce = (text: string) =>
@@ -132,50 +124,45 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
   );
   const { drag, start: startDrag } = useDragToPocket(allowedDrags, (drop) => {
     switch (drop.kind) {
-      case "place":
+      case 'place':
         return fileCopy(drop.to, drop.card, drop.printing);
-      case "move":
+      case 'move':
         return moveVisibleCopy(drop.to, drop.from, drop.copy);
-      case "remove":
+      case 'remove':
         return removeVisibleCopy(drop.from, drop.copy);
     }
   });
   const origin = drag?.origin;
   /** The pocket of a copy whose card is off the binder, which a release now would empty. */
-  const pocketBeingEmptied =
-    drag?.drop?.kind === "remove" ? drag.drop.from : null;
+  const pocketBeingEmptied = drag?.drop?.kind === 'remove' ? drag.drop.from : null;
   const shownAim: Aim | null =
-    origin?.kind === "printing"
-      ? { kind: "holding", card: origin.card, printing: origin.printing }
+    origin?.kind === 'printing'
+      ? { kind: 'holding', card: origin.card, printing: origin.printing }
       : aim;
 
   const onSlot = (address: SlotAddress, button: HTMLButtonElement) => {
     const choice = chooseSlot(aim, slotAt(binder, address) !== null);
     switch (choice.kind) {
-      case "place":
+      case 'place':
         return fileCopy(address, choice.card, choice.printing);
-      case "refuse":
+      case 'refuse':
         return announce(text.binder.filledPocket(address));
-      case "open-detail":
+      case 'open-detail':
         opener.current = button;
         return setDetail(address);
-      case "target":
-        return openPanel({ kind: "target", address });
+      case 'target':
+        return openPanel({ kind: 'target', address });
     }
   };
 
   const onPrinting = (card: Card, printing: Printing) => {
     const choice = choosePrinting(aim, card, printing);
-    if (choice.kind === "place") fileCopy(choice.address, card, printing);
+    if (choice.kind === 'place') fileCopy(choice.address, card, printing);
     else setAim(choice.aim);
   };
 
   const copy = detail && slotAt(binder, detail);
-  const deskLayout = panelOpen
-    ? beside
-      ? " desk--beside"
-      : " desk--sheet"
-    : "";
+  const deskLayout = panelOpen ? (beside ? ' desk--beside' : ' desk--sheet') : '';
 
   return (
     <main className={`desk${deskLayout}`}>
@@ -203,7 +190,7 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
                 className="control control--icon control--tonal"
                 aria-label={text.binder.previousSpread}
                 disabled={!canGoBack}
-                onClick={() => go("back")}
+                onClick={() => go('back')}
               >
                 <span className="chevron chevron--back" aria-hidden="true" />
               </button>
@@ -215,7 +202,7 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
                 className="control control--icon control--tonal"
                 aria-label={text.binder.nextSpread}
                 disabled={!canGoForward}
-                onClick={() => go("forward")}
+                onClick={() => go('forward')}
               >
                 <span className="chevron" aria-hidden="true" />
               </button>
@@ -230,16 +217,12 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
               stacked={stacked}
               turn={turn}
               aim={shownAim}
-              dropTarget={
-                drag?.drop && drag.drop.kind !== "remove" ? drag.drop.to : null
-              }
-              movingCopy={origin?.kind === "copy"}
+              dropTarget={drag?.drop && drag.drop.kind !== 'remove' ? drag.drop.to : null}
+              movingCopy={origin?.kind === 'copy'}
               pocketBeingEmptied={pocketBeingEmptied}
               catalogue={catalogue}
               onSlot={onSlot}
-              onCopyPress={(from, copy, event) =>
-                startDrag({ kind: "copy", from, copy }, event)
-              }
+              onCopyPress={(from, copy, event) => startDrag({ kind: 'copy', from, copy }, event)}
               onSwipe={go}
             />
           </div>
@@ -249,37 +232,26 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
         <CataloguePanel
           catalogue={catalogue}
           aim={shownAim}
-          replacing={
-            aim?.kind === "target" ? slotAt(binder, aim.address) : null
-          }
+          replacing={aim?.kind === 'target' ? slotAt(binder, aim.address) : null}
           announcement={announcement}
           beside={beside}
           inert={detail !== null}
           focusRequest={panelFocus}
           onPrintingPress={
             canDragPrinting
-              ? (card, printing, event) =>
-                  startDrag({ kind: "printing", card, printing }, event)
+              ? (card, printing, event) => startDrag({ kind: 'printing', card, printing }, event)
               : undefined
           }
           onChoose={onPrinting}
           onClose={closePanel}
         />
       )}
-      <LiveRegion
-        className="binder__announcement"
-        announcement={moveAnnouncement}
-      />
+      <LiveRegion className="binder__announcement" announcement={moveAnnouncement} />
       {drag?.ghost && origin && (
         <img
-          className={
-            pocketBeingEmptied
-              ? "drag-ghost drag-ghost--removing"
-              : "drag-ghost"
-          }
+          className={pocketBeingEmptied ? 'drag-ghost drag-ghost--removing' : 'drag-ghost'}
           src={catalogue.imageUrl(
-            (origin.kind === "printing" ? origin.card : origin.copy.card)
-              .passcode,
+            (origin.kind === 'printing' ? origin.card : origin.copy.card).passcode,
           )}
           alt=""
           style={{
@@ -305,7 +277,7 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
           onReplace={() => {
             opener.current = null;
             setDetail(null);
-            openPanel({ kind: "target", address: detail });
+            openPanel({ kind: 'target', address: detail });
           }}
           onRemove={() => {
             setBinderState((current) => ({
@@ -323,7 +295,6 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
 function isTextField(target: EventTarget | null): boolean {
   return (
     target instanceof HTMLElement &&
-    (target.isContentEditable ||
-      ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName))
+    (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName))
   );
 }

@@ -1,25 +1,15 @@
-import { text } from "./strings";
-import type { PointerEvent, RefObject } from "react";
-import { isHeld, type Aim } from "./aim";
-import type {
-  Card,
-  CardSet,
-  Catalogue,
-  Printing,
-  SetPrinting,
-} from "./catalogue";
-import { RetryMessage } from "./CatalogueStatus";
-import { useCatalogueRequest } from "./useCatalogueRequest";
+import { text } from './strings';
+import type { PointerEvent, RefObject } from 'react';
+import { isHeld, type Aim } from './aim';
+import type { Card, CardSet, Catalogue, Printing, SetPrinting } from './catalogue';
+import { RetryMessage } from './CatalogueStatus';
+import { useCatalogueRequest } from './useCatalogueRequest';
 
 type ChooseProps = {
   aim: Aim | null;
   backButton: RefObject<HTMLButtonElement | null>;
   onBack: () => void;
-  onPrintingPress?: (
-    card: Card,
-    printing: Printing,
-    event: PointerEvent,
-  ) => void;
+  onPrintingPress?: (card: Card, printing: Printing, event: PointerEvent) => void;
   onChoose: (card: Card, printing: Printing) => void;
 };
 
@@ -34,8 +24,7 @@ export function PrintingList({
   onChoose,
 }: { card: Card; catalogue: Catalogue; query: string } & ChooseProps) {
   const needle = query.toLowerCase();
-  const matches = (printing: Printing) =>
-    printing.setCode.toLowerCase() === needle;
+  const matches = (printing: Printing) => printing.setCode.toLowerCase() === needle;
   const printings = [
     ...card.printings.filter(matches),
     ...card.printings.filter((printing) => !matches(printing)),
@@ -46,11 +35,7 @@ export function PrintingList({
       <div className="catalogue__controls catalogue__controls--printings">
         <BackToResults backButton={backButton} onBack={onBack} />
         <div className="catalogue__card-summary">
-          <img
-            className="catalogue__thumb"
-            src={catalogue.imageUrl(card.passcode)}
-            alt=""
-          />
+          <img className="catalogue__thumb" src={catalogue.imageUrl(card.passcode)} alt="" />
           <div className="catalogue__card-label">
             <h3>{card.name}</h3>
             <span>{card.type}</span>
@@ -58,10 +43,7 @@ export function PrintingList({
         </div>
       </div>
       <div className="catalogue__scroll">
-        <ul
-          className="catalogue__printings"
-          aria-label={text.catalogue.printings}
-        >
+        <ul className="catalogue__printings" aria-label={text.catalogue.printings}>
           {printings.map((printing) => (
             <PrintingRow
               key={`${printing.setCode} ${printing.rarity} ${printing.setName}`}
@@ -79,7 +61,7 @@ export function PrintingList({
   );
 }
 
-type SetResult = SetPrinting[] | "failed" | null;
+type SetResult = SetPrinting[] | 'failed' | null;
 
 function loadSetPrintings(
   catalogue: Catalogue,
@@ -89,7 +71,7 @@ function loadSetPrintings(
 ) {
   void catalogue.setPrintings(set.name, signal).then(
     (printings) => publish(() => printings),
-    () => publish(() => "failed"),
+    () => publish(() => 'failed'),
   );
 }
 
@@ -128,7 +110,7 @@ export function SetPrintingList({
             <strong>{text.catalogue.openingSet}</strong>
           </div>
         )}
-        {result === "failed" && (
+        {result === 'failed' && (
           <RetryMessage
             message={text.catalogue.setFailed}
             onRetry={() => {
@@ -138,10 +120,7 @@ export function SetPrintingList({
           />
         )}
         {Array.isArray(result) && (
-          <ul
-            className="catalogue__printings"
-            aria-label={text.catalogue.printings}
-          >
+          <ul className="catalogue__printings" aria-label={text.catalogue.printings}>
             {result.map((entry) => (
               <PrintingRow
                 key={`${entry.card.passcode} ${entry.printing.setCode} ${entry.printing.rarity}`}
@@ -160,10 +139,7 @@ export function SetPrintingList({
   );
 }
 
-function BackToResults({
-  backButton,
-  onBack,
-}: Pick<ChooseProps, "backButton" | "onBack">) {
+function BackToResults({ backButton, onBack }: Pick<ChooseProps, 'backButton' | 'onBack'>) {
   return (
     <button
       ref={backButton}
@@ -189,14 +165,14 @@ function PrintingRow({
   entry: SetPrinting;
   detail: string;
   catalogue: Catalogue;
-} & Pick<ChooseProps, "aim" | "onPrintingPress" | "onChoose">) {
+} & Pick<ChooseProps, 'aim' | 'onPrintingPress' | 'onChoose'>) {
   return (
     <li>
       <button
         type="button"
         className="catalogue__printing"
         aria-pressed={isHeld(aim, card, printing)}
-        data-draggable={onPrintingPress ? "" : undefined}
+        data-draggable={onPrintingPress ? '' : undefined}
         onPointerDown={(event) => onPrintingPress?.(card, printing, event)}
         onClick={() => onChoose(card, printing)}
       >
