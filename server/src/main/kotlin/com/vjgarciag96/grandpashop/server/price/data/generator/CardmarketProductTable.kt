@@ -1,8 +1,14 @@
-package com.vjgarciag96.grandpashop.server.price
+package com.vjgarciag96.grandpashop.server.price.data.generator
 
 import com.vjgarciag96.grandpashop.server.catalogue.domain.model.Card
+import com.vjgarciag96.grandpashop.server.catalogue.domain.model.PrintingKey
 import com.vjgarciag96.grandpashop.server.catalogue.domain.model.SetPrinting
 import com.vjgarciag96.grandpashop.server.catalogue.domain.model.printingsBySet
+import com.vjgarciag96.grandpashop.server.price.data.parser.CardmarketProduct
+import com.vjgarciag96.grandpashop.server.price.data.repository.CardmarketProducts
+import com.vjgarciag96.grandpashop.server.price.data.repository.PriceGuide
+import com.vjgarciag96.grandpashop.server.price.data.repository.ProductRow
+import com.vjgarciag96.grandpashop.server.price.data.repository.Resolution
 import java.text.Normalizer
 import java.time.LocalDateTime
 

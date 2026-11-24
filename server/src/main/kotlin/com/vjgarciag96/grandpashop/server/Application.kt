@@ -7,8 +7,8 @@ import com.vjgarciag96.grandpashop.server.catalogue.domain.usecase.GetSetContent
 import com.vjgarciag96.grandpashop.server.catalogue.domain.usecase.SearchCards
 import com.vjgarciag96.grandpashop.server.catalogue.domain.usecase.SearchSets
 import com.vjgarciag96.grandpashop.server.catalogue.endpoint.catalogueRoutes
-import com.vjgarciag96.grandpashop.server.price.Prices
-import com.vjgarciag96.grandpashop.server.price.priceRoutes
+import com.vjgarciag96.grandpashop.server.price.domain.usecase.GetPrintingPrice
+import com.vjgarciag96.grandpashop.server.price.endpoint.priceRoutes
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
@@ -20,7 +20,7 @@ import kotlinx.serialization.json.Json
 fun Application.apiModule(
     catalogue: CardRepository,
     images: CardImageRepository,
-    prices: Prices,
+    prices: GetPrintingPrice,
 ) {
     install(ContentNegotiation) { json(Json { explicitNulls = false }) }
     routing {

@@ -1,5 +1,6 @@
-package com.vjgarciag96.grandpashop.server.price
+package com.vjgarciag96.grandpashop.server.price.data.parser
 
+import com.vjgarciag96.grandpashop.server.price.domain.model.CardmarketProductId
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.time.LocalDateTime

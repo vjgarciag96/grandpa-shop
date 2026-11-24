@@ -1,9 +1,9 @@
 package com.vjgarciag96.grandpashop.server
 
-import com.vjgarciag96.grandpashop.server.price.CardmarketProducts
-import com.vjgarciag96.grandpashop.server.price.Prices
-import com.vjgarciag96.grandpashop.server.price.Resolution
-import com.vjgarciag96.grandpashop.server.price.row
+import com.vjgarciag96.grandpashop.server.price.data.repository.CardmarketProducts
+import com.vjgarciag96.grandpashop.server.price.data.repository.Resolution
+import com.vjgarciag96.grandpashop.server.price.data.repository.row
+import com.vjgarciag96.grandpashop.server.price.domain.usecase.GetPrintingPrice
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
@@ -22,7 +22,7 @@ class StartWithoutGuideTest {
     private fun withGuideThatCannotBeKept(block: suspend ApplicationTestBuilder.() -> Unit) =
         testApplication {
             val guide = priceGuideOrNone { throw IOException("Cardmarket's price guide could not be read") }
-            testApi(prices = Prices(table, guide))
+            testApi(prices = GetPrintingPrice(table, guide))
             block()
         }
 

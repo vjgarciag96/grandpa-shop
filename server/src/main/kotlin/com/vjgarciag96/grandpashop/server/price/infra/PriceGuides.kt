@@ -1,6 +1,8 @@
-package com.vjgarciag96.grandpashop.server.price
+package com.vjgarciag96.grandpashop.server.price.infra
 
 import com.vjgarciag96.grandpashop.server.core.writeAtomically
+import com.vjgarciag96.grandpashop.server.price.data.parser.PriceGuideParser
+import com.vjgarciag96.grandpashop.server.price.data.repository.PriceGuide
 import kotlinx.serialization.SerializationException
 import java.io.IOException
 import java.nio.file.Files
@@ -50,7 +52,7 @@ object PriceGuides {
 
     private fun read(text: String): PriceGuide =
         try {
-            PriceGuide.parse(text)
+            PriceGuideParser.parse(text)
         } catch (e: SerializationException) {
             throw IOException("Cardmarket's price guide could not be read", e)
         } catch (e: DateTimeParseException) {

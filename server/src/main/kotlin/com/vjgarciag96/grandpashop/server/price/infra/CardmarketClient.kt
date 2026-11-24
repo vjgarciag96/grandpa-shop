@@ -1,11 +1,11 @@
-package com.vjgarciag96.grandpashop.server.price
+package com.vjgarciag96.grandpashop.server.price.infra
 
 import com.vjgarciag96.grandpashop.server.core.Downloads
 import com.vjgarciag96.grandpashop.server.core.cachedText
 import java.nio.file.Path
 
 /** Cardmarket's public daily files for Yu-Gi-Oh (game 3). See docs/decisions/0013. */
-object Cardmarket {
+object CardmarketClient {
     private const val PRICE_GUIDE = "https://downloads.s3.cardmarket.com/productCatalog/priceGuide/price_guide_3.json"
     private const val PRODUCT_LIST =
         "https://downloads.s3.cardmarket.com/productCatalog/productList/products_singles_3.json"

@@ -1,4 +1,8 @@
-package com.vjgarciag96.grandpashop.server.price
+package com.vjgarciag96.grandpashop.server.price.data.repository
+
+import com.vjgarciag96.grandpashop.server.catalogue.domain.model.PrintingKey
+import com.vjgarciag96.grandpashop.server.price.domain.model.CardmarketProductId
+import com.vjgarciag96.grandpashop.server.price.domain.service.CardmarketProductRepository
 
 /** How a row of the product table was settled: on its own, or by a tie-break a maintainer may want to audit. */
 enum class Resolution(
@@ -17,7 +21,7 @@ data class ProductRow(
 /** The committed product table: one product per printing key. Read-only at run time. */
 class CardmarketProducts(
     unsorted: List<ProductRow>,
-) {
+) : CardmarketProductRepository {
     /** Sorted by set code, then rarity, as plain strings, so the file is stable between runs. */
     val rows: List<ProductRow> = unsorted.sortedWith(compareBy({ it.key.setCode }, { it.key.rarity }))
     private val byKey: Map<PrintingKey, ProductRow> = rows.associateBy { it.key }
@@ -39,7 +43,7 @@ class CardmarketProducts(
         }
     }
 
-    fun productOf(key: PrintingKey): CardmarketProductId? = byKey[key]?.product
+    override fun productOf(key: PrintingKey): CardmarketProductId? = byKey[key]?.product
 
     fun toCsv(): String =
         buildString {

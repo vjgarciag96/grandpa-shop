@@ -1,7 +1,11 @@
-package com.vjgarciag96.grandpashop.server.price
+package com.vjgarciag96.grandpashop.server.price.data.generator
 
 import com.vjgarciag96.grandpashop.server.catalogue.data.parser.YgoprodeckParser
 import com.vjgarciag96.grandpashop.server.catalogue.infra.YgoprodeckClient
+import com.vjgarciag96.grandpashop.server.price.data.parser.CardmarketProductList
+import com.vjgarciag96.grandpashop.server.price.data.repository.CardmarketProducts
+import com.vjgarciag96.grandpashop.server.price.infra.CardmarketClient
+import com.vjgarciag96.grandpashop.server.price.infra.PriceGuides
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
@@ -21,8 +25,8 @@ fun main(args: Array<String>) {
     val tablePath = Path(args.getOrElse(1) { "src/main/resources/${CardmarketProducts.FILE_NAME}" })
 
     val cards = YgoprodeckParser.parse(YgoprodeckClient.keptCardInfo(cacheDir))
-    val products = CardmarketProductList.parse(Cardmarket.keptProductList(cacheDir))
-    val guide = PriceGuides.keep(cacheDir, Cardmarket::priceGuide)
+    val products = CardmarketProductList.parse(CardmarketClient.keptProductList(cacheDir))
+    val guide = PriceGuides.keep(cacheDir, CardmarketClient::priceGuide)
     val existing =
         if (tablePath.exists()) CardmarketProducts.fromCsv(tablePath.readText()) else CardmarketProducts(emptyList())
 
