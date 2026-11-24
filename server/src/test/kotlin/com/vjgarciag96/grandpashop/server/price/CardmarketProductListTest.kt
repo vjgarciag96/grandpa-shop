@@ -2,6 +2,7 @@ package com.vjgarciag96.grandpashop.server.price
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import java.time.LocalDateTime
 
 class CardmarketProductListTest {
     @Test
@@ -17,7 +18,14 @@ class CardmarketProductListTest {
         val products = CardmarketProductList.parse(text)
 
         assertEquals(
-            listOf(CardmarketProduct(CardmarketProductId(579386), "Relinquished", 4416, "2021-10-18 10:00:00")),
+            listOf(
+                CardmarketProduct(
+                    CardmarketProductId(579386),
+                    "Relinquished",
+                    4416,
+                    LocalDateTime.of(2021, 10, 18, 10, 0, 0),
+                ),
+            ),
             products,
         )
     }

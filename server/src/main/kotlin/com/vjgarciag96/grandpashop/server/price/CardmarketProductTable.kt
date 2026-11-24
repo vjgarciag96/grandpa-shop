@@ -3,6 +3,7 @@ package com.vjgarciag96.grandpashop.server.price
 import com.vjgarciag96.grandpashop.server.catalogue.Card
 import com.vjgarciag96.grandpashop.server.catalogue.SetPrinting
 import java.text.Normalizer
+import java.time.LocalDateTime
 
 data class Coverage(
     val sets: Int,
@@ -113,7 +114,7 @@ object CardmarketProductTable {
 
     private class Expansion(
         val id: Long,
-        val oldest: String,
+        val firstAdded: LocalDateTime,
         val productsByName: Map<String, List<CardmarketProduct>>,
     ) {
         val names: Set<String> = productsByName.keys
@@ -143,8 +144,8 @@ object CardmarketProductTable {
     ): ExpansionMatch? {
         val names = printings.map { normalise(it.card.name) }.toSet()
         val candidates = expansions.filter { it.names == names }.ifEmpty { expansions.filter { it.isNear(names) } }
-        val oldest = candidates.minWithOrNull(compareBy({ it.oldest }, { it.id })) ?: return null
-        return ExpansionMatch(oldest, tied = candidates.size > 1)
+        val first = candidates.minWithOrNull(compareBy({ it.firstAdded }, { it.id })) ?: return null
+        return ExpansionMatch(first, tied = candidates.size > 1)
     }
 
     private fun rowsOf(

@@ -52,8 +52,8 @@ class CardmarketProductTableTest {
         val cards = listOf(card(1, "Relinquished", Printing("SRL-029", "Spell Ruler", "Ultra Rare")))
         val products =
             listOf(
-                product(700001, "Relinquished", expansion = 5341, dateAdded = "2023-03-01 00:00:00"),
-                product(579386, "Relinquished", expansion = 4416, dateAdded = "2021-10-18 00:00:00"),
+                product(700001, "Relinquished", expansion = 100, added = LocalDate.of(2023, 3, 1)),
+                product(579386, "Relinquished", expansion = 4416, added = LocalDate.of(2021, 10, 18)),
             )
 
         val generation = CardmarketProductTable.generate(cards, products, noTrends, noRows)
@@ -328,8 +328,8 @@ class CardmarketProductTableTest {
         val products =
             listOf(
                 product(289403, "Jinzo", expansion = 1700),
-                product(700001, "Relinquished", expansion = 5341, dateAdded = "2023-03-01 00:00:00"),
-                product(579386, "Relinquished", expansion = 4416, dateAdded = "2021-10-18 00:00:00"),
+                product(700001, "Relinquished", expansion = 5341, added = LocalDate.of(2023, 3, 1)),
+                product(579386, "Relinquished", expansion = 4416, added = LocalDate.of(2021, 10, 18)),
             )
 
         val generation = CardmarketProductTable.generate(cards, products, noTrends, noRows)
@@ -360,8 +360,8 @@ class CardmarketProductTableTest {
         id: Long,
         name: String,
         expansion: Long,
-        dateAdded: String = "2007-01-01 00:00:00",
-    ) = CardmarketProduct(CardmarketProductId(id), name, expansion, dateAdded)
+        added: LocalDate = LocalDate.of(2007, 1, 1),
+    ) = CardmarketProduct(CardmarketProductId(id), name, expansion, added.atStartOfDay())
 
     private fun guide(vararg trends: Pair<Int, Int>) =
         PriceGuide(
