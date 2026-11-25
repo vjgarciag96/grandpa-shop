@@ -1,5 +1,9 @@
-package com.vjgarciag96.grandpashop.server.price
+package com.vjgarciag96.grandpashop.server.price.data.repository
 
+import com.vjgarciag96.grandpashop.server.price.data.parser.PriceGuideParser
+import com.vjgarciag96.grandpashop.server.price.data.repository.PriceGuide
+import com.vjgarciag96.grandpashop.server.price.domain.model.CardmarketProductId
+import com.vjgarciag96.grandpashop.server.price.domain.model.Price
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
@@ -19,7 +23,7 @@ class PriceGuideTest {
 
     @Test
     fun gives_the_trend_in_cents_on_the_day_the_guide_was_made() {
-        val guide = PriceGuide.parse(text)
+        val guide = PriceGuideParser.parse(text)
 
         val price = guide.trend(CardmarketProductId(579386))
 
@@ -28,7 +32,7 @@ class PriceGuideTest {
 
     @Test
     fun gives_no_price_for_a_product_whose_trend_is_null() {
-        val guide = PriceGuide.parse(text)
+        val guide = PriceGuideParser.parse(text)
 
         val price = guide.trend(CardmarketProductId(101788))
 
@@ -37,7 +41,7 @@ class PriceGuideTest {
 
     @Test
     fun gives_no_price_for_a_product_the_guide_does_not_list() {
-        val guide = PriceGuide.parse(text)
+        val guide = PriceGuideParser.parse(text)
 
         val price = guide.trend(CardmarketProductId(1))
 
@@ -46,7 +50,7 @@ class PriceGuideTest {
 
     @Test
     fun gives_no_price_for_a_product_whose_trend_is_negative() {
-        val guide = PriceGuide.parse(text)
+        val guide = PriceGuideParser.parse(text)
 
         val price = guide.trend(CardmarketProductId(245197))
 
@@ -55,7 +59,7 @@ class PriceGuideTest {
 
     @Test
     fun gives_a_price_of_zero_cents_for_a_trend_of_zero() {
-        val guide = PriceGuide.parse(text)
+        val guide = PriceGuideParser.parse(text)
 
         val price = guide.trend(CardmarketProductId(289403))
 
@@ -64,7 +68,7 @@ class PriceGuideTest {
 
     @Test
     fun keeps_a_trend_of_ten_cents_exact() {
-        val guide = PriceGuide.parse(text)
+        val guide = PriceGuideParser.parse(text)
 
         val price = guide.trend(CardmarketProductId(105210))
 

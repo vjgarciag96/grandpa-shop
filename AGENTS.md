@@ -18,6 +18,12 @@ These match [CONTRIBUTING.md](CONTRIBUTING.md):
 - `.work/` is scratch and is never committed.
 - This repo is public. No secrets, hostnames, IP addresses, or personal server details. Use `.env.example` placeholders.
 
+## Server
+
+- Follow furbo-papa's feature structure. Put models, repository interfaces, and callable use cases in `domain/model`, `domain/service`, and `domain/usecase`. Give each API operation a use case, including simple lookups.
+- Implement repositories and parsing in `data`, and contain upstream HTTP and cache I/O in `infra`. Run blocking request-time I/O on `Dispatchers.IO`.
+- Put Ktor routes, response DTOs, and response mapping in `endpoint`. Wire dependencies at startup.
+
 ## Open decisions
 
 Do not build live sync until [0009](docs/decisions/0009-realtime-transport.md) and [0010](docs/decisions/0010-sync-and-conflict-model.md) are accepted. They are frames, not settled choices.

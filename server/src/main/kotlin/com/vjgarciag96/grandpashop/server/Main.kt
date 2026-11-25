@@ -3,11 +3,11 @@ package com.vjgarciag96.grandpashop.server
 import com.vjgarciag96.grandpashop.server.catalogue.data.repository.InMemoryCardRepository
 import com.vjgarciag96.grandpashop.server.catalogue.infra.CachedCardImageRepository
 import com.vjgarciag96.grandpashop.server.catalogue.infra.YgoprodeckClient
-import com.vjgarciag96.grandpashop.server.price.Cardmarket
-import com.vjgarciag96.grandpashop.server.price.CardmarketProducts
-import com.vjgarciag96.grandpashop.server.price.PriceGuide
-import com.vjgarciag96.grandpashop.server.price.PriceGuides
-import com.vjgarciag96.grandpashop.server.price.Prices
+import com.vjgarciag96.grandpashop.server.price.data.repository.CardmarketProducts
+import com.vjgarciag96.grandpashop.server.price.data.repository.PriceGuide
+import com.vjgarciag96.grandpashop.server.price.domain.usecase.GetPrintingPrice
+import com.vjgarciag96.grandpashop.server.price.infra.CardmarketClient
+import com.vjgarciag96.grandpashop.server.price.infra.PriceGuides
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import org.slf4j.LoggerFactory
@@ -26,8 +26,8 @@ fun main() {
 
     val images = CachedCardImageRepository(cacheDir.resolve("images"), YgoprodeckClient::smallImage)
 
-    val guide = priceGuideOrNone { PriceGuides.keep(cacheDir, Cardmarket::priceGuide) }
-    val prices = Prices(CardmarketProducts.fromResource(), guide)
+    val guide = priceGuideOrNone { PriceGuides.keep(cacheDir, CardmarketClient::priceGuide) }
+    val prices = GetPrintingPrice(CardmarketProducts.fromResource(), guide)
 
     embeddedServer(Netty, host = host, port = port) { apiModule(catalogue, images, prices) }.start(wait = true)
 }

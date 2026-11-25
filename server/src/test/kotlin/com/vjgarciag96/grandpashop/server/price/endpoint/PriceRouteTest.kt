@@ -1,5 +1,11 @@
-package com.vjgarciag96.grandpashop.server.price
+package com.vjgarciag96.grandpashop.server.price.endpoint
 
+import com.vjgarciag96.grandpashop.server.price.data.repository.CardmarketProducts
+import com.vjgarciag96.grandpashop.server.price.data.repository.PriceGuide
+import com.vjgarciag96.grandpashop.server.price.data.repository.Resolution
+import com.vjgarciag96.grandpashop.server.price.data.repository.row
+import com.vjgarciag96.grandpashop.server.price.domain.model.CardmarketProductId
+import com.vjgarciag96.grandpashop.server.price.domain.usecase.GetPrintingPrice
 import com.vjgarciag96.grandpashop.server.testApi
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
@@ -25,7 +31,7 @@ class PriceRouteTest {
         guide: PriceGuide? = this.guide,
         block: suspend ApplicationTestBuilder.() -> Unit,
     ) = testApplication {
-        testApi(prices = Prices(table, guide))
+        testApi(prices = GetPrintingPrice(table, guide))
         block()
     }
 

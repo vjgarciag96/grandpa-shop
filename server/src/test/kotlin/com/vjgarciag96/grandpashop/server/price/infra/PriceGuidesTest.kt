@@ -1,5 +1,6 @@
-package com.vjgarciag96.grandpashop.server.price
+package com.vjgarciag96.grandpashop.server.price.infra
 
+import com.vjgarciag96.grandpashop.server.price.infra.PriceGuides
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test

@@ -4,8 +4,8 @@ import com.vjgarciag96.grandpashop.server.catalogue.data.repository.InMemoryCard
 import com.vjgarciag96.grandpashop.server.catalogue.domain.model.Passcode
 import com.vjgarciag96.grandpashop.server.catalogue.domain.service.CardImageRepository
 import com.vjgarciag96.grandpashop.server.catalogue.domain.service.CardRepository
-import com.vjgarciag96.grandpashop.server.price.CardmarketProducts
-import com.vjgarciag96.grandpashop.server.price.Prices
+import com.vjgarciag96.grandpashop.server.price.data.repository.CardmarketProducts
+import com.vjgarciag96.grandpashop.server.price.domain.usecase.GetPrintingPrice
 import io.ktor.server.testing.ApplicationTestBuilder
 
 /** The catalogue in the `cardinfo.json` fixture. */
@@ -20,12 +20,12 @@ private val noImages =
         override suspend fun image(passcode: Passcode): ByteArray = error("this test never fetches an image")
     }
 
-/** Prices with no table rows and no guide, for routes that never ask for one. */
-val noPrices: Prices = Prices(CardmarketProducts(emptyList()), guide = null)
+/** GetPrintingPrice with no table rows and no guide, for routes that never ask for one. */
+val noPrices: GetPrintingPrice = GetPrintingPrice(CardmarketProducts(emptyList()), guide = null)
 
 /** The whole API as [apiModule] wires it, with nothing behind the areas a test does not exercise. */
 fun ApplicationTestBuilder.testApi(
     catalogue: CardRepository = fixtureCatalogue(),
     images: CardImageRepository = noImages,
-    prices: Prices = noPrices,
+    prices: GetPrintingPrice = noPrices,
 ) = application { apiModule(catalogue, images, prices) }

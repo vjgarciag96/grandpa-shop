@@ -1,9 +1,18 @@
-package com.vjgarciag96.grandpashop.server.price
+package com.vjgarciag96.grandpashop.server.price.data.generator
 
 import com.vjgarciag96.grandpashop.server.catalogue.domain.model.Card
 import com.vjgarciag96.grandpashop.server.catalogue.domain.model.CardKind
 import com.vjgarciag96.grandpashop.server.catalogue.domain.model.Passcode
 import com.vjgarciag96.grandpashop.server.catalogue.domain.model.Printing
+import com.vjgarciag96.grandpashop.server.catalogue.domain.model.PrintingKey
+import com.vjgarciag96.grandpashop.server.price.data.generator.CardmarketProductTable
+import com.vjgarciag96.grandpashop.server.price.data.parser.CardmarketProduct
+import com.vjgarciag96.grandpashop.server.price.data.repository.CardmarketProducts
+import com.vjgarciag96.grandpashop.server.price.data.repository.PriceGuide
+import com.vjgarciag96.grandpashop.server.price.data.repository.ProductRow
+import com.vjgarciag96.grandpashop.server.price.data.repository.Resolution
+import com.vjgarciag96.grandpashop.server.price.data.repository.row
+import com.vjgarciag96.grandpashop.server.price.domain.model.CardmarketProductId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
