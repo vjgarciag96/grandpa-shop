@@ -264,7 +264,7 @@ body {
 
 .page__grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--pocket-columns), minmax(0, 1fr));
   gap: var(--pocket-gap);
 }
 
@@ -451,8 +451,12 @@ html:has(.dialog-backdrop) {
   margin: calc(var(--space-slot) * -0.5) calc(var(--space-slot) * -0.5) 0 0;
 }
 
-.shelf-dialog {
+.binder-dialog {
   width: min(calc(var(--space-slot) * 60), 100%);
+}
+
+.binder-dialog .dialog__subtitle {
+  overflow-wrap: anywhere;
 }
 
 .binder-dialog__body {
@@ -461,7 +465,8 @@ html:has(.dialog-backdrop) {
   padding: 0 var(--dialog-inset) var(--dialog-inset);
 }
 
-.shelf-dialog__storage {
+.shelf-dialog__storage,
+.binder-dialog__hint {
   margin: 0;
   color: var(--color-on-surface-variant);
   font-size: var(--type-body-small);
@@ -657,7 +662,7 @@ html:has(.dialog-backdrop) {
 
 /*
  * Beside the panel the binder fills the height under the desk head, and its width follows from that
- * height so the whole spread stays in view. A page is its padding, three rows of pockets, two gaps,
+ * height so the whole spread stays in view. A page is its padding, pocket rows and their gaps,
  * and its number; the pockets' width over height is the pocket aspect.
  */
 .desk--beside .desk__main {
@@ -674,16 +679,17 @@ html:has(.dialog-backdrop) {
 
 .desk--beside .binder {
   --page-number-row: calc(var(--space-slot) + var(--type-body-small) * 1.5);
+  --pocket-gaps: calc(var(--pocket-gap) * (var(--pocket-columns) - 1));
   --pocket-rows: calc(
-    100cqh - var(--board-padding) * 2 - var(--page-padding) * 2 - var(--pocket-gap) * 2 -
+    100cqh - var(--board-padding) * 2 - var(--page-padding) * 2 - var(--pocket-gaps) -
       var(--page-number-row)
   );
   --page-width: calc(
-    var(--pocket-rows) * (var(--pocket-aspect)) + var(--page-padding) * 2 + var(--pocket-gap) * 2
+    var(--pocket-rows) * (var(--pocket-aspect)) + var(--page-padding) * 2 + var(--pocket-gaps)
   );
   /* On a very short window, keep pockets at the touch target and let the desk scroll instead. */
   --least-page-width: calc(
-    var(--target-size) * 3 + var(--pocket-gap) * 2 + var(--page-padding) * 2
+    var(--target-size) * var(--pocket-columns) + var(--pocket-gaps) + var(--page-padding) * 2
   );
   width: min(
     100%,

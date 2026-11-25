@@ -1,4 +1,5 @@
 import tokens from '../../design/tokens.json';
+import type { PocketGrid } from './binder';
 
 /** Sets every design token as a CSS custom property on [root], so styles never repeat a value. */
 export function applyTokens(root: HTMLElement) {
@@ -56,8 +57,17 @@ export function applyTokens(root: HTMLElement) {
 /** The viewport width below which a spread's pages stack. CSS media queries cannot read a custom property. */
 export const STACK_BELOW_PX = tokens.layout.stackBelowPx;
 
-/** The viewport width from which the catalogue panel sits beside the binder instead of below it. */
-export const PANEL_BESIDE_FROM_PX = tokens.layout.panelBesideFromPx;
+/** Leave room for each pocket's minimum target width before putting the catalogue beside it. */
+export function panelBesideFrom(grid: PocketGrid): number {
+  const layout = tokens.layout;
+  const pageWidth =
+    grid * layout.minTargetPx + (grid - 1) * layout.pocketGapPx + 2 * layout.pagePaddingPx;
+  // The desk has up to three spacing units of padding on each side and three between the columns.
+  const deskSpacing = 9 * tokens.space.slot;
+  const deskWidth =
+    deskSpacing + layout.panelWidthPx + 2 * layout.boardPaddingPx + layout.spinePx + 2 * pageWidth;
+  return Math.max(layout.panelBesideFromPx, deskWidth);
+}
 
 /** How long a page-turn plays. Timers need it as a number, not as a custom property. */
 export const PAGE_FLIP_MS = tokens.motion.pageFlipMs;

@@ -117,6 +117,18 @@ export const text = {
     blankName: 'Enter a binder name.',
     duplicateName: 'A binder already uses this name.',
   },
+  binderSettings: {
+    title: 'Binder settings',
+    save: 'Save binder',
+    grid: 'Pockets per page',
+    gridOption: (grid: number) => `${grid} × ${grid}`,
+    pages: 'Pages',
+    pageRange: (min: number, max: number) =>
+      `${min}–${max} pages. Each page is one side of a sheet.`,
+    invalidCapacity: 'Choose a pocket grid and enter a whole number of pages in the shown range.',
+    blockedResize: (address: SlotAddress) =>
+      `${slotName(address)} is occupied. Move or remove that copy before reducing capacity.`,
+  },
   catalogue: {
     name: 'Catalogue',
     close: 'Close catalogue',

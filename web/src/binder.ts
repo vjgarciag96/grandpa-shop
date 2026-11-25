@@ -17,12 +17,33 @@ export type Copy = {
   readonly condition: Condition;
 };
 
-export const PAGES = 40;
-export const SLOTS_PER_PAGE = 9;
-/** Page 1 faces the inside cover, then pages 2–3 face each other, and page 40 faces the back cover. */
-export const SPREADS = PAGES / 2 + 1;
+export const POCKET_GRIDS = [2, 3, 4] as const;
+export type PocketGrid = (typeof POCKET_GRIDS)[number];
 
-/** A page is numbered from 1; a position on it runs 0 to 8, left to right, top to bottom. */
+export const MIN_BINDER_PAGES = 1;
+export const MAX_BINDER_PAGES = 200;
+
+export type BinderCapacity = { readonly grid: PocketGrid; readonly pages: number };
+
+export const DEFAULT_BINDER_CAPACITY: BinderCapacity = { grid: 3, pages: 40 };
+
+export function isBinderCapacity(value: unknown): value is BinderCapacity {
+  if (typeof value !== 'object' || value === null) return false;
+  const { grid, pages } = value as Partial<BinderCapacity>;
+  return (
+    POCKET_GRIDS.some((option) => option === grid) &&
+    typeof pages === 'number' &&
+    Number.isInteger(pages) &&
+    pages >= MIN_BINDER_PAGES &&
+    pages <= MAX_BINDER_PAGES
+  );
+}
+
+export function slotsPerPage({ grid }: BinderCapacity): number {
+  return grid * grid;
+}
+
+/** A page starts at 1 and its slot positions start at 0, in row-major order. */
 export type SlotAddress = { readonly page: number; readonly position: number };
 
 /** Whether two addresses name the same slot. */
@@ -30,22 +51,45 @@ export function sameSlot(a: SlotAddress, b: SlotAddress): boolean {
   return a.page === b.page && a.position === b.position;
 }
 
-export type Binder = { readonly slots: ReadonlyArray<Copy | null> };
+export type Binder = {
+  readonly capacity: BinderCapacity;
+  readonly slots: ReadonlyArray<Copy | null>;
+};
 
-export function emptyBinder(): Binder {
-  return { slots: Array<Copy | null>(PAGES * SLOTS_PER_PAGE).fill(null) };
+export function emptyBinder(capacity: BinderCapacity = DEFAULT_BINDER_CAPACITY): Binder {
+  return { capacity, slots: emptySlots(capacity) };
+}
+
+export type BinderResize =
+  | { readonly kind: 'resized'; readonly binder: Binder }
+  | { readonly kind: 'occupied'; readonly address: SlotAddress };
+
+export function resizeBinder(binder: Binder, capacity: BinderCapacity): BinderResize {
+  if (capacity.pages === binder.capacity.pages && capacity.grid === binder.capacity.grid) {
+    return { kind: 'resized', binder };
+  }
+
+  const slots = emptySlots(capacity);
+  const oldWidth = slotsPerPage(binder.capacity);
+  for (const [index, copy] of binder.slots.entries()) {
+    if (copy === null) continue;
+    const address = { page: Math.floor(index / oldWidth) + 1, position: index % oldWidth };
+    if (!hasSlot(capacity, address)) return { kind: 'occupied', address };
+    slots[indexOf(capacity, address)] = copy;
+  }
+  return { kind: 'resized', binder: { capacity, slots } };
 }
 
 export function place(binder: Binder, address: SlotAddress, copy: Copy): Binder {
   const slots = [...binder.slots];
-  slots[indexOf(address)] = copy;
-  return { slots };
+  slots[indexOf(binder.capacity, address)] = copy;
+  return { ...binder, slots };
 }
 
 export function remove(binder: Binder, address: SlotAddress): Binder {
   const slots = [...binder.slots];
-  slots[indexOf(address)] = null;
-  return { slots };
+  slots[indexOf(binder.capacity, address)] = null;
+  return { ...binder, slots };
 }
 
 /** What moving a copy did: nothing, a move into an empty slot, or a swap with the copy that was there. */
@@ -60,8 +104,8 @@ export type CopyMove =
 
 /** Moves `copy` from `from` to `to`. A copy already in `to` takes `from`. Refused if `from` no longer holds `copy` or `from` is `to`. */
 export function moveCopy(binder: Binder, from: SlotAddress, to: SlotAddress, copy: Copy): CopyMove {
-  const source = indexOf(from);
-  const destination = indexOf(to);
+  const source = indexOf(binder.capacity, from);
+  const destination = indexOf(binder.capacity, to);
   if (binder.slots[source] !== copy || source === destination) {
     return { kind: 'refused' };
   }
@@ -70,8 +114,8 @@ export function moveCopy(binder: Binder, from: SlotAddress, to: SlotAddress, cop
   slots[source] = displaced;
   slots[destination] = copy;
   return displaced
-    ? { kind: 'swapped', binder: { slots }, displaced }
-    : { kind: 'moved', binder: { slots } };
+    ? { kind: 'swapped', binder: { ...binder, slots }, displaced }
+    : { kind: 'moved', binder: { ...binder, slots } };
 }
 
 /** What removing a copy did: nothing, or took it out of its slot. */
@@ -80,7 +124,7 @@ export type CopyRemoval =
 
 /** Takes `copy` out of `from`. Refused if `from` no longer holds `copy`. */
 export function removeCopy(binder: Binder, from: SlotAddress, copy: Copy): CopyRemoval {
-  return binder.slots[indexOf(from)] === copy
+  return binder.slots[indexOf(binder.capacity, from)] === copy
     ? { kind: 'removed', binder: remove(binder, from) }
     : { kind: 'refused' };
 }
@@ -90,34 +134,54 @@ export function changeCondition(
   address: SlotAddress,
   condition: Condition,
 ): Binder {
-  const copy = binder.slots[indexOf(address)];
+  const copy = binder.slots[indexOf(binder.capacity, address)];
   return copy ? place(binder, address, { ...copy, condition }) : binder;
 }
 
 export function slotAt(binder: Binder, address: SlotAddress): Copy | null {
-  return binder.slots[indexOf(address)];
+  return binder.slots[indexOf(binder.capacity, address)];
 }
 
 export function pageSlots(binder: Binder, page: number): ReadonlyArray<Copy | null> {
-  const start = indexOf({ page, position: 0 });
-  return binder.slots.slice(start, start + SLOTS_PER_PAGE);
+  const start = indexOf(binder.capacity, { page, position: 0 });
+  return binder.slots.slice(start, start + slotsPerPage(binder.capacity));
 }
 
-export function spreadPages(spread: number): {
-  left: number | null;
-  right: number | null;
-} {
+export function spreadCount({ pages }: BinderCapacity): number {
+  return Math.floor(pages / 2) + 1;
+}
+
+export function spreadPages(
+  { pages }: BinderCapacity,
+  spread: number,
+): { left: number | null; right: number | null } {
   const left = spread * 2;
   const right = left + 1;
   return {
-    left: left >= 1 && left <= PAGES ? left : null,
-    right: right <= PAGES ? right : null,
+    left: left >= 1 && left <= pages ? left : null,
+    right: right <= pages ? right : null,
   };
 }
 
-function indexOf({ page, position }: SlotAddress): number {
-  if (page < 1 || page > PAGES || position < 0 || position >= SLOTS_PER_PAGE) {
+function emptySlots(capacity: BinderCapacity): Array<Copy | null> {
+  if (!isBinderCapacity(capacity)) throw new RangeError('Invalid binder capacity');
+  return Array<Copy | null>(capacity.pages * slotsPerPage(capacity)).fill(null);
+}
+
+function hasSlot(capacity: BinderCapacity, { page, position }: SlotAddress): boolean {
+  return (
+    Number.isInteger(page) &&
+    page >= 1 &&
+    page <= capacity.pages &&
+    Number.isInteger(position) &&
+    position >= 0 &&
+    position < slotsPerPage(capacity)
+  );
+}
+
+function indexOf(capacity: BinderCapacity, address: SlotAddress): number {
+  const { page, position } = address;
+  if (!hasSlot(capacity, address))
     throw new RangeError(`No slot at page ${page}, position ${position}`);
-  }
-  return (page - 1) * SLOTS_PER_PAGE + position;
+  return (page - 1) * slotsPerPage(capacity) + position;
 }

@@ -48,8 +48,8 @@ export function BinderSpread({
   onCopyPress,
   onSwipe,
 }: Props) {
-  const arriving = spreadPages(spread);
-  const leaving = turn ? spreadPages(turn.from) : arriving;
+  const arriving = spreadPages(binder.capacity, spread);
+  const leaving = turn ? spreadPages(binder.capacity, turn.from) : arriving;
   const left = turn?.direction === 'forward' ? leaving.left : arriving.left;
   const right = turn?.direction === 'back' ? leaving.right : arriving.right;
   const swipeStart = useRef<{ id: number; x: number; y: number } | null>(null);

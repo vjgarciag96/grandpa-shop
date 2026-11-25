@@ -1,4 +1,4 @@
-import { emptyBinder, type Binder } from './binder';
+import { emptyBinder, type Binder, type BinderCapacity } from './binder';
 import { text } from './strings';
 
 export type ShelfBinder = { readonly name: string; readonly binder: Binder };
@@ -19,7 +19,7 @@ export function initialShelf(binder = emptyBinder()): Shelf {
   };
 }
 
-export function addBinder(shelf: Shelf, name: string): BinderAddition {
+export function addBinder(shelf: Shelf, name: string, capacity?: BinderCapacity): BinderAddition {
   const trimmed = name.trim();
   if (!trimmed) return { kind: 'blank-name' };
   if (shelf.binders.some((entry) => entry.name === trimmed)) return { kind: 'duplicate-name' };
@@ -27,7 +27,7 @@ export function addBinder(shelf: Shelf, name: string): BinderAddition {
   return {
     kind: 'added',
     shelf: {
-      binders: [...shelf.binders, { name: trimmed, binder: emptyBinder() }],
+      binders: [...shelf.binders, { name: trimmed, binder: emptyBinder(capacity) }],
       activeIndex: shelf.binders.length,
     },
   };
