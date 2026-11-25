@@ -1,6 +1,7 @@
 package com.vjgarciag96.grandpashop.server.catalogue.endpoint
 
 import com.vjgarciag96.grandpashop.server.catalogue.data.repository.InMemoryCardRepository
+import com.vjgarciag96.grandpashop.server.errorMessage
 import com.vjgarciag96.grandpashop.server.testApi
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
@@ -228,8 +229,8 @@ class CatalogueSetsRouteTest {
     @Test
     fun rejects_a_printings_request_with_no_set_name() =
         withSetsCatalogue {
-            val status = client.get("/api/sets/printings").status
+            val response = client.get("/api/sets/printings")
 
-            assertEquals(HttpStatusCode.BadRequest, status)
+            assertEquals(HttpStatusCode.BadRequest to "name is required", response.status to response.errorMessage())
         }
 }

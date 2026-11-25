@@ -1,5 +1,6 @@
 package com.vjgarciag96.grandpashop.server.price.endpoint
 
+import com.vjgarciag96.grandpashop.server.errorMessage
 import com.vjgarciag96.grandpashop.server.price.data.repository.CardmarketProducts
 import com.vjgarciag96.grandpashop.server.price.data.repository.PriceGuide
 import com.vjgarciag96.grandpashop.server.price.data.repository.Resolution
@@ -56,7 +57,7 @@ class PriceRouteTest {
 
             assertEquals(
                 HttpStatusCode.NotFound to "No price for that printing",
-                response.status to response.bodyAsText(),
+                response.status to response.errorMessage(),
             )
         }
 
@@ -67,7 +68,7 @@ class PriceRouteTest {
 
             assertEquals(
                 HttpStatusCode.NotFound to "No price for that printing",
-                response.status to response.bodyAsText(),
+                response.status to response.errorMessage(),
             )
         }
 
@@ -78,7 +79,7 @@ class PriceRouteTest {
 
             assertEquals(
                 HttpStatusCode.NotFound to "No price for that printing",
-                response.status to response.bodyAsText(),
+                response.status to response.errorMessage(),
             )
         }
 
@@ -87,7 +88,7 @@ class PriceRouteTest {
         withPrices {
             val response = client.get("/api/printings/price?rarity=Ultra%20Rare")
 
-            assertEquals(HttpStatusCode.BadRequest to "setCode is required", response.status to response.bodyAsText())
+            assertEquals(HttpStatusCode.BadRequest to "setCode is required", response.status to response.errorMessage())
         }
 
     @Test
@@ -95,7 +96,7 @@ class PriceRouteTest {
         withPrices {
             val response = client.get("/api/printings/price?setCode=%20%20&rarity=Ultra%20Rare")
 
-            assertEquals(HttpStatusCode.BadRequest to "setCode is required", response.status to response.bodyAsText())
+            assertEquals(HttpStatusCode.BadRequest to "setCode is required", response.status to response.errorMessage())
         }
 
     @Test
@@ -103,7 +104,7 @@ class PriceRouteTest {
         withPrices {
             val response = client.get("/api/printings/price?setCode=SRL-029")
 
-            assertEquals(HttpStatusCode.BadRequest to "rarity is required", response.status to response.bodyAsText())
+            assertEquals(HttpStatusCode.BadRequest to "rarity is required", response.status to response.errorMessage())
         }
 
     @Test
@@ -111,7 +112,7 @@ class PriceRouteTest {
         withPrices {
             val response = client.get("/api/printings/price?setCode=SRL-029&rarity=%20%20")
 
-            assertEquals(HttpStatusCode.BadRequest to "rarity is required", response.status to response.bodyAsText())
+            assertEquals(HttpStatusCode.BadRequest to "rarity is required", response.status to response.errorMessage())
         }
 
     @Test
@@ -119,7 +120,7 @@ class PriceRouteTest {
         withPrices {
             val response = client.get("/api/printings/price?setCode=SRL-029&rarity=")
 
-            assertEquals(HttpStatusCode.BadRequest to "rarity is required", response.status to response.bodyAsText())
+            assertEquals(HttpStatusCode.BadRequest to "rarity is required", response.status to response.errorMessage())
         }
 
     @Test
@@ -129,7 +130,7 @@ class PriceRouteTest {
 
             assertEquals(
                 HttpStatusCode.ServiceUnavailable to "The price guide is not available",
-                response.status to response.bodyAsText(),
+                response.status to response.errorMessage(),
             )
         }
 
@@ -140,7 +141,7 @@ class PriceRouteTest {
 
             assertEquals(
                 HttpStatusCode.NotFound to "No price for that printing",
-                response.status to response.bodyAsText(),
+                response.status to response.errorMessage(),
             )
         }
 }
