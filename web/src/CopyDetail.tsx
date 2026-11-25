@@ -1,6 +1,7 @@
+import { priceLine, statsLine, text } from "./strings";
 import { useMemo } from "react";
 import { CONDITIONS, type Condition, type Copy } from "./binder";
-import type { Catalogue, MonsterStats, Price, Printing } from "./catalogue";
+import type { Catalogue, Price, Printing } from "./catalogue";
 import { Dialog } from "./Dialog";
 import { useCatalogueRequest } from "./useCatalogueRequest";
 
@@ -42,7 +43,7 @@ export function CopyDetail({
           )}
         </div>
         <div className="detail__content">
-          <ul className="detail__printing" aria-label="Printing">
+          <ul className="detail__printing" aria-label={text.detail.printing}>
             <li className="detail__code">{printing.setCode}</li>
             <li className="detail__rarity">
               <span className="rarity-mark" aria-hidden="true" />
@@ -52,7 +53,7 @@ export function CopyDetail({
           </ul>
           {price && <p className="detail__price">{priceLine(price)}</p>}
           <label className="detail__condition">
-            <span>Condition</span>
+            <span>{text.detail.condition}</span>
             <select
               value={copy.condition}
               onChange={(event) => onCondition(event.target.value as Condition)}
@@ -70,14 +71,14 @@ export function CopyDetail({
             className="control control--tonal"
             onClick={onReplace}
           >
-            Replace
+            {text.detail.replace}
           </button>
           <button
             type="button"
             className="control control--danger"
             onClick={onRemove}
           >
-            Remove from slot
+            {text.detail.remove}
           </button>
         </div>
       </div>
@@ -107,31 +108,4 @@ function usePrice(catalogue: Catalogue, { setCode, rarity }: Printing) {
     loadPrice,
     null,
   ).result;
-}
-
-// The guide date parses as UTC midnight, so a viewer west of Greenwich would otherwise see the day before.
-const guideDateFormat = new Intl.DateTimeFormat("en-GB", {
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-  timeZone: "UTC",
-});
-
-/** 40.06 € · Cardmarket, 23 Nov 2026: the euros keep their sign on the same line. */
-function priceLine({ cents, guideDate }: Price): string {
-  const euros = (cents / 100).toFixed(2);
-  const day = guideDateFormat.format(new Date(guideDate));
-  return `${euros}\u00a0€ · Cardmarket, ${day}`;
-}
-
-function statsLine(monster: MonsterStats): string {
-  const rating =
-    monster.rank !== undefined
-      ? `Rank ${monster.rank}`
-      : monster.linkRating !== undefined
-        ? `Link ${monster.linkRating}`
-        : `Level ${monster.level}`;
-  const attack = `ATK ${monster.atk ?? "?"}`;
-  const defense = monster.def !== undefined ? ` / DEF ${monster.def}` : "";
-  return `${monster.attribute} · ${monster.race} · ${rating} · ${attack}${defense}`;
 }

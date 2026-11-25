@@ -1,10 +1,10 @@
+import { text } from "./strings";
 import {
   MIN_QUERY_LENGTH,
   type Card,
   type CardSet,
   type Catalogue,
 } from "./catalogue";
-import { countOf } from "./catalogueStrings";
 import { RetryMessage, SearchIcon } from "./CatalogueStatus";
 
 /** What the panel shows in place of the search: one card's printings, or one set's. */
@@ -35,11 +35,8 @@ export function CatalogueResults({
       <div className="catalogue__message">
         <SearchIcon />
         <div>
-          <strong>Find a card or a set in the catalogue</strong>
-          <p>
-            Enter at least {MIN_QUERY_LENGTH} characters, such as Dark Magician,
-            The Lost Millennium, or LOB-EN005.
-          </p>
+          <strong>{text.catalogue.start}</strong>
+          <p>{text.catalogue.searchHint(MIN_QUERY_LENGTH)}</p>
         </div>
       </div>
     );
@@ -49,8 +46,8 @@ export function CatalogueResults({
   if (cards?.length === 0 && sets?.length === 0) {
     return (
       <div className="catalogue__message" role="status">
-        <strong>Nothing matches “{query}”.</strong>
-        <p>Try another card or set name, or check the set code.</p>
+        <strong>{text.catalogue.noMatches(query)}</strong>
+        <p>{text.catalogue.tryAnother}</p>
       </div>
     );
   }
@@ -59,19 +56,19 @@ export function CatalogueResults({
   const cardsPending = answer.cards === "pending";
   const setsPending = answer.sets === "pending";
   const counts = [
-    sets && countOf(sets.length, "set"),
-    cards && countOf(cards.length, "card"),
-  ].filter(Boolean);
+    ...(sets ? [text.catalogue.setCount(sets.length)] : []),
+    ...(cards ? [text.catalogue.cardCount(cards.length)] : []),
+  ];
   return (
     <>
       {(cardsFailed || setsFailed) && (
         <RetryMessage
           message={
             cardsFailed && setsFailed
-              ? "The card catalogue did not answer."
+              ? text.catalogue.catalogueFailed
               : cardsFailed
-                ? "Card search did not answer."
-                : "Set search did not answer."
+                ? text.catalogue.cardSearchFailed
+                : text.catalogue.setSearchFailed
           }
           onRetry={onRetry}
         />
@@ -79,21 +76,24 @@ export function CatalogueResults({
       {(cardsPending || setsPending) && (
         <p className="catalogue__result-count" role="status">
           {cardsPending && setsPending
-            ? "Searching the catalogue…"
+            ? text.catalogue.cataloguePending
             : cardsPending
-              ? "Searching for cards…"
-              : "Searching for sets…"}
+              ? text.catalogue.cardsPending
+              : text.catalogue.setsPending}
         </p>
       )}
       {counts.length > 0 && (
         <p className="catalogue__result-count" role="status">
-          {counts.join(" and ")} found
+          {text.catalogue.found(counts)}
         </p>
       )}
       {sets && sets.length > 0 && (
         <>
-          <h3 className="catalogue__group">Sets</h3>
-          <ul className="catalogue__results" aria-label="Matching sets">
+          <h3 className="catalogue__group">{text.catalogue.sets}</h3>
+          <ul
+            className="catalogue__results"
+            aria-label={text.catalogue.matchingSets}
+          >
             {sets.map((set, index) => {
               const id = `${resultId}-set-${index}`;
               return (
@@ -107,7 +107,8 @@ export function CatalogueResults({
                     <span className="catalogue__card-label">
                       <strong>{set.name}</strong>
                       <span>
-                        {set.prefix} · {countOf(set.printings, "printing")}
+                        {set.prefix} ·{" "}
+                        {text.catalogue.printingCount(set.printings)}
                       </span>
                     </span>
                     <span className="chevron" aria-hidden="true" />
@@ -120,8 +121,11 @@ export function CatalogueResults({
       )}
       {cards && cards.length > 0 && (
         <>
-          <h3 className="catalogue__group">Cards</h3>
-          <ul className="catalogue__results" aria-label="Matching cards">
+          <h3 className="catalogue__group">{text.catalogue.cards}</h3>
+          <ul
+            className="catalogue__results"
+            aria-label={text.catalogue.matchingCards}
+          >
             {cards.map((card) => {
               const id = `${resultId}-${card.passcode}`;
               return (
@@ -142,7 +146,7 @@ export function CatalogueResults({
                       <strong>{card.name}</strong>
                       <span>
                         {card.kind} ·{" "}
-                        {countOf(card.printings.length, "printing")}
+                        {text.catalogue.printingCount(card.printings.length)}
                       </span>
                     </span>
                     <span className="chevron" aria-hidden="true" />

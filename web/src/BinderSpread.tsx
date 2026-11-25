@@ -1,9 +1,9 @@
+import { pocketLabel, text } from "./strings";
 import { useRef, type PointerEvent } from "react";
 import { isTarget, type Aim } from "./aim";
 import {
   pageSlots,
   sameSlot,
-  slotName,
   spreadPages,
   type Binder,
   type Copy,
@@ -189,14 +189,13 @@ function PageSide({
   return (
     <section
       className={`page-side page-side--${side} page`}
-      aria-label={`Page ${page}`}
+      aria-label={text.binder.page(page)}
       inert={inert}
       {...(inert ? undefined : binderMarker())}
     >
       <div className="page__grid">
         {pageSlots(binder, page).map((copy, position) => {
           const address = { page, position };
-          const label = slotName(address);
           const dropping = dropTarget !== null && sameSlot(dropTarget, address);
           const shownCopy =
             pocketBeingEmptied !== null && sameSlot(pocketBeingEmptied, address)
@@ -219,9 +218,7 @@ function PageSide({
               type="button"
               className={className}
               {...(inert ? undefined : pocketMarker(address, copy !== null))}
-              aria-label={
-                copy ? `${label}: ${copy.card.name}` : `${label}, empty`
-              }
+              aria-label={pocketLabel(address, copy)}
               onPointerDown={(event) => {
                 if (copy && !inert && onCopyPress(address, copy, event)) {
                   event.stopPropagation();

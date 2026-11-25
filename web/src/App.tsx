@@ -1,3 +1,4 @@
+import { pagesLabel, slotName, text } from "./strings";
 import {
   useCallback,
   useEffect,
@@ -15,7 +16,6 @@ import {
   changeCondition,
   remove,
   slotAt,
-  slotName,
   spreadPages,
   type Copy,
   type SlotAddress,
@@ -155,7 +155,7 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
       case "place":
         return fileCopy(address, choice.card, choice.printing);
       case "refuse":
-        return announce(`${slotName(address)} is filled.`);
+        return announce(text.binder.filledPocket(address));
       case "open-detail":
         opener.current = button;
         return setDetail(address);
@@ -184,8 +184,8 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
           <div className="desk__identity">
             <span className="desk__mark" aria-hidden="true" />
             <div>
-              <h1>Grandpa Shop</h1>
-              <p>Cards you place are kept in this browser for now.</p>
+              <h1>{text.binder.title}</h1>
+              <p>{text.binder.storage}</p>
             </div>
           </div>
           <div className="desk__actions">
@@ -195,13 +195,13 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
               className="control control--tonal"
               onClick={() => openPanel(null)}
             >
-              <span aria-hidden="true">+</span> Add cards
+              <span aria-hidden="true">+</span> {text.binder.addCards}
             </button>
-            <nav className="binder__turns" aria-label="Turn the binder">
+            <nav className="binder__turns" aria-label={text.binder.turns}>
               <button
                 type="button"
                 className="control control--icon control--tonal"
-                aria-label="Previous spread"
+                aria-label={text.binder.previousSpread}
                 disabled={!canGoBack}
                 onClick={() => go("back")}
               >
@@ -213,7 +213,7 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
               <button
                 type="button"
                 className="control control--icon control--tonal"
-                aria-label="Next spread"
+                aria-label={text.binder.nextSpread}
                 disabled={!canGoForward}
                 onClick={() => go("forward")}
               >
@@ -318,10 +318,6 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
       )}
     </main>
   );
-}
-
-function pagesLabel(left: number | null, right: number | null): string {
-  return left && right ? `Pages ${left}–${right}` : `Page ${left ?? right}`;
 }
 
 function isTextField(target: EventTarget | null): boolean {
