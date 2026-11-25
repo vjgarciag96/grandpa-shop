@@ -2,6 +2,11 @@
 
 Grandpa Shop is a public Yu-Gi-Oh collection tracker. Read this file, then [CONTEXT.md](CONTEXT.md) and [ROADMAP.md](ROADMAP.md), before changing the repo.
 
+## Web
+
+- Follow running-calculator's flat source layout. Put binder rules in pure TypeScript modules, keep React focused on rendering and events, and collect UI wording in `web/src/strings.ts`.
+- Test pure rules in Node. For a browser check, build the web app and run Playwright against that build.
+
 ## Practices
 
 These match [CONTRIBUTING.md](CONTRIBUTING.md):

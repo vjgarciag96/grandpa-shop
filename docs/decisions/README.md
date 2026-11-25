@@ -19,3 +19,4 @@ A new dependency needs a new file in this folder in the same change that adds it
 | [0011](0011-server-json-is-kotlinx-serialization.md) | accepted | Server JSON is kotlinx.serialization through Ktor |
 | [0012](0012-web-tests-use-testing-library-on-jsdom.md) | accepted | Web tests use Testing Library on jsdom |
 | [0013](0013-prices-come-from-cardmarket-price-guide.md) | accepted | Prices come from Cardmarket's public price guide |
+| [0014](0014-browser-tests-use-playwright.md) | accepted | Browser tests use Playwright against the built web app |
