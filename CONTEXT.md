@@ -20,6 +20,10 @@ One physical card in the collection. It is a printing plus a condition. It sits 
 
 Every copy Víctor owns. There is one collection.
 
+## Shelf
+
+The named binders in the collection, with one binder open at a time.
+
 ## Binder
 
 A physical binder of pages.

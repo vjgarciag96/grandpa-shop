@@ -12,17 +12,17 @@ import {
 import { announced, silence, type Announcement } from './announcement';
 import type { Card, Printing } from './catalogue';
 
-export type BinderState = {
-  binder: Binder;
+export type BinderInteraction = {
   aim: Aim | null;
   moveAnnouncement: Announcement;
   /** What the catalogue says about placing: decided in the same update as the placement. */
   announcement: Announcement;
 };
 
-export function binderState(binder: Binder): BinderState {
+export type BinderState = BinderInteraction & { binder: Binder };
+
+export function binderInteraction(): BinderInteraction {
   return {
-    binder,
     aim: null,
     moveAnnouncement: silence,
     announcement: silence,

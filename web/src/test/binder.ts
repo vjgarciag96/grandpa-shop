@@ -4,6 +4,7 @@ import { darkMagician, potOfGreed } from './fakeCatalogue';
 
 /** Where the app keeps the binder in this browser. */
 export const SAVED_BINDER_KEY = 'grandpa-shop.dev-binder.v1';
+export const OPEN_BINDER_KEY = 'grandpa-shop.open-binder.v1';
 
 /** Dark Magician LOB-EN005 in Near Mint, as the saved binder stores a copy. */
 export const savedDarkMagician = {
