@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { CONDITIONS, type Condition, type Copy } from "./binder";
 import type { Catalogue, MonsterStats, Price, Printing } from "./catalogue";
 import { Dialog } from "./Dialog";
+import { useCatalogueRequest } from "./useCatalogueRequest";
 
 type Props = {
   copy: Copy;
@@ -84,39 +85,28 @@ export function CopyDetail({
   );
 }
 
-type PriceAnswer = {
-  catalogue: Catalogue;
-  setCode: string;
-  rarity: string;
-  price: Price;
-};
+type PrintingKey = Pick<Printing, "setCode" | "rarity">;
 
-/**
- * The printing's price once the catalogue has answered it; null before that, when there is none,
- * and when the lookup failed: a copy whose price cannot be fetched looks exactly as one with no price.
- */
+function loadPrice(
+  catalogue: Catalogue,
+  key: PrintingKey,
+  signal: AbortSignal,
+  publish: (update: (previous: Price | null) => Price | null) => void,
+) {
+  void catalogue.price(key, signal).then(
+    (price) => publish(() => price),
+    () => publish(() => null),
+  );
+}
+
 function usePrice(catalogue: Catalogue, { setCode, rarity }: Printing) {
-  const [answer, setAnswer] = useState<PriceAnswer | null>(null);
-  const price =
-    answer?.catalogue === catalogue &&
-    answer.setCode === setCode &&
-    answer.rarity === rarity
-      ? answer.price
-      : null;
-
-  useEffect(() => {
-    const request = new AbortController();
-    catalogue.price({ setCode, rarity }, request.signal).then(
-      (found) => {
-        if (found && !request.signal.aborted)
-          setAnswer({ catalogue, setCode, rarity, price: found });
-      },
-      () => {}, // A failed lookup deliberately shows no line.
-    );
-    return () => request.abort();
-  }, [catalogue, setCode, rarity]);
-
-  return price;
+  const key = useMemo(() => ({ setCode, rarity }), [setCode, rarity]);
+  return useCatalogueRequest<PrintingKey, Price | null>(
+    catalogue,
+    key,
+    loadPrice,
+    null,
+  ).result;
 }
 
 // The guide date parses as UTC midnight, so a viewer west of Greenwich would otherwise see the day before.
