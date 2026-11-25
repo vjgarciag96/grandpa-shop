@@ -1,8 +1,10 @@
 // @vitest-environment node
 import { expect, it } from 'vitest';
-import { emptyBinder, place, slotAt, type Copy } from './binder';
-import { binderState, moveAt, placeAt, removeAt } from './binderState';
+import { emptyBinder, place, slotAt, type Binder, type Copy } from './binder';
+import { binderInteraction, moveAt, placeAt, removeAt } from './binderState';
 import { darkMagician, potOfGreed } from './test/fakeCatalogue';
+
+const binderState = (binder: Binder) => ({ binder, ...binderInteraction() });
 
 const first = { page: 1, position: 0 };
 const second = { page: 1, position: 1 };

@@ -1,5 +1,6 @@
 import { screen, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { loadShelf } from './savedShelf';
 import { openApp, openPotOfGreedOverDarkMagician } from './test/app';
 import {
   SAVED_BINDER_KEY,
@@ -128,9 +129,10 @@ describe('the binder across reloads', () => {
     moveCopyWithMouse(slot('Page 1, slot 1: Dark Magician'), slot('Page 1, slot 2: Dark Magician'));
     first.close();
 
-    const saved = JSON.parse(localStorage.getItem(SAVED_BINDER_KEY) ?? 'null');
-    expect(saved.slots).toHaveLength(360);
-    expect(saved.slots.slice(2)).toEqual(slots.slice(2));
+    const shelf = loadShelf();
+    const saved = shelf.binders[shelf.activeIndex].binder.slots;
+    expect(saved).toHaveLength(360);
+    expect(saved.slice(2)).toEqual(slots.slice(2));
   });
 
   it('keeps a replaced copy gone when the app is opened again', async () => {

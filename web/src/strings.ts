@@ -108,6 +108,15 @@ export const text = {
     filledPocket: (address: SlotAddress) => `${slotName(address)} is filled.`,
     page: (page: number) => `Page ${page}`,
   },
+  shelf: {
+    title: 'Binder shelf',
+    defaultName: 'Binder 1',
+    open: 'Open',
+    name: 'Binder name',
+    create: 'Create binder',
+    blankName: 'Enter a binder name.',
+    duplicateName: 'A binder already uses this name.',
+  },
   catalogue: {
     name: 'Catalogue',
     close: 'Close catalogue',

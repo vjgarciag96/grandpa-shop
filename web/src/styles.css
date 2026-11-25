@@ -134,6 +134,7 @@ body {
 
 .desk__identity {
   display: flex;
+  min-width: 0;
   align-items: center;
   gap: calc(var(--space-slot) * 1.5);
 }
@@ -176,6 +177,10 @@ body {
   margin: calc(var(--space-slot) * 0.5) 0 0;
   color: var(--color-on-surface-variant);
   font-size: var(--type-body-small);
+}
+
+.desk__binder-name {
+  overflow-wrap: anywhere;
 }
 
 .desk__actions {
@@ -444,6 +449,71 @@ html:has(.dialog-backdrop) {
 
 .dialog__close {
   margin: calc(var(--space-slot) * -0.5) calc(var(--space-slot) * -0.5) 0 0;
+}
+
+.shelf-dialog {
+  width: min(calc(var(--space-slot) * 60), 100%);
+}
+
+.binder-dialog__body {
+  display: grid;
+  gap: calc(var(--space-slot) * 2);
+  padding: 0 var(--dialog-inset) var(--dialog-inset);
+}
+
+.shelf-dialog__storage {
+  margin: 0;
+  color: var(--color-on-surface-variant);
+  font-size: var(--type-body-small);
+}
+
+.shelf-dialog__binders {
+  display: grid;
+  gap: var(--space-slot);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.shelf-dialog__binders .control {
+  justify-content: space-between;
+  width: 100%;
+  text-align: start;
+  overflow-wrap: anywhere;
+}
+
+.shelf-dialog__binders .control[aria-current='true'] {
+  --control-bg: var(--color-primary-container);
+  --control-fg: var(--color-on-primary-container);
+}
+
+.binder-dialog__form,
+.binder-dialog__form label {
+  display: grid;
+  gap: var(--space-slot);
+}
+
+.binder-dialog__form {
+  gap: calc(var(--space-slot) * 1.5);
+}
+
+.binder-dialog__form :is(input, select) {
+  min-width: 0;
+  min-height: var(--target-size);
+  padding: var(--space-slot) calc(var(--space-slot) * 1.5);
+  border: var(--empty-slot-stroke) solid var(--color-outline);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+}
+
+.binder-dialog__form .control {
+  justify-self: end;
+}
+
+.binder-dialog__error {
+  margin: 0;
+  color: var(--color-error);
 }
 
 .detail {

@@ -1,10 +1,20 @@
 import { pagesLabel, slotName, text } from './strings';
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type Ref,
+} from 'react';
 import { chooseSlot, choosePrinting, type Aim } from './aim';
 import { BinderSpread } from './BinderSpread';
 import { CataloguePanel } from './CataloguePanel';
 import { CopyDetail } from './CopyDetail';
-import { loadBinder, saveBinder } from './savedBinder';
+import { loadShelf } from './savedShelf';
+import { addBinder, openBinder, replaceOpenBinder, type Shelf } from './shelf';
+import { ShelfDialog } from './ShelfDialog';
 import {
   changeCondition,
   remove,
@@ -19,14 +29,146 @@ import { LiveRegion } from './LiveRegion';
 import { PANEL_BESIDE_FROM_PX, STACK_BELOW_PX } from './tokens';
 import { useMediaQuery } from './useMediaQuery';
 import { useDragToPocket } from './useDragToPocket';
+import { useShelfPersistence, type BinderSelection } from './useShelfPersistence';
 import { useSpreadTurns } from './useSpreadTurns';
 
-import { binderState, moveAt, placeAt, removeAt } from './binderState';
+import {
+  binderInteraction,
+  moveAt,
+  placeAt,
+  removeAt,
+  type BinderInteraction,
+  type BinderState,
+} from './binderState';
+
+type DeskState = {
+  shelf: Shelf;
+  interaction: BinderInteraction;
+  workspaceVersion: number;
+  selection: BinderSelection | null;
+};
+
+function reopenWorkspace(current: DeskState, shelf: Shelf): DeskState {
+  return {
+    ...current,
+    shelf,
+    interaction: binderInteraction(),
+    workspaceVersion: current.workspaceVersion + 1,
+  };
+}
+
+function chooseWorkspace(current: DeskState, shelf: Shelf): DeskState {
+  return {
+    ...reopenWorkspace(current, shelf),
+    selection: { name: shelf.binders[shelf.activeIndex].name },
+  };
+}
 
 export default function App({ catalogue }: { catalogue: Catalogue }) {
-  const [{ binder, aim, moveAnnouncement, announcement }, setBinderState] = useState(() =>
-    binderState(loadBinder()),
+  const [{ shelf, interaction, workspaceVersion, selection }, setState] = useState<DeskState>(
+    () => ({
+      shelf: loadShelf(),
+      interaction: binderInteraction(),
+      workspaceVersion: 0,
+      selection: null,
+    }),
   );
+  const [shelfOpen, setShelfOpen] = useState(false);
+  const shelfButton = useRef<HTMLButtonElement>(null);
+  const restoreFocus = useRef(false);
+  const { activeIndex, binders } = shelf;
+  const { name, binder } = binders[activeIndex];
+  useShelfPersistence(binders, selection);
+
+  useLayoutEffect(() => {
+    if (!shelfOpen && restoreFocus.current) {
+      shelfButton.current?.focus({ preventScroll: true });
+      restoreFocus.current = false;
+    }
+  }, [shelfOpen]);
+
+  const updateBinder = useCallback(
+    (update: (state: BinderState) => BinderState) => {
+      setState((current) => {
+        if (current.workspaceVersion !== workspaceVersion) return current;
+        const before = {
+          ...current.interaction,
+          binder: current.shelf.binders[current.shelf.activeIndex].binder,
+        };
+        const next = update(before);
+        if (next === before) return current;
+        const { binder, ...interaction } = next;
+        return { ...current, shelf: replaceOpenBinder(current.shelf, binder), interaction };
+      });
+    },
+    [workspaceVersion],
+  );
+
+  const showShelf = () => {
+    restoreFocus.current = true;
+    setShelfOpen(true);
+  };
+  const closeShelf = () => setShelfOpen(false);
+
+  const selectBinder = (index: number) => {
+    if (!binders[index]) return;
+    setState((current) => chooseWorkspace(current, openBinder(current.shelf, index)));
+    closeShelf();
+  };
+
+  const createBinder = (name: string) => {
+    const addition = addBinder(shelf, name);
+    if (addition.kind !== 'added') return addition.kind;
+    setState((current) => {
+      const added = current.shelf === shelf ? addition : addBinder(current.shelf, name);
+      return added.kind === 'added' ? chooseWorkspace(current, added.shelf) : current;
+    });
+    closeShelf();
+  };
+
+  return (
+    <>
+      <BinderWorkspace
+        key={workspaceVersion}
+        name={name}
+        state={{ binder, ...interaction }}
+        setBinderState={updateBinder}
+        catalogue={catalogue}
+        shelfOpen={shelfOpen}
+        shelfButton={shelfButton}
+        onShelf={showShelf}
+      />
+      {shelfOpen && (
+        <ShelfDialog
+          shelf={shelf}
+          onOpen={selectBinder}
+          onCreate={createBinder}
+          onClose={closeShelf}
+        />
+      )}
+    </>
+  );
+}
+
+type WorkspaceProps = {
+  name: string;
+  state: BinderState;
+  setBinderState: (update: (state: BinderState) => BinderState) => void;
+  catalogue: Catalogue;
+  shelfOpen: boolean;
+  shelfButton: Ref<HTMLButtonElement>;
+  onShelf: () => void;
+};
+
+function BinderWorkspace({
+  name,
+  state: { binder, aim, moveAnnouncement, announcement },
+  setBinderState,
+  catalogue,
+  shelfOpen,
+  shelfButton,
+  onShelf,
+}: WorkspaceProps) {
   const [detail, setDetail] = useState<SlotAddress | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
   const [panelFocus, setPanelFocus] = useState(0);
@@ -47,11 +189,9 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
   const { spread, turn, go, canGoBack, canGoForward } = useSpreadTurns(reducedMotion || stacked);
   const { left, right } = spreadPages(spread);
 
-  useEffect(() => saveBinder(binder), [binder]);
-
   const setAim = useCallback(
     (aim: Aim | null) => setBinderState((current) => ({ ...current, aim })),
-    [],
+    [setBinderState],
   );
 
   const silenceCatalogue = useCallback(
@@ -60,11 +200,13 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
         ...current,
         announcement: silenced(current.announcement),
       })),
-    [],
+    [setBinderState],
   );
 
+  const workspaceInert = detail !== null || shelfOpen;
+
   useEffect(() => {
-    if (detail) return;
+    if (workspaceInert) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setAim(null);
@@ -76,7 +218,7 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
     };
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
-  }, [detail, go, setAim, silenceCatalogue]);
+  }, [workspaceInert, go, setAim, silenceCatalogue]);
 
   const announce = (text: string) =>
     setBinderState((current) => ({
@@ -100,8 +242,8 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
   const fileCopy = (address: SlotAddress, card: Card, printing: Printing) =>
     setBinderState((current) => placeAt(current, address, card, printing));
 
-  const canDragPrinting = panelOpen && beside && detail === null;
-  const canMoveCopy = turn === null && detail === null;
+  const canDragPrinting = panelOpen && beside && !workspaceInert;
+  const canMoveCopy = turn === null && !workspaceInert;
 
   const visible = (page: number) => page === left || page === right;
 
@@ -166,16 +308,25 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
 
   return (
     <main className={`desk${deskLayout}`}>
-      <div className="desk__main" inert={detail !== null}>
+      <div className="desk__main" inert={workspaceInert}>
         <header className="desk__head">
           <div className="desk__identity">
             <span className="desk__mark" aria-hidden="true" />
             <div>
               <h1>{text.binder.title}</h1>
-              <p>{text.binder.storage}</p>
+              <p className="desk__binder-name">{name}</p>
             </div>
           </div>
           <div className="desk__actions">
+            <button
+              ref={shelfButton}
+              type="button"
+              className="control control--tonal"
+              aria-haspopup="dialog"
+              onClick={onShelf}
+            >
+              {text.shelf.title}
+            </button>
             <button
               ref={addCards}
               type="button"
@@ -235,7 +386,7 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
           replacing={aim?.kind === 'target' ? slotAt(binder, aim.address) : null}
           announcement={announcement}
           beside={beside}
-          inert={detail !== null}
+          inert={workspaceInert}
           focusRequest={panelFocus}
           onPrintingPress={
             canDragPrinting
