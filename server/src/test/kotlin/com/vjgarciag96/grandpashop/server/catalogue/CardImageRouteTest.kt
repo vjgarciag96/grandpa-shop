@@ -9,12 +9,19 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.IOException
 import java.nio.file.Path
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 class CardImageRouteTest {
     @TempDir
@@ -64,7 +71,7 @@ class CardImageRouteTest {
             val catalogue = CardCatalogue.fromYgoprodeckJson(fixture)
             val restarted = CardImages(cacheDir, catalogue) { error("the source must not be asked again") }
 
-            val image = restarted.image(Passcode(46986414))
+            val image = runBlocking { restarted.image(Passcode(46986414)) }
 
             assertArrayEquals(darkMagicianJpeg, image)
         }
@@ -76,6 +83,28 @@ class CardImageRouteTest {
 
             assertEquals(HttpStatusCode.NotFound to emptyList<Long>(), status to fetched)
         }
+
+    @Test
+    fun a_slow_fetch_leaves_the_calling_thread_free_for_other_requests() {
+        val requestThread = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+        val otherRequestServed = CountDownLatch(1)
+        val images =
+            CardImages(cacheDir, fixtureCatalogue()) {
+                check(otherRequestServed.await(5, TimeUnit.SECONDS)) { "the other request never ran" }
+                darkMagicianJpeg
+            }
+
+        val image =
+            requestThread.use {
+                runBlocking(requestThread) {
+                    val slow = async { images.image(Passcode(46986414)) }
+                    launch { otherRequestServed.countDown() }
+                    slow.await()
+                }
+            }
+
+        assertArrayEquals(darkMagicianJpeg, image)
+    }
 
     @Test
     fun answers_not_found_for_a_passcode_that_is_not_a_number() =
