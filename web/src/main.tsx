@@ -1,7 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
-import { httpCatalogue } from "./catalogue";
+import { httpCatalogue } from "./httpCatalogue";
 import { applyTokens } from "./tokens";
 import "./styles.css";
 
