@@ -1,5 +1,5 @@
-import { text } from "./strings";
-import { useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
+import { text } from './strings';
+import { useEffect, useLayoutEffect, useRef, type ReactNode } from 'react';
 
 type Props = {
   title: string;
@@ -9,13 +9,7 @@ type Props = {
   children: ReactNode;
 };
 
-export function Dialog({
-  title,
-  subtitle,
-  className,
-  onClose,
-  children,
-}: Props) {
+export function Dialog({ title, subtitle, className, onClose, children }: Props) {
   const dialog = useRef<HTMLDivElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
 
@@ -27,53 +21,44 @@ export function Dialog({
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
+      if (event.key === 'Escape') {
         onClose();
         return;
       }
-      if (event.key !== "Tab") return;
+      if (event.key !== 'Tab') return;
       const controls = Array.from(
-        dialog.current?.querySelectorAll<
-          HTMLButtonElement | HTMLInputElement | HTMLSelectElement
-        >("button:enabled, input:enabled, select:enabled") ?? [],
+        dialog.current?.querySelectorAll<HTMLButtonElement | HTMLInputElement | HTMLSelectElement>(
+          'button:enabled, input:enabled, select:enabled',
+        ) ?? [],
       );
       // A native radio group has one tab stop, even when it has many options.
       const radio =
         controls.find(
           (control) =>
-            control instanceof HTMLInputElement &&
-            control.type === "radio" &&
-            control.checked,
+            control instanceof HTMLInputElement && control.type === 'radio' && control.checked,
         ) ??
-        controls.find(
-          (control) =>
-            control instanceof HTMLInputElement && control.type === "radio",
-        );
+        controls.find((control) => control instanceof HTMLInputElement && control.type === 'radio');
       const tabStops = controls.filter(
         (control) =>
-          !(control instanceof HTMLInputElement && control.type === "radio") ||
-          control === radio,
+          !(control instanceof HTMLInputElement && control.type === 'radio') || control === radio,
       );
       const first = tabStops[0];
       const last = tabStops.at(-1);
       const active = document.activeElement;
-      if (
-        !dialog.current?.contains(active) ||
-        active === (event.shiftKey ? first : last)
-      ) {
+      if (!dialog.current?.contains(active) || active === (event.shiftKey ? first : last)) {
         event.preventDefault();
         (event.shiftKey ? last : first)?.focus();
       }
     };
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
   }, [onClose]);
 
   return (
     <div className="dialog-backdrop" onClick={onClose}>
       <div
         ref={dialog}
-        className={className ? `dialog ${className}` : "dialog"}
+        className={className ? `dialog ${className}` : 'dialog'}
         role="dialog"
         aria-modal="true"
         aria-label={title}

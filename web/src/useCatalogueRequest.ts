@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import type { Catalogue } from "./catalogue";
+import { useEffect, useMemo, useState } from 'react';
+import type { Catalogue } from './catalogue';
 
 type Request<Input, Result> = (
   catalogue: Catalogue,
@@ -38,8 +38,7 @@ export function useCatalogueRequest<Input, Result>(
           result: update(previous?.key === key ? previous.result : key.pending),
         }));
       });
-    const timer =
-      key.delay > 0 ? window.setTimeout(start, key.delay) : undefined;
+    const timer = key.delay > 0 ? window.setTimeout(start, key.delay) : undefined;
     if (timer === undefined) start();
     return () => {
       if (timer !== undefined) window.clearTimeout(timer);

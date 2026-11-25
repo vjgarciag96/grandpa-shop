@@ -1,4 +1,4 @@
-import type { SlotAddress } from "./binder";
+import type { SlotAddress } from './binder';
 
 export type Point = { readonly x: number; readonly y: number };
 export type Size = { readonly width: number; readonly height: number };
@@ -72,10 +72,8 @@ export function ghostAt(pointer: Point, grab: Point, size: Size): Rect {
 }
 
 function overlap(a: Rect, b: Rect): number {
-  const width =
-    Math.min(a.left + a.width, b.left + b.width) - Math.max(a.left, b.left);
-  const height =
-    Math.min(a.top + a.height, b.top + b.height) - Math.max(a.top, b.top);
+  const width = Math.min(a.left + a.width, b.left + b.width) - Math.max(a.left, b.left);
+  const height = Math.min(a.top + a.height, b.top + b.height) - Math.max(a.top, b.top);
   return width > 0 && height > 0 ? width * height : 0;
 }
 

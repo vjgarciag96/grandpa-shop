@@ -1,17 +1,15 @@
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { createElement } from "react";
-import App from "../App";
-import { saveBinderWith, savedPlayedSdyDarkMagician } from "./binder";
-import { fakeCatalogue } from "./fakeCatalogue";
-import { viewportWidth } from "./media";
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { createElement } from 'react';
+import App from '../App';
+import { saveBinderWith, savedPlayedSdyDarkMagician } from './binder';
+import { fakeCatalogue } from './fakeCatalogue';
+import { viewportWidth } from './media';
 
 /** Renders the app on the fake catalogue, in a viewport `width` pixels wide when given. */
 export function openApp(width?: number) {
   if (width !== undefined) viewportWidth(width);
-  const view = render(
-    createElement(App, { catalogue: fakeCatalogue().catalogue }),
-  );
+  const view = render(createElement(App, { catalogue: fakeCatalogue().catalogue }));
   return { user: userEvent.setup(), close: view.unmount };
 }
 
@@ -21,12 +19,9 @@ export async function openCatalogueResult(
   query: string,
   result: RegExp,
 ) {
-  await user.click(screen.getByRole("button", { name: "Add cards" }));
-  await user.type(
-    screen.getByRole("searchbox", { name: "Search cards and sets" }),
-    query,
-  );
-  await user.click(await screen.findByRole("button", { name: result }));
+  await user.click(screen.getByRole('button', { name: 'Add cards' }));
+  await user.type(screen.getByRole('searchbox', { name: 'Search cards and sets' }), query);
+  await user.click(await screen.findByRole('button', { name: result }));
 }
 
 /**
@@ -39,6 +34,6 @@ export async function openPotOfGreedOverDarkMagician(
 ) {
   saveBinderWith({ 0: savedPlayedSdyDarkMagician, ...alsoFiled });
   const app = openApp(width);
-  await openCatalogueResult(app.user, "pot", /Pot of Greed/);
+  await openCatalogueResult(app.user, 'pot', /Pot of Greed/);
   return app;
 }

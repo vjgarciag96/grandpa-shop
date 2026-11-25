@@ -1,23 +1,13 @@
-import { text } from "./strings";
+import { text } from './strings';
 export function SearchIcon() {
   return <span className="catalogue__magnifier" aria-hidden="true" />;
 }
 
-export function RetryMessage({
-  message,
-  onRetry,
-}: {
-  message: string;
-  onRetry: () => void;
-}) {
+export function RetryMessage({ message, onRetry }: { message: string; onRetry: () => void }) {
   return (
     <div className="catalogue__message">
       <strong role="alert">{message}</strong>
-      <button
-        type="button"
-        className="control control--tonal"
-        onClick={onRetry}
-      >
+      <button type="button" className="control control--tonal" onClick={onRetry}>
         {text.catalogue.retry}
       </button>
     </div>

@@ -1,18 +1,18 @@
-import type { Aim } from "./aim";
-import type { Copy, SlotAddress } from "./binder";
-import type { MonsterStats, Price } from "./catalogue";
+import type { Aim } from './aim';
+import type { Copy, SlotAddress } from './binder';
+import type { MonsterStats, Price } from './catalogue';
 
 export function catalogueHeading(
   aim: Aim | null,
   replacing: Copy | null,
 ): { title: string; hint?: string } {
-  if (aim?.kind === "holding") {
+  if (aim?.kind === 'holding') {
     return {
       title: `Holding ${aim.printing.setCode}`,
-      hint: "Choose an empty slot",
+      hint: 'Choose an empty slot',
     };
   }
-  if (aim?.kind === "target") {
+  if (aim?.kind === 'target') {
     return replacing
       ? {
           title: `Replacing ${replacing.card.name}`,
@@ -22,7 +22,7 @@ export function catalogueHeading(
   }
   return {
     title: text.binder.addCards,
-    hint: "Pick up a printing, then choose an empty slot",
+    hint: 'Pick up a printing, then choose an empty slot',
   };
 }
 
@@ -45,11 +45,11 @@ export function pagesLabel(left: number | null, right: number | null): string {
 }
 
 // The guide date parses as UTC midnight, so a viewer west of Greenwich would otherwise see the day before.
-const guideDateFormat = new Intl.DateTimeFormat("en-GB", {
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-  timeZone: "UTC",
+const guideDateFormat = new Intl.DateTimeFormat('en-GB', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+  timeZone: 'UTC',
 });
 
 /** 40.06 € · Cardmarket, 23 Nov 2026: the euros keep their sign on the same line. */
@@ -66,8 +66,8 @@ export function statsLine(monster: MonsterStats): string {
       : monster.linkRating !== undefined
         ? `Link ${monster.linkRating}`
         : `Level ${monster.level}`;
-  const attack = `ATK ${monster.atk ?? "?"}`;
-  const defense = monster.def !== undefined ? ` / DEF ${monster.def}` : "";
+  const attack = `ATK ${monster.atk ?? '?'}`;
+  const defense = monster.def !== undefined ? ` / DEF ${monster.def}` : '';
   return `${monster.attribute} · ${monster.race} · ${rating} · ${attack}${defense}`;
 }
 
@@ -76,15 +76,9 @@ export function pocketLabel(address: SlotAddress, copy: Copy | null): string {
   return copy ? `${label}: ${copy.card.name}` : `${label}, empty`;
 }
 
-export function placedPrinting(
-  setCode: string,
-  to: SlotAddress,
-  replaced?: string,
-): string {
+export function placedPrinting(setCode: string, to: SlotAddress, replaced?: string): string {
   const placed = `Placed ${setCode} in ${slotNameInSentence(to)}`;
-  return replaced !== undefined
-    ? `${placed}, replacing ${replaced}.`
-    : `${placed}.`;
+  return replaced !== undefined ? `${placed}, replacing ${replaced}.` : `${placed}.`;
 }
 
 export function movedPrinting(
@@ -105,51 +99,51 @@ export function removedPrinting(setCode: string, from: SlotAddress): string {
 
 export const text = {
   binder: {
-    title: "Grandpa Shop",
-    storage: "Cards you place are kept in this browser for now.",
-    addCards: "Add cards",
-    turns: "Turn the binder",
-    previousSpread: "Previous spread",
-    nextSpread: "Next spread",
+    title: 'Grandpa Shop',
+    storage: 'Cards you place are kept in this browser for now.',
+    addCards: 'Add cards',
+    turns: 'Turn the binder',
+    previousSpread: 'Previous spread',
+    nextSpread: 'Next spread',
     filledPocket: (address: SlotAddress) => `${slotName(address)} is filled.`,
     page: (page: number) => `Page ${page}`,
   },
   catalogue: {
-    name: "Catalogue",
-    close: "Close catalogue",
-    search: "Search cards and sets",
-    placeholder: "Card, set, or set code",
-    clear: "Clear search",
-    start: "Find a card or a set in the catalogue",
+    name: 'Catalogue',
+    close: 'Close catalogue',
+    search: 'Search cards and sets',
+    placeholder: 'Card, set, or set code',
+    clear: 'Clear search',
+    start: 'Find a card or a set in the catalogue',
     searchHint: (minimum: number) =>
       `Enter at least ${minimum} characters, such as Dark Magician, The Lost Millennium, or LOB-EN005.`,
     noMatches: (query: string) => `Nothing matches “${query}”.`,
-    tryAnother: "Try another card or set name, or check the set code.",
-    catalogueFailed: "The card catalogue did not answer.",
-    cardSearchFailed: "Card search did not answer.",
-    setSearchFailed: "Set search did not answer.",
-    cataloguePending: "Searching the catalogue…",
-    cardsPending: "Searching for cards…",
-    setsPending: "Searching for sets…",
-    found: (counts: string[]) => `${counts.join(" and ")} found`,
-    sets: "Sets",
-    matchingSets: "Matching sets",
-    cards: "Cards",
-    matchingCards: "Matching cards",
-    printings: "Printings",
-    openingSet: "Opening the set…",
-    setFailed: "The set did not load.",
-    retry: "Try again",
-    backToResults: "Back to results",
-    setCount: (count: number) => countOf(count, "set"),
-    cardCount: (count: number) => countOf(count, "card"),
-    printingCount: (count: number) => countOf(count, "printing"),
+    tryAnother: 'Try another card or set name, or check the set code.',
+    catalogueFailed: 'The card catalogue did not answer.',
+    cardSearchFailed: 'Card search did not answer.',
+    setSearchFailed: 'Set search did not answer.',
+    cataloguePending: 'Searching the catalogue…',
+    cardsPending: 'Searching for cards…',
+    setsPending: 'Searching for sets…',
+    found: (counts: string[]) => `${counts.join(' and ')} found`,
+    sets: 'Sets',
+    matchingSets: 'Matching sets',
+    cards: 'Cards',
+    matchingCards: 'Matching cards',
+    printings: 'Printings',
+    openingSet: 'Opening the set…',
+    setFailed: 'The set did not load.',
+    retry: 'Try again',
+    backToResults: 'Back to results',
+    setCount: (count: number) => countOf(count, 'set'),
+    cardCount: (count: number) => countOf(count, 'card'),
+    printingCount: (count: number) => countOf(count, 'printing'),
   },
   detail: {
-    printing: "Printing",
-    condition: "Condition",
-    replace: "Replace",
-    remove: "Remove from slot",
-    close: "Close",
+    printing: 'Printing',
+    condition: 'Condition',
+    replace: 'Replace',
+    remove: 'Remove from slot',
+    close: 'Close',
   },
 };

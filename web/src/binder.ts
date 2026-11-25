@@ -1,11 +1,11 @@
-import type { Card, Printing } from "./catalogue";
+import type { Card, Printing } from './catalogue';
 
 export const CONDITIONS = [
-  "Near Mint",
-  "Lightly Played",
-  "Moderately Played",
-  "Heavily Played",
-  "Damaged",
+  'Near Mint',
+  'Lightly Played',
+  'Moderately Played',
+  'Heavily Played',
+  'Damaged',
 ] as const;
 
 export type Condition = (typeof CONDITIONS)[number];
@@ -36,11 +36,7 @@ export function emptyBinder(): Binder {
   return { slots: Array<Copy | null>(PAGES * SLOTS_PER_PAGE).fill(null) };
 }
 
-export function place(
-  binder: Binder,
-  address: SlotAddress,
-  copy: Copy,
-): Binder {
+export function place(binder: Binder, address: SlotAddress, copy: Copy): Binder {
   const slots = [...binder.slots];
   slots[indexOf(address)] = copy;
   return { slots };
@@ -54,49 +50,39 @@ export function remove(binder: Binder, address: SlotAddress): Binder {
 
 /** What moving a copy did: nothing, a move into an empty slot, or a swap with the copy that was there. */
 export type CopyMove =
-  | { readonly kind: "refused" }
-  | { readonly kind: "moved"; readonly binder: Binder }
+  | { readonly kind: 'refused' }
+  | { readonly kind: 'moved'; readonly binder: Binder }
   | {
-      readonly kind: "swapped";
+      readonly kind: 'swapped';
       readonly binder: Binder;
       readonly displaced: Copy;
     };
 
 /** Moves `copy` from `from` to `to`. A copy already in `to` takes `from`. Refused if `from` no longer holds `copy` or `from` is `to`. */
-export function moveCopy(
-  binder: Binder,
-  from: SlotAddress,
-  to: SlotAddress,
-  copy: Copy,
-): CopyMove {
+export function moveCopy(binder: Binder, from: SlotAddress, to: SlotAddress, copy: Copy): CopyMove {
   const source = indexOf(from);
   const destination = indexOf(to);
   if (binder.slots[source] !== copy || source === destination) {
-    return { kind: "refused" };
+    return { kind: 'refused' };
   }
   const displaced = binder.slots[destination];
   const slots = [...binder.slots];
   slots[source] = displaced;
   slots[destination] = copy;
   return displaced
-    ? { kind: "swapped", binder: { slots }, displaced }
-    : { kind: "moved", binder: { slots } };
+    ? { kind: 'swapped', binder: { slots }, displaced }
+    : { kind: 'moved', binder: { slots } };
 }
 
 /** What removing a copy did: nothing, or took it out of its slot. */
 export type CopyRemoval =
-  | { readonly kind: "refused" }
-  | { readonly kind: "removed"; readonly binder: Binder };
+  { readonly kind: 'refused' } | { readonly kind: 'removed'; readonly binder: Binder };
 
 /** Takes `copy` out of `from`. Refused if `from` no longer holds `copy`. */
-export function removeCopy(
-  binder: Binder,
-  from: SlotAddress,
-  copy: Copy,
-): CopyRemoval {
+export function removeCopy(binder: Binder, from: SlotAddress, copy: Copy): CopyRemoval {
   return binder.slots[indexOf(from)] === copy
-    ? { kind: "removed", binder: remove(binder, from) }
-    : { kind: "refused" };
+    ? { kind: 'removed', binder: remove(binder, from) }
+    : { kind: 'refused' };
 }
 
 export function changeCondition(
@@ -112,10 +98,7 @@ export function slotAt(binder: Binder, address: SlotAddress): Copy | null {
   return binder.slots[indexOf(address)];
 }
 
-export function pageSlots(
-  binder: Binder,
-  page: number,
-): ReadonlyArray<Copy | null> {
+export function pageSlots(binder: Binder, page: number): ReadonlyArray<Copy | null> {
   const start = indexOf({ page, position: 0 });
   return binder.slots.slice(start, start + SLOTS_PER_PAGE);
 }

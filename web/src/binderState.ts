@@ -1,5 +1,5 @@
-import { movedPrinting, placedPrinting, removedPrinting } from "./strings";
-import { isTarget, type Aim } from "./aim";
+import { movedPrinting, placedPrinting, removedPrinting } from './strings';
+import { isTarget, type Aim } from './aim';
 import {
   moveCopy,
   place,
@@ -8,9 +8,9 @@ import {
   type Binder,
   type Copy,
   type SlotAddress,
-} from "./binder";
-import { announced, silence, type Announcement } from "./announcement";
-import type { Card, Printing } from "./catalogue";
+} from './binder';
+import { announced, silence, type Announcement } from './announcement';
+import type { Card, Printing } from './catalogue';
 
 export type BinderState = {
   binder: Binder;
@@ -42,7 +42,7 @@ export function placeAt(
     binder: place(current.binder, address, {
       card,
       printing,
-      condition: "Near Mint",
+      condition: 'Near Mint',
     }),
     aim: null,
     announcement: announced(
@@ -59,15 +59,12 @@ export function moveAt(
   copy: Copy,
 ): BinderState {
   const move = moveCopy(current.binder, from, to, copy);
-  if (move.kind === "refused") return current;
-  const swapped = move.kind === "swapped";
+  if (move.kind === 'refused') return current;
+  const swapped = move.kind === 'swapped';
   return {
     ...current,
     binder: move.binder,
-    aim:
-      isTarget(current.aim, to) || (swapped && isTarget(current.aim, from))
-        ? null
-        : current.aim,
+    aim: isTarget(current.aim, to) || (swapped && isTarget(current.aim, from)) ? null : current.aim,
     moveAnnouncement: announced(
       current.moveAnnouncement,
       movedPrinting(
@@ -81,13 +78,9 @@ export function moveAt(
 }
 
 /** Takes a dragged copy out. A catalogue target on its pocket stays, now empty. */
-export function removeAt(
-  current: BinderState,
-  from: SlotAddress,
-  copy: Copy,
-): BinderState {
+export function removeAt(current: BinderState, from: SlotAddress, copy: Copy): BinderState {
   const removal = removeCopy(current.binder, from, copy);
-  if (removal.kind === "refused") return current;
+  if (removal.kind === 'refused') return current;
   return {
     ...current,
     binder: removal.binder,

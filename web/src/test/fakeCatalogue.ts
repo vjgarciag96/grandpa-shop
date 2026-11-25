@@ -1,49 +1,43 @@
-import type {
-  Card,
-  CardSet,
-  Catalogue,
-  Price,
-  SetPrinting,
-} from "../catalogue";
+import type { Card, CardSet, Catalogue, Price, SetPrinting } from '../catalogue';
 
 export const darkMagician: Card = {
   passcode: 46986414,
-  name: "Dark Magician",
-  kind: "Monster",
-  type: "Normal Monster",
+  name: 'Dark Magician',
+  kind: 'Monster',
+  type: 'Normal Monster',
   text: "''The ultimate wizard in terms of attack and defense.''",
   monster: {
-    attribute: "DARK",
-    race: "Spellcaster",
+    attribute: 'DARK',
+    race: 'Spellcaster',
     level: 7,
     atk: 2500,
     def: 2100,
   },
   printings: [
     {
-      setCode: "LOB-EN005",
-      setName: "Legend of Blue Eyes White Dragon",
-      rarity: "Ultra Rare",
+      setCode: 'LOB-EN005',
+      setName: 'Legend of Blue Eyes White Dragon',
+      rarity: 'Ultra Rare',
     },
     {
-      setCode: "SDY-006",
-      setName: "Starter Deck: Yugi",
-      rarity: "Common",
+      setCode: 'SDY-006',
+      setName: 'Starter Deck: Yugi',
+      rarity: 'Common',
     },
   ],
 };
 
 export const potOfGreed: Card = {
   passcode: 55144522,
-  name: "Pot of Greed",
-  kind: "Spell",
-  type: "Spell Card",
-  text: "Draw 2 cards.",
+  name: 'Pot of Greed',
+  kind: 'Spell',
+  type: 'Spell Card',
+  text: 'Draw 2 cards.',
   printings: [
     {
-      setCode: "LOB-EN119",
-      setName: "Legend of Blue Eyes White Dragon",
-      rarity: "Rare",
+      setCode: 'LOB-EN119',
+      setName: 'Legend of Blue Eyes White Dragon',
+      rarity: 'Rare',
     },
   ],
 };
@@ -51,26 +45,24 @@ export const potOfGreed: Card = {
 /** Spell Ruler Relinquished, the printing whose price is known from Víctor's own Cardmarket page. */
 export const relinquished: Card = {
   passcode: 64631466,
-  name: "Relinquished",
-  kind: "Monster",
-  type: "Ritual Monster",
+  name: 'Relinquished',
+  kind: 'Monster',
+  type: 'Ritual Monster',
   text: 'You can Ritual Summon this card with "Black Illusion Ritual".',
   monster: {
-    attribute: "DARK",
-    race: "Spellcaster",
+    attribute: 'DARK',
+    race: 'Spellcaster',
     level: 1,
     atk: 0,
     def: 0,
   },
-  printings: [
-    { setCode: "SRL-029", setName: "Spell Ruler", rarity: "Ultra Rare" },
-  ],
+  printings: [{ setCode: 'SRL-029', setName: 'Spell Ruler', rarity: 'Ultra Rare' }],
 };
 
 /** The price of Relinquished SRL-029 Ultra Rare in the 2026-11-23 guide. */
 export const relinquishedPrice: Price = {
   cents: 4006,
-  guideDate: "2026-11-23",
+  guideDate: '2026-11-23',
 };
 
 /**
@@ -93,8 +85,7 @@ export function fakeCatalogue(
         .map(({ set }) => set)
         .filter(
           (set) =>
-            set.name.toLowerCase().includes(needle) ||
-            set.prefix.toLowerCase().startsWith(needle),
+            set.name.toLowerCase().includes(needle) || set.prefix.toLowerCase().startsWith(needle),
         );
     },
     async setPrintings(name) {
@@ -108,9 +99,7 @@ export function fakeCatalogue(
       return cards.filter(
         (card) =>
           card.name.toLowerCase().includes(needle) ||
-          card.printings.some((printing) =>
-            printing.setCode.toLowerCase().includes(needle),
-          ),
+          card.printings.some((printing) => printing.setCode.toLowerCase().includes(needle)),
       );
     },
     imageUrl: (passcode) => `/images/${passcode}.jpg`,
@@ -130,7 +119,7 @@ function setsOf(cards: Card[]) {
     sets.set(name, {
       set: {
         name,
-        prefix: entry.printing.setCode.split("-")[0],
+        prefix: entry.printing.setCode.split('-')[0],
         printings: inSet.length,
       },
       printings: inSet,
@@ -140,9 +129,9 @@ function setsOf(cards: Card[]) {
 }
 
 export const failingCatalogue: Catalogue = {
-  search: () => Promise.reject(new Error("the server is down")),
-  searchSets: () => Promise.reject(new Error("the server is down")),
-  setPrintings: () => Promise.reject(new Error("the server is down")),
-  price: () => Promise.reject(new Error("the server is down")),
+  search: () => Promise.reject(new Error('the server is down')),
+  searchSets: () => Promise.reject(new Error('the server is down')),
+  setPrintings: () => Promise.reject(new Error('the server is down')),
+  price: () => Promise.reject(new Error('the server is down')),
   imageUrl: (passcode) => `/images/${passcode}.jpg`,
 };

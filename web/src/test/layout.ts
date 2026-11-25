@@ -1,5 +1,5 @@
-import { vi } from "vitest";
-import type { Rect, Size } from "../pocketGeometry";
+import { vi } from 'vitest';
+import type { Rect, Size } from '../pocketGeometry';
 
 export type Layout = {
   /** Gives [element] this box. */
@@ -31,25 +31,18 @@ const PAGE_PADDING = 12;
 export function stubLayout(pocket: Size = { width: 100, height: 146 }): Layout {
   const placed = new Map<Element, Rect>();
   let shift = { dx: 0, dy: 0 };
-  vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(
-    function (this: Element) {
-      const own = placed.get(this);
-      if (own) return new DOMRect(own.left, own.top, own.width, own.height);
-      const box = pocketRect(this, pocket) ?? binderPartRect(this, pocket);
-      if (box) {
-        return new DOMRect(
-          box.left + shift.dx,
-          box.top + shift.dy,
-          box.width,
-          box.height,
-        );
-      }
-      if (this.classList.contains("catalogue__printing")) {
-        return new DOMRect(740, 272, 320, 56);
-      }
-      return new DOMRect(0, 0, 0, 0);
-    },
-  );
+  vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+    const own = placed.get(this);
+    if (own) return new DOMRect(own.left, own.top, own.width, own.height);
+    const box = pocketRect(this, pocket) ?? binderPartRect(this, pocket);
+    if (box) {
+      return new DOMRect(box.left + shift.dx, box.top + shift.dy, box.width, box.height);
+    }
+    if (this.classList.contains('catalogue__printing')) {
+      return new DOMRect(740, 272, 320, 56);
+    }
+    return new DOMRect(0, 0, 0, 0);
+  });
   return {
     place: (element, rect) => placed.set(element, rect),
     shiftPockets: (dx, dy) => {
@@ -66,17 +59,14 @@ export function centreOf(element: Element): { x: number; y: number } {
 
 /** A pocket is found by its accessible name, such as "Page 1, slot 3, empty". */
 function pocketRect(element: Element, { width, height }: Size): Rect | null {
-  if (element.tagName !== "BUTTON") return null;
-  const name = /^Page (\d+), slot (\d+)/.exec(
-    element.getAttribute("aria-label") ?? "",
-  );
+  if (element.tagName !== 'BUTTON') return null;
+  const name = /^Page (\d+), slot (\d+)/.exec(element.getAttribute('aria-label') ?? '');
   if (!name) return null;
   const page = Number(name[1]);
   const index = Number(name[2]) - 1;
   const rightPage = page > 1 && page % 2 === 1;
   return {
-    left:
-      (rightPage ? RIGHT_GRID : LEFT_GRID) + (index % COLUMNS) * (width + GAP),
+    left: (rightPage ? RIGHT_GRID : LEFT_GRID) + (index % COLUMNS) * (width + GAP),
     top: GRID_TOP + Math.floor(index / COLUMNS) * (height + GAP),
     width,
     height,
@@ -85,7 +75,7 @@ function pocketRect(element: Element, { width, height }: Size): Rect | null {
 
 /** A page is found by its "Page N" label, the spine and an inside cover by their class. */
 function binderPartRect(element: Element, pocket: Size): Rect | null {
-  if (element.classList.contains("spine")) {
+  if (element.classList.contains('spine')) {
     const left = pageRect(LEFT_GRID, pocket);
     const right = pageRect(RIGHT_GRID, pocket);
     const spineLeft = left.left + left.width;
@@ -96,11 +86,11 @@ function binderPartRect(element: Element, pocket: Size): Rect | null {
       height: left.height,
     };
   }
-  if (element.classList.contains("page-side--cover")) {
+  if (element.classList.contains('page-side--cover')) {
     return pageRect(RIGHT_GRID, pocket);
   }
-  if (element.tagName !== "SECTION") return null;
-  const name = /^Page (\d+)$/.exec(element.getAttribute("aria-label") ?? "");
+  if (element.tagName !== 'SECTION') return null;
+  const name = /^Page (\d+)$/.exec(element.getAttribute('aria-label') ?? '');
   if (!name) return null;
   const page = Number(name[1]);
   return pageRect(page > 1 && page % 2 === 1 ? RIGHT_GRID : LEFT_GRID, pocket);
