@@ -3,6 +3,6 @@ import { afterEach, vi } from "vitest";
 
 afterEach(() => {
   cleanup();
-  localStorage.clear();
+  if (typeof window !== "undefined") window.localStorage.clear();
   vi.restoreAllMocks();
 });

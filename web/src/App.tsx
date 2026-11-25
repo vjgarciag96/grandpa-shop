@@ -6,54 +6,33 @@ import {
   useRef,
   useState,
 } from "react";
-import { chooseSlot, choosePrinting, isTarget, type Aim } from "./aim";
+import { chooseSlot, choosePrinting, type Aim } from "./aim";
 import { BinderSpread } from "./BinderSpread";
 import { CataloguePanel } from "./CataloguePanel";
 import { CopyDetail } from "./CopyDetail";
 import { loadBinder, saveBinder } from "./savedBinder";
 import {
   changeCondition,
-  moveCopy,
-  place,
   remove,
-  removeCopy,
   slotAt,
-  slotNameInSentence,
   slotName,
   spreadPages,
-  type Binder,
   type Copy,
   type SlotAddress,
 } from "./binder";
 import type { Card, Catalogue, Printing } from "./catalogue";
-import {
-  announced,
-  silence,
-  silenced,
-  type Announcement,
-} from "./announcement";
+import { announced, silenced } from "./announcement";
 import { LiveRegion } from "./LiveRegion";
 import { PANEL_BESIDE_FROM_PX, STACK_BELOW_PX } from "./tokens";
 import { useMediaQuery } from "./useMediaQuery";
 import { useDragToPocket } from "./useDragToPocket";
 import { useSpreadTurns } from "./useSpreadTurns";
 
-type BinderState = {
-  binder: Binder;
-  aim: Aim | null;
-  moveAnnouncement: Announcement;
-  /** What the catalogue says about placing: decided in the same update as the placement. */
-  announcement: Announcement;
-};
+import { binderState, moveAt, placeAt, removeAt } from "./binderState";
 
 export default function App({ catalogue }: { catalogue: Catalogue }) {
   const [{ binder, aim, moveAnnouncement, announcement }, setBinderState] =
-    useState<BinderState>(() => ({
-      binder: loadBinder(),
-      aim: null,
-      moveAnnouncement: silence,
-      announcement: silence,
-    }));
+    useState(() => binderState(loadBinder()));
   const [detail, setDetail] = useState<SlotAddress | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
   const [panelFocus, setPanelFocus] = useState(0);
@@ -126,75 +105,25 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
     addCards.current?.focus();
   };
 
-  /** Files a Near Mint copy, and names the copy it replaced, if any. */
-  const placeAt = (address: SlotAddress, card: Card, printing: Printing) => {
-    setBinderState((current) => {
-      const replaced = slotAt(current.binder, address);
-      const placed = `Placed ${printing.setCode} in ${slotNameInSentence(address)}`;
-      return {
-        ...current,
-        binder: place(current.binder, address, {
-          card,
-          printing,
-          condition: "Near Mint",
-        }),
-        aim: null,
-        announcement: announced(
-          current.announcement,
-          replaced
-            ? `${placed}, replacing ${replaced.printing.setCode}.`
-            : `${placed}.`,
-        ),
-      };
-    });
-  };
+  const fileCopy = (address: SlotAddress, card: Card, printing: Printing) =>
+    setBinderState((current) => placeAt(current, address, card, printing));
 
   const canDragPrinting = panelOpen && beside && detail === null;
   const canMoveCopy = turn === null && detail === null;
 
   const visible = (page: number) => page === left || page === right;
 
-  const moveAt = (to: SlotAddress, from: SlotAddress, copy: Copy) => {
+  const moveVisibleCopy = (to: SlotAddress, from: SlotAddress, copy: Copy) => {
     if (!canMoveCopy || !visible(from.page) || !visible(to.page)) return;
 
-    setBinderState((current) => {
-      const move = moveCopy(current.binder, from, to, copy);
-      if (move.kind === "refused") return current;
-      const swapped = move.kind === "swapped";
-      const moved = `${copy.printing.setCode} to ${slotNameInSentence(to)}`;
-      return {
-        ...current,
-        binder: move.binder,
-        aim:
-          isTarget(current.aim, to) || (swapped && isTarget(current.aim, from))
-            ? null
-            : current.aim,
-        moveAnnouncement: announced(
-          current.moveAnnouncement,
-          swapped
-            ? `Swapped ${moved} and ${move.displaced.printing.setCode} to ${slotNameInSentence(from)}.`
-            : `Moved ${moved}.`,
-        ),
-      };
-    });
+    setBinderState((current) => moveAt(current, to, from, copy));
   };
 
   /** Takes a dragged copy out of the binder. A catalogue target on its pocket stays, now empty. */
-  const removeAt = (from: SlotAddress, copy: Copy) => {
+  const removeVisibleCopy = (from: SlotAddress, copy: Copy) => {
     if (!canMoveCopy || !visible(from.page)) return;
 
-    setBinderState((current) => {
-      const removal = removeCopy(current.binder, from, copy);
-      if (removal.kind === "refused") return current;
-      return {
-        ...current,
-        binder: removal.binder,
-        moveAnnouncement: announced(
-          current.moveAnnouncement,
-          `Removed ${copy.printing.setCode} from ${slotNameInSentence(from)}.`,
-        ),
-      };
-    });
+    setBinderState((current) => removeAt(current, from, copy));
   };
 
   const allowedDrags = useMemo(
@@ -204,11 +133,11 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
   const { drag, start: startDrag } = useDragToPocket(allowedDrags, (drop) => {
     switch (drop.kind) {
       case "place":
-        return placeAt(drop.to, drop.card, drop.printing);
+        return fileCopy(drop.to, drop.card, drop.printing);
       case "move":
-        return moveAt(drop.to, drop.from, drop.copy);
+        return moveVisibleCopy(drop.to, drop.from, drop.copy);
       case "remove":
-        return removeAt(drop.from, drop.copy);
+        return removeVisibleCopy(drop.from, drop.copy);
     }
   });
   const origin = drag?.origin;
@@ -224,7 +153,7 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
     const choice = chooseSlot(aim, slotAt(binder, address) !== null);
     switch (choice.kind) {
       case "place":
-        return placeAt(address, choice.card, choice.printing);
+        return fileCopy(address, choice.card, choice.printing);
       case "refuse":
         return announce(`${slotName(address)} is filled.`);
       case "open-detail":
@@ -237,7 +166,7 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
 
   const onPrinting = (card: Card, printing: Printing) => {
     const choice = choosePrinting(aim, card, printing);
-    if (choice.kind === "place") placeAt(choice.address, card, printing);
+    if (choice.kind === "place") fileCopy(choice.address, card, printing);
     else setAim(choice.aim);
   };
 
