@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { BinderForm } from './BinderForm';
+import { DEFAULT_BINDER_CAPACITY, type BinderCapacity } from './binder';
 import { Dialog } from './Dialog';
 import type { BinderAddition, Shelf } from './shelf';
 import { text } from './strings';
@@ -8,16 +9,15 @@ type NameProblem = Exclude<BinderAddition['kind'], 'added'>;
 type Props = {
   shelf: Shelf;
   onOpen: (index: number) => void;
-  onCreate: (name: string) => NameProblem | undefined;
+  onCreate: (name: string, capacity: BinderCapacity) => NameProblem | undefined;
   onClose: () => void;
 };
 
 export function ShelfDialog({ shelf, onOpen, onCreate, onClose }: Props) {
-  const [problem, setProblem] = useState<NameProblem>();
   const words = text.shelf;
 
   return (
-    <Dialog title={words.title} className="shelf-dialog" onClose={onClose}>
+    <Dialog title={words.title} className="binder-dialog" onClose={onClose}>
       <div className="binder-dialog__body">
         <p className="shelf-dialog__storage">{text.binder.storage}</p>
         <ul className="shelf-dialog__binders">
@@ -35,27 +35,20 @@ export function ShelfDialog({ shelf, onOpen, onCreate, onClose }: Props) {
             </li>
           ))}
         </ul>
-        <form
-          className="binder-dialog__form"
-          onSubmit={(event) => {
-            event.preventDefault();
-            const fields = new FormData(event.currentTarget);
-            setProblem(onCreate(String(fields.get('name') ?? '')));
+        <BinderForm
+          capacity={DEFAULT_BINDER_CAPACITY}
+          action={words.create}
+          onSubmit={(capacity, fields) => {
+            const problem = onCreate(String(fields.get('name') ?? ''), capacity);
+            if (problem === 'blank-name') return words.blankName;
+            if (problem === 'duplicate-name') return words.duplicateName;
           }}
         >
           <label>
             {words.name}
-            <input name="name" required onChange={() => setProblem(undefined)} />
+            <input name="name" required />
           </label>
-          {problem && (
-            <p className="binder-dialog__error" role="alert">
-              {problem === 'blank-name' ? words.blankName : words.duplicateName}
-            </p>
-          )}
-          <button type="submit" className="control control--filled">
-            {words.create}
-          </button>
-        </form>
+        </BinderForm>
       </div>
     </Dialog>
   );

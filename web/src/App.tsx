@@ -6,6 +6,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type CSSProperties,
   type Ref,
 } from 'react';
 import { chooseSlot, choosePrinting, type Aim } from './aim';
@@ -15,19 +16,22 @@ import { CopyDetail } from './CopyDetail';
 import { loadShelf } from './savedShelf';
 import { addBinder, openBinder, replaceOpenBinder, type Shelf } from './shelf';
 import { ShelfDialog } from './ShelfDialog';
+import { BinderSettingsDialog } from './BinderSettingsDialog';
 import {
   changeCondition,
   remove,
+  resizeBinder,
   slotAt,
   spreadPages,
   type Copy,
+  type BinderCapacity,
   type SlotAddress,
 } from './binder';
 import type { Card, Catalogue, Printing } from './catalogue';
 import { announced, silenced } from './announcement';
 import { LiveRegion } from './LiveRegion';
-import { PANEL_BESIDE_FROM_PX, STACK_BELOW_PX } from './tokens';
-import { useMediaQuery } from './useMediaQuery';
+import { panelBesideFrom, STACK_BELOW_PX } from './tokens';
+import { useMediaQuery, useMinimumViewportWidth } from './useMediaQuery';
 import { useDragToPocket } from './useDragToPocket';
 import { useShelfPersistence, type BinderSelection } from './useShelfPersistence';
 import { useSpreadTurns } from './useSpreadTurns';
@@ -40,6 +44,8 @@ import {
   type BinderInteraction,
   type BinderState,
 } from './binderState';
+
+type DeskDialog = 'shelf' | 'settings';
 
 type DeskState = {
   shelf: Shelf;
@@ -73,19 +79,20 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
       selection: null,
     }),
   );
-  const [shelfOpen, setShelfOpen] = useState(false);
+  const [dialog, setDialog] = useState<DeskDialog | null>(null);
   const shelfButton = useRef<HTMLButtonElement>(null);
-  const restoreFocus = useRef(false);
+  const settingsButton = useRef<HTMLButtonElement>(null);
+  const returnFocus = useRef<DeskDialog | null>(null);
   const { activeIndex, binders } = shelf;
   const { name, binder } = binders[activeIndex];
   useShelfPersistence(binders, selection);
 
   useLayoutEffect(() => {
-    if (!shelfOpen && restoreFocus.current) {
-      shelfButton.current?.focus({ preventScroll: true });
-      restoreFocus.current = false;
-    }
-  }, [shelfOpen]);
+    if (dialog !== null || returnFocus.current === null) return;
+    const opener = returnFocus.current === 'shelf' ? shelfButton : settingsButton;
+    opener.current?.focus({ preventScroll: true });
+    returnFocus.current = null;
+  }, [dialog]);
 
   const updateBinder = useCallback(
     (update: (state: BinderState) => BinderState) => {
@@ -104,26 +111,45 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
     [workspaceVersion],
   );
 
-  const showShelf = () => {
-    restoreFocus.current = true;
-    setShelfOpen(true);
+  const showDialog = (next: DeskDialog) => {
+    returnFocus.current = next;
+    setDialog(next);
   };
-  const closeShelf = () => setShelfOpen(false);
+  const closeDialog = () => setDialog(null);
+
+  const saveCapacity = (capacity: BinderCapacity) => {
+    const resized = resizeBinder(binder, capacity);
+    if (resized.kind === 'occupied') {
+      return text.binderSettings.blockedResize(resized.address);
+    }
+    if (resized.binder !== binder) {
+      setState((current) => {
+        if (
+          current.workspaceVersion !== workspaceVersion ||
+          current.shelf.binders[current.shelf.activeIndex].binder !== binder
+        ) {
+          return current;
+        }
+        return reopenWorkspace(current, replaceOpenBinder(current.shelf, resized.binder));
+      });
+    }
+    closeDialog();
+  };
 
   const selectBinder = (index: number) => {
     if (!binders[index]) return;
     setState((current) => chooseWorkspace(current, openBinder(current.shelf, index)));
-    closeShelf();
+    closeDialog();
   };
 
-  const createBinder = (name: string) => {
-    const addition = addBinder(shelf, name);
+  const createBinder = (name: string, capacity: BinderCapacity) => {
+    const addition = addBinder(shelf, name, capacity);
     if (addition.kind !== 'added') return addition.kind;
     setState((current) => {
-      const added = current.shelf === shelf ? addition : addBinder(current.shelf, name);
+      const added = current.shelf === shelf ? addition : addBinder(current.shelf, name, capacity);
       return added.kind === 'added' ? chooseWorkspace(current, added.shelf) : current;
     });
-    closeShelf();
+    closeDialog();
   };
 
   return (
@@ -134,16 +160,25 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
         state={{ binder, ...interaction }}
         setBinderState={updateBinder}
         catalogue={catalogue}
-        shelfOpen={shelfOpen}
+        modalOpen={dialog !== null}
         shelfButton={shelfButton}
-        onShelf={showShelf}
+        settingsButton={settingsButton}
+        onDialog={showDialog}
       />
-      {shelfOpen && (
+      {dialog === 'shelf' && (
         <ShelfDialog
           shelf={shelf}
           onOpen={selectBinder}
           onCreate={createBinder}
-          onClose={closeShelf}
+          onClose={closeDialog}
+        />
+      )}
+      {dialog === 'settings' && (
+        <BinderSettingsDialog
+          name={name}
+          capacity={binder.capacity}
+          onSave={saveCapacity}
+          onClose={closeDialog}
         />
       )}
     </>
@@ -155,9 +190,10 @@ type WorkspaceProps = {
   state: BinderState;
   setBinderState: (update: (state: BinderState) => BinderState) => void;
   catalogue: Catalogue;
-  shelfOpen: boolean;
+  modalOpen: boolean;
   shelfButton: Ref<HTMLButtonElement>;
-  onShelf: () => void;
+  settingsButton: Ref<HTMLButtonElement>;
+  onDialog: (dialog: DeskDialog) => void;
 };
 
 function BinderWorkspace({
@@ -165,9 +201,10 @@ function BinderWorkspace({
   state: { binder, aim, moveAnnouncement, announcement },
   setBinderState,
   catalogue,
-  shelfOpen,
+  modalOpen,
   shelfButton,
-  onShelf,
+  settingsButton,
+  onDialog,
 }: WorkspaceProps) {
   const [detail, setDetail] = useState<SlotAddress | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
@@ -185,9 +222,13 @@ function BinderWorkspace({
 
   const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
   const stacked = useMediaQuery(`(width < ${STACK_BELOW_PX}px)`);
-  const beside = useMediaQuery(`(width >= ${PANEL_BESIDE_FROM_PX}px)`);
-  const { spread, turn, go, canGoBack, canGoForward } = useSpreadTurns(reducedMotion || stacked);
-  const { left, right } = spreadPages(spread);
+  const { grid } = binder.capacity;
+  const beside = useMinimumViewportWidth(panelBesideFrom(grid), { excludeScrollbar: grid === 4 });
+  const { spread, turn, go, canGoBack, canGoForward } = useSpreadTurns(
+    binder.capacity,
+    reducedMotion || stacked,
+  );
+  const { left, right } = spreadPages(binder.capacity, spread);
 
   const setAim = useCallback(
     (aim: Aim | null) => setBinderState((current) => ({ ...current, aim })),
@@ -203,7 +244,7 @@ function BinderWorkspace({
     [setBinderState],
   );
 
-  const workspaceInert = detail !== null || shelfOpen;
+  const workspaceInert = detail !== null || modalOpen;
 
   useEffect(() => {
     if (workspaceInert) return;
@@ -323,9 +364,18 @@ function BinderWorkspace({
               type="button"
               className="control control--tonal"
               aria-haspopup="dialog"
-              onClick={onShelf}
+              onClick={() => onDialog('shelf')}
             >
               {text.shelf.title}
+            </button>
+            <button
+              ref={settingsButton}
+              type="button"
+              className="control control--tonal"
+              aria-haspopup="dialog"
+              onClick={() => onDialog('settings')}
+            >
+              {text.binderSettings.title}
             </button>
             <button
               ref={addCards}
@@ -361,7 +411,10 @@ function BinderWorkspace({
           </div>
         </header>
         <div className="desk__binder">
-          <div className="binder">
+          <div
+            className="binder"
+            style={{ '--pocket-columns': binder.capacity.grid } as CSSProperties}
+          >
             <BinderSpread
               binder={binder}
               spread={spread}

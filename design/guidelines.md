@@ -26,7 +26,7 @@ Use the shared sans-serif family. Use the headline or title for an app or dialog
 
 `space.slot` (8px) is the spacing unit for anything the layout tokens below do not name. Card corners use `radius.cardPx`.
 
-A page is a 3×3 grid of pockets on `page`, with `layout.pagePaddingPx` inside its edge and `layout.pocketGapPx` between pockets. Each pocket fills its grid column and keeps the card's shape, `layout.pocketAspect` (59 by 86 mm). One pocket is one slot: it holds one copy or is empty.
+Each binder has a 2×2, 3×3, or 4×4 grid of pockets on `page`, with `layout.pagePaddingPx` inside its edge and `layout.pocketGapPx` between pockets. Each pocket fills its grid column and keeps the card's shape, `layout.pocketAspect` (59 by 86 mm). One pocket is one slot: it holds one copy or is empty.
 
 A spread is what an open binder shows (see Spread in [CONTEXT.md](../CONTEXT.md)): two facing pages, with the spine between them, `layout.spinePx` wide, on boards that show `layout.boardPaddingPx` around the pages. The first spread has only its right page and the last spread of an even-paged binder only its left page. The missing side shows bare boards, not an empty page.
 
@@ -57,8 +57,8 @@ Cards are added from a catalogue panel, not from a dialog per pocket. The panel 
 ### Opening and placement
 
 - An "Add cards" tonal action with a leading plus sits in the desk head, before the turn controls. It opens the panel with no target. Tapping an empty pocket while the panel is closed opens it with that pocket as the target.
-- At or above `layout.panelBesideFromPx` the panel is a column `layout.panelWidthPx` wide on the right of the binder, as tall as the viewport, on `surfaceContainer` with `radius.surfacePx`. The binder shrinks so that the whole spread and the panel are visible together, with no horizontal scroll. Pockets keep `layout.pocketAspect`. The threshold keeps a pocket at least `layout.minTargetPx` wide beside the panel.
-- Below `layout.panelBesideFromPx` the panel is a bottom sheet `layout.sheetHeightPercent` of the viewport tall, with `radius.dialogPx` on its top corners. The binder scrolls above it, and the desk gets the same space at its bottom so every pocket can be scrolled clear of the sheet.
+- At or above `layout.panelBesideFromPx` the panel is a column `layout.panelWidthPx` wide on the right of the binder, as tall as the viewport, on `surfaceContainer` with `radius.surfacePx`. The binder shrinks so that the whole spread and the panel are visible together, with no horizontal scroll. Pockets keep `layout.pocketAspect`. With a 4×4 grid, the available width after any vertical scrollbar must fit eight pockets of `layout.minTargetPx` across the two facing pages, plus their gaps, the binder, desk spacing, and the panel.
+- Below the beside-panel threshold for the binder’s grid, the panel is a bottom sheet `layout.sheetHeightPercent` of the viewport tall, with `radius.dialogPx` on its top corners. The binder scrolls above it, and the desk gets the same space at its bottom so every pocket can be scrolled clear of the sheet.
 
 ### Head and results
 

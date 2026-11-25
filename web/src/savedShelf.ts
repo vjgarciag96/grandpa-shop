@@ -1,18 +1,25 @@
-import { CONDITIONS, PAGES, SLOTS_PER_PAGE, type Binder, type Copy } from './binder';
-
-import { initialShelf, type Shelf } from './shelf';
+import {
+  CONDITIONS,
+  isBinderCapacity,
+  slotsPerPage,
+  type Binder,
+  type BinderCapacity,
+  type Copy,
+} from './binder';
+import { initialShelf, type Shelf, type ShelfBinder } from './shelf';
 
 // Each tab loads the binders once. A tab that only switches binders cannot overwrite edits.
 const SHELF_KEY = 'grandpa-shop.dev-binder.v1';
 const OPEN_BINDER_KEY = 'grandpa-shop.open-binder.v1';
+const LEGACY_CAPACITY: BinderCapacity = { grid: 3, pages: 40 };
 
 export function loadShelf(): Shelf {
   try {
     const local = storage();
     const saved = local?.getItem(SHELF_KEY);
     const shelf: unknown = JSON.parse(saved ?? 'null');
-    if (!hasBinders(shelf)) return initialShelf(readLegacyBinder(shelf));
-    const { binders } = shelf;
+    const binders = readBinders(shelf);
+    if (!binders) return initialShelf(readLegacyBinder(shelf));
     const openName = local?.getItem(OPEN_BINDER_KEY);
     const activeIndex = binders.findIndex(({ name }) => name === openName);
     return { binders, activeIndex: Math.max(activeIndex, 0) };
@@ -61,32 +68,41 @@ function storage(): Storage | undefined {
   }
 }
 
-function hasBinders(value: unknown): value is Pick<Shelf, 'binders'> {
+function readBinders(value: unknown): Shelf['binders'] | undefined {
   if (!isObject(value) || !Array.isArray(value.binders) || value.binders.length === 0) {
-    return false;
+    return;
   }
 
   const names = new Set<string>();
-  return value.binders.every((entry: unknown) => {
-    if (!isObject(entry) || typeof entry.name !== 'string' || !isBinder(entry.binder)) return false;
+  const binders: ShelfBinder[] = [];
+  for (const entry of value.binders) {
+    if (!isObject(entry) || typeof entry.name !== 'string') return;
     const name = entry.name.trim();
-    if (!name || name !== entry.name || names.has(name)) return false;
+    if (!name || name !== entry.name || names.has(name)) return;
+    const binder = readBinder(entry.binder);
+    if (!binder) return;
     names.add(name);
-    return true;
-  });
+    binders.push({ name, binder });
+  }
+  return binders;
 }
 
 function readLegacyBinder(value: unknown): Binder | undefined {
-  if (!isObject(value) || 'binders' in value || !isBinder(value)) return;
-  return { slots: value.slots };
+  if (!isObject(value) || 'binders' in value) return;
+  return readBinder({ slots: value.slots });
 }
 
-function isBinder(value: unknown): value is Binder {
-  if (!isObject(value) || !Array.isArray(value.slots)) return false;
-  return (
-    value.slots.length === PAGES * SLOTS_PER_PAGE &&
-    value.slots.every((slot) => slot === null || isCopy(slot))
-  );
+function readBinder(value: unknown): Binder | undefined {
+  if (!isObject(value) || !Array.isArray(value.slots)) return;
+  const capacity = value.capacity === undefined ? LEGACY_CAPACITY : value.capacity;
+  if (
+    !isBinderCapacity(capacity) ||
+    value.slots.length !== capacity.pages * slotsPerPage(capacity)
+  ) {
+    return;
+  }
+  if (!value.slots.every((slot) => slot === null || isCopy(slot))) return;
+  return { capacity, slots: value.slots };
 }
 
 function isCopy(value: unknown): value is Copy {

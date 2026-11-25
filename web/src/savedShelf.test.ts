@@ -87,6 +87,46 @@ describe('loading a saved shelf', () => {
     },
   );
 
+  it('restores nine pockets and 40 pages for a shelf saved before capacity settings', () => {
+    const slots = Array(360).fill(null);
+    slots[359] = savedDarkMagician;
+    localStorage.setItem(
+      SAVED_BINDER_KEY,
+      JSON.stringify({ binders: [{ name: 'Main', binder: { slots } }] }),
+    );
+
+    const shelf = loadShelf();
+
+    const { name, binder } = shelf.binders[shelf.activeIndex];
+    expect(name).toBe('Main');
+    expect(binder.capacity).toEqual({ grid: 3, pages: 40 });
+    expect(slotAt(binder, { page: 40, position: 8 })).toEqual(savedDarkMagician);
+  });
+
+  it.each([{ grid: 3, pages: 39 }, { grid: 4, pages: 40 }, { grid: 3, pages: 0 }, null])(
+    'refuses a saved binder with invalid recorded capacity %j',
+    (capacity) => {
+      const binder = { ...emptyBinder(), capacity };
+      localStorage.setItem(
+        SAVED_BINDER_KEY,
+        JSON.stringify({ binders: [{ name: 'Main', binder }] }),
+      );
+
+      const shelf = loadShelf();
+
+      expect(shelf.binders[shelf.activeIndex].name).toBe('Binder 1');
+    },
+  );
+
+  it('refuses an unsupported grid even when its recorded slot count matches', () => {
+    const binder = { capacity: { grid: 5, pages: 1 }, slots: Array(25).fill(null) };
+    localStorage.setItem(SAVED_BINDER_KEY, JSON.stringify({ binders: [{ name: 'Main', binder }] }));
+
+    const shelf = loadShelf();
+
+    expect(shelf.binders[shelf.activeIndex].name).toBe('Binder 1');
+  });
+
   it('opens a fresh binder when a saved binder is missing its pockets', () => {
     localStorage.setItem(
       SAVED_BINDER_KEY,
