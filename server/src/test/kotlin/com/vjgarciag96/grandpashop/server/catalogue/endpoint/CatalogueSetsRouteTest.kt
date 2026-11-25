@@ -1,5 +1,6 @@
-package com.vjgarciag96.grandpashop.server.catalogue
+package com.vjgarciag96.grandpashop.server.catalogue.endpoint
 
+import com.vjgarciag96.grandpashop.server.catalogue.data.repository.InMemoryCardRepository
 import com.vjgarciag96.grandpashop.server.testApi
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
@@ -23,7 +24,8 @@ class CatalogueSetsRouteTest {
         block: suspend ApplicationTestBuilder.() -> Unit,
     ) = testApplication {
         val fixture = checkNotNull(javaClass.getResource("/sets.json")).readText()
-        testApi(catalogue = CardCatalogue.fromYgoprodeckJson(fixture.replace("Legendary 5D&apos;s Decks", setName)))
+        val catalogue = InMemoryCardRepository.fromYgoprodeckJson(fixture.replace("Legendary 5D&apos;s Decks", setName))
+        testApi(catalogue = catalogue)
         block()
     }
 

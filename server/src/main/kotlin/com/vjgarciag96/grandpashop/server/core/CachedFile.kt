@@ -1,4 +1,4 @@
-package com.vjgarciag96.grandpashop.server.files
+package com.vjgarciag96.grandpashop.server.core
 
 import java.nio.file.Files
 import java.nio.file.Path

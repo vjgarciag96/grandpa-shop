@@ -1,4 +1,4 @@
-package com.vjgarciag96.grandpashop.server.http
+package com.vjgarciag96.grandpashop.server.core
 
 import java.io.IOException
 import java.io.InputStream

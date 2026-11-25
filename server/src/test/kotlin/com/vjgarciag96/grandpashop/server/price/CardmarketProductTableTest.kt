@@ -1,9 +1,9 @@
 package com.vjgarciag96.grandpashop.server.price
 
-import com.vjgarciag96.grandpashop.server.catalogue.Card
-import com.vjgarciag96.grandpashop.server.catalogue.CardKind
-import com.vjgarciag96.grandpashop.server.catalogue.Passcode
-import com.vjgarciag96.grandpashop.server.catalogue.Printing
+import com.vjgarciag96.grandpashop.server.catalogue.domain.model.Card
+import com.vjgarciag96.grandpashop.server.catalogue.domain.model.CardKind
+import com.vjgarciag96.grandpashop.server.catalogue.domain.model.Passcode
+import com.vjgarciag96.grandpashop.server.catalogue.domain.model.Printing
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test

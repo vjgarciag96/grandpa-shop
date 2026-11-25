@@ -1,11 +1,17 @@
-package com.vjgarciag96.grandpashop.server.catalogue
+package com.vjgarciag96.grandpashop.server.catalogue.data.parser
 
+import com.vjgarciag96.grandpashop.server.catalogue.domain.model.Card
+import com.vjgarciag96.grandpashop.server.catalogue.domain.model.CardKind
+import com.vjgarciag96.grandpashop.server.catalogue.domain.model.MonsterRating
+import com.vjgarciag96.grandpashop.server.catalogue.domain.model.MonsterStats
+import com.vjgarciag96.grandpashop.server.catalogue.domain.model.Passcode
+import com.vjgarciag96.grandpashop.server.catalogue.domain.model.Printing
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 /** Reads the `cardinfo.php` response of the YGOPRODeck API v7 into catalogue cards. */
-internal object YgoprodeckCards {
+internal object YgoprodeckParser {
     private val json = Json { ignoreUnknownKeys = true }
 
     // Skill cards and tokens are not Monster, Spell, or Trap, and a card with no printing cannot become a copy.

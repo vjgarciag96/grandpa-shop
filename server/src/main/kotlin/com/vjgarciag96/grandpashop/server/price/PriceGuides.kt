@@ -1,6 +1,6 @@
 package com.vjgarciag96.grandpashop.server.price
 
-import com.vjgarciag96.grandpashop.server.files.writeAtomically
+import com.vjgarciag96.grandpashop.server.core.writeAtomically
 import kotlinx.serialization.SerializationException
 import java.io.IOException
 import java.nio.file.Files

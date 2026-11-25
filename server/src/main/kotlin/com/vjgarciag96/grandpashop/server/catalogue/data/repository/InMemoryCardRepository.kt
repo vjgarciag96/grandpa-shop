@@ -1,8 +1,17 @@
-package com.vjgarciag96.grandpashop.server.catalogue
+package com.vjgarciag96.grandpashop.server.catalogue.data.repository
 
-class CardCatalogue(
+import com.vjgarciag96.grandpashop.server.catalogue.data.parser.YgoprodeckParser
+import com.vjgarciag96.grandpashop.server.catalogue.domain.model.Card
+import com.vjgarciag96.grandpashop.server.catalogue.domain.model.CardSet
+import com.vjgarciag96.grandpashop.server.catalogue.domain.model.Passcode
+import com.vjgarciag96.grandpashop.server.catalogue.domain.model.SetContents
+import com.vjgarciag96.grandpashop.server.catalogue.domain.model.SetPrinting
+import com.vjgarciag96.grandpashop.server.catalogue.domain.model.printingsBySet
+import com.vjgarciag96.grandpashop.server.catalogue.domain.service.CardRepository
+
+class InMemoryCardRepository(
     cards: List<Card>,
-) {
+) : CardRepository {
     private val entries = cards.map(::SearchEntry)
     private val passcodes = cards.map { it.passcode }.toSet()
     private val sets: Map<String, SetEntry> =
@@ -10,9 +19,9 @@ class CardCatalogue(
             SetEntry(name, printings.sortedBy { it.printing.setCode })
         }
 
-    fun contains(passcode: Passcode): Boolean = passcode in passcodes
+    override suspend fun contains(passcode: Passcode): Boolean = passcode in passcodes
 
-    fun search(
+    override suspend fun search(
         query: String,
         limit: Int,
     ): List<Card> {
@@ -24,8 +33,7 @@ class CardCatalogue(
             .map { it.card }
     }
 
-    /** Sets whose name contains the query or whose prefix starts with it, the closest matches first. */
-    fun searchSets(
+    override suspend fun searchSets(
         query: String,
         limit: Int,
     ): List<CardSet> {
@@ -37,8 +45,7 @@ class CardCatalogue(
             .map { it.set }
     }
 
-    /** The set with exactly this name and its printings in set-code order, or null when there is none. */
-    fun setPrintings(name: String): SetContents? = sets[name]?.let { SetContents(it.set, it.printings) }
+    override suspend fun findSet(name: String): SetContents? = sets[name]?.let { SetContents(it.set, it.printings) }
 
     private class SearchEntry(
         val card: Card,
@@ -82,7 +89,7 @@ class CardCatalogue(
     }
 
     companion object {
-        fun fromYgoprodeckJson(json: String): CardCatalogue = CardCatalogue(YgoprodeckCards.parse(json))
+        fun fromYgoprodeckJson(json: String) = InMemoryCardRepository(YgoprodeckParser.parse(json))
 
         // Printings arrive in set-code order, so the first prefix to reach the top count wins a tie.
         private fun prefixOf(printings: List<SetPrinting>): String {
