@@ -44,15 +44,16 @@ body {
   cursor: pointer;
 }
 
-.control:hover:enabled {
+.control:hover:enabled:not([aria-disabled='true']) {
   background-color: color-mix(in srgb, var(--control-bg), var(--control-fg) 8%);
 }
 
-.control:active:enabled {
+.control:active:enabled:not([aria-disabled='true']) {
   background-color: color-mix(in srgb, var(--control-bg), var(--control-fg) 12%);
 }
 
-.control:disabled {
+.control:disabled,
+.control[aria-disabled='true'] {
   background-color: color-mix(in srgb, var(--color-on-surface) 12%, transparent);
   color: color-mix(in srgb, var(--color-on-surface) 54%, transparent);
   cursor: default;

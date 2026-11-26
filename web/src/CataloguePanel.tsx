@@ -29,8 +29,8 @@ type Props = {
   /** Tracks a printing press when dragging is available. */
   onPrintingPress?: (card: Card, printing: Printing, event: PointerEvent) => void;
   onChoose: (card: Card, printing: Printing) => void;
-  /** Files every printing an opened set lists, in the listed order. */
-  onPlaceAll: (entries: readonly SetPrinting[]) => void;
+  /** Files every printing an opened set lists, in the listed order, and tells whether it placed them. */
+  onPlaceAll: (entries: readonly SetPrinting[]) => boolean;
   onClose: () => void;
 };
 

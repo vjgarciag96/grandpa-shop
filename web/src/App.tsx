@@ -364,9 +364,11 @@ function BinderWorkspace({
   };
 
   const placeListed = (entries: readonly SetPrinting[]) => {
-    if (workspaceInert) return;
-    const page = firstSpreadPage(binder.capacity, spread);
-    setBinderState((current) => placeRunAt(current, runStart(current.aim, page), entries));
+    if (workspaceInert) return false;
+    const start = runStart(aim, firstSpreadPage(binder.capacity, spread));
+    const next = placeRunAt({ binder, aim, moveAnnouncement, announcement }, start, entries);
+    setBinderState(() => next);
+    return next.binder !== binder;
   };
 
   const copy = detail && slotAt(binder, detail);

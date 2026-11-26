@@ -145,3 +145,46 @@ it("offers no Place all over a card's printings from a name search", async () =>
   await within(panel()).findByRole('list', { name: 'Printings' });
   expect(within(panel()).queryByRole('button', { name: /Place all/ })).toBe(null);
 });
+
+it('files the five listed printings once on a double click, leaving page 1, slot 6 empty', async () => {
+  const user = await openLostMillennium();
+
+  await user.dblClick(placeAll(5));
+
+  expect(pocket('Page 1, slot 5: Stone Guardian')).toBeTruthy();
+  expect(pocket('Page 1, slot 6, empty')).toBeTruthy();
+});
+
+it('shows Place all as unavailable once the listed printings are placed', async () => {
+  const user = await openLostMillennium();
+
+  await user.click(placeAll(5));
+
+  expect(placeAll(5).getAttribute('aria-disabled')).toBe('true');
+});
+
+it('places again after the rarity selection changes', async () => {
+  const user = await openLostMillennium();
+  await user.click(placeAll(5));
+  await chooseSuperAndUltra(user);
+
+  await user.click(placeAll(2));
+
+  expect(pocket('Page 1, slot 6: Silver Sentinel')).toBeTruthy();
+});
+
+it('keeps Place all available after a run is refused for too few empty slots', async () => {
+  saveBinderWith(potsOfGreedFromSlotIndex(4));
+  const user = await openLostMillennium();
+
+  await user.click(placeAll(5));
+
+  expect(placeAll(5).getAttribute('aria-disabled')).toBe('false');
+});
+
+/** Pot of Greed in every slot from `index` (from 0) to the end of the 360-slot binder. */
+function potsOfGreedFromSlotIndex(index: number): Record<number, unknown> {
+  return Object.fromEntries(
+    Array.from({ length: 360 - index }, (_, offset) => [index + offset, savedPotOfGreed]),
+  );
+}
