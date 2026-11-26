@@ -1,0 +1,10 @@
+.git
+.gradle
+.kotlin
+.work
+.env
+**/build
+**/node_modules
+**/dist
+**/.cache
+android

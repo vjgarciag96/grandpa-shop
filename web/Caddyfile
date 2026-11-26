@@ -1,0 +1,15 @@
+# Serves the built web app and forwards /api to the server at GRANDPA_SHOP_API, a host:port.
+{
+	admin off
+	auto_https off
+}
+
+:8080 {
+	handle /api/* {
+		reverse_proxy {$GRANDPA_SHOP_API}
+	}
+	handle {
+		root * /srv
+		file_server
+	}
+}
