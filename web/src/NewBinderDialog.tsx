@@ -26,7 +26,8 @@ export function NewBinderDialog({ onCreate, onClose }: Props) {
         >
           <label>
             {words.name}
-            <input name="name" required />
+            {/* The name comes first, so the dialog opens on it rather than on Close. */}
+            <input name="name" required autoFocus />
           </label>
         </BinderForm>
       </div>

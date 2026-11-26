@@ -150,7 +150,7 @@ test('creates a binder without duplicating a large legacy binder in storage', as
 
       await page.reload();
       await openFromShelf(page, 'Trades');
-      await page.getByText('Trades', { exact: true }).waitFor();
+      await page.getByRole('heading', { name: 'Trades', exact: true }).waitFor();
       await pocket(page, 1, 9).waitFor();
       await backToShelf(page);
       await openFromShelf(page, 'Binder 1');
@@ -186,10 +186,7 @@ test("returns to the shelf and focuses the binder's spine", async () => {
 });
 
 test('shows ten binders on one board when wide and on more boards when narrow', async (t) => {
-  const savedBinders = Array.from({ length: 10 }, (_, index) => ({
-    name: `Binder ${index + 1}`,
-    binder: { capacity: { grid: 3, pages: 40 }, slots: Array(360).fill(null) },
-  }));
+  const savedBinders = manyBinders(10);
 
   await withBinder(
     async (page) => {
@@ -211,13 +208,68 @@ test('shows ten binders on one board when wide and on more boards when narrow', 
   );
 });
 
+test('opens a binder from far down a long shelf at the top of the desk', async (t) => {
+  await withBinder(
+    async (page) => {
+      // At 600px tall the desk is taller than the viewport, so a kept scroll would show.
+      await page.setViewportSize({ width: 390, height: 600 });
+
+      await openFromShelf(page, 'Binder 40');
+
+      const heading = page.getByRole('heading', { name: 'Binder 40', exact: true });
+      const view = await heading.evaluate((element) => ({
+        focused: element === document.activeElement,
+        top: element.getBoundingClientRect().top,
+        scrollY: window.scrollY,
+      }));
+      t.diagnostic(`Binder 40 heading: top ${view.top}px, scrollY ${view.scrollY}px`);
+      assert.equal(view.focused, true, 'the binder name has focus');
+      assert.ok(view.top >= 0, `the binder name is in view, observed top ${view.top}px`);
+      assert.equal(view.scrollY, 0, 'the desk starts at the top');
+    },
+    { savedBinders: manyBinders(40), onShelf: true },
+  );
+});
+
+test('brings the focused spine into view when going back to a long shelf', async (t) => {
+  await withBinder(
+    async (page) => {
+      await page.setViewportSize({ width: 390, height: 844 });
+      await openFromShelf(page, 'Binder 30');
+
+      const shelf = await backToShelf(page);
+
+      const spine = await shelf
+        .getByRole('button', { name: 'Binder 30', exact: true })
+        .evaluate((element) => {
+          const box = element.getBoundingClientRect();
+          return {
+            focused: element === document.activeElement,
+            top: box.top,
+            bottom: box.bottom,
+            viewport: window.innerHeight,
+          };
+        });
+      t.diagnostic(
+        `Binder 30 spine: top ${spine.top}px, bottom ${spine.bottom}px, viewport ${spine.viewport}px`,
+      );
+      assert.equal(spine.focused, true, 'the Binder 30 spine has focus');
+      assert.ok(
+        spine.top >= 0 && spine.bottom <= spine.viewport,
+        `the spine is within the viewport, observed ${spine.top}px to ${spine.bottom}px`,
+      );
+    },
+    { savedBinders: manyBinders(30), onShelf: true },
+  );
+});
+
 test('keeps a binder created in one tab when another tab only switches binders', async () => {
   await withBinder(async (page) => {
     await makeBinder(page, 'Trades');
     const otherTab = await page.context().newPage();
     otherTab.setDefaultTimeout(5_000);
     await otherTab.goto(page.url());
-    await otherTab.getByText('Trades', { exact: true }).waitFor();
+    await shelfList(otherTab).getByRole('button', { name: 'Trades', exact: true }).waitFor();
     await makeBinder(page, 'Decks');
 
     await openFromShelf(otherTab, 'Binder 1');
@@ -511,6 +563,14 @@ async function showPrinting(page, pageNumber, slot, printing, condition = 'Near 
   await detail.getByRole('list', { name: 'Printing' }).getByText(printing).waitFor();
   assert.equal(await detail.getByRole('combobox', { name: 'Condition' }).inputValue(), condition);
   await detail.getByRole('button', { name: 'Close' }).click();
+}
+
+/** Binders named Binder 1 to Binder `count`, each an empty 3×3 binder of 40 pages, as storage keeps them. */
+function manyBinders(count) {
+  return Array.from({ length: count }, (_, index) => ({
+    name: `Binder ${index + 1}`,
+    binder: { capacity: { grid: 3, pages: 40 }, slots: Array(360).fill(null) },
+  }));
 }
 
 // The New binder dialog makes the shelf behind it inert, so its list is read with hidden elements included.

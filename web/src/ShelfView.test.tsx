@@ -20,6 +20,22 @@ function openShelfWithTrades() {
 
 const shelfList = () => within(screen.getByRole('list', { name: 'Binder shelf' }));
 
+/** Opens Binder 1 from the shelf of Binder 1 and Trades, then goes back to the shelf. */
+async function backOnShelfFromBinder1() {
+  const user = openShelfWithTrades();
+  await user.click(shelfList().getByRole('button', { name: 'Binder 1' }));
+  await user.click(screen.getByRole('button', { name: 'Back to shelf' }));
+  return user;
+}
+
+/** Creates a binder named `name` through New binder on the shelf. */
+async function createBinder(user: ReturnType<typeof userEvent.setup>, name: string) {
+  await user.click(shelfList().getByRole('button', { name: 'New binder' }));
+  const dialog = within(screen.getByRole('dialog', { name: 'New binder' }));
+  await user.type(dialog.getByRole('textbox', { name: 'Binder name' }), name);
+  await user.click(dialog.getByRole('button', { name: 'Create binder' }));
+}
+
 describe('the binder shelf', () => {
   it('lists the binders in the order they were added, then the New binder spot', () => {
     openShelfWithTrades();
@@ -37,6 +53,12 @@ describe('the binder shelf', () => {
     const trades = screen.queryByRole('button', { name: 'Trades', description: 'Last opened' });
 
     expect(trades, 'Trades is marked as last opened').not.toBeNull();
+  });
+
+  it('leaves focus where it is when the shelf loads', () => {
+    openShelfWithTrades();
+
+    expect(document.activeElement).toBe(document.body);
   });
 
   it('keeps the last opened mark when another visit only looks at the shelf', () => {
@@ -72,17 +94,30 @@ describe('the binder shelf', () => {
     expect(document.activeElement).toBe(shelfList().getByRole('button', { name: 'Binder 1' }));
   });
 
-  it('turns no binder when an arrow key is pressed on the shelf', async () => {
-    const user = openShelfWithTrades();
-    await user.click(shelfList().getByRole('button', { name: 'Binder 1' }));
-    await user.click(screen.getByRole('button', { name: 'Back to shelf' }));
+  it('opens no binder page when an arrow key is pressed on the shelf', async () => {
+    const user = await backOnShelfFromBinder1();
 
     await user.keyboard('{ArrowRight}');
 
-    expect([
-      screen.queryAllByRole('region', { name: /^Page \d+$/ }).length,
-      screen.queryAllByRole('list', { name: 'Binder shelf' }).length,
-    ]).toEqual([0, 1]);
+    expect(screen.queryAllByRole('region', { name: /^Page \d+$/ })).toEqual([]);
+  });
+
+  it('stays on the shelf when an arrow key is pressed on it', async () => {
+    const user = await backOnShelfFromBinder1();
+
+    await user.keyboard('{ArrowRight}');
+
+    expect(screen.queryByRole('list', { name: 'Binder shelf' })).not.toBeNull();
+  });
+
+  it('titles each spine with its full name', () => {
+    const name = 'A very long binder name that will not fit on the spine';
+    saveBinders([{ name, binder: emptyBinder() }]);
+    render(<App catalogue={fakeCatalogue().catalogue} />);
+
+    const spine = shelfList().getByRole('button', { name });
+
+    expect(spine.title).toBe(name);
   });
 
   it('returns focus to New binder when the New binder dialog closes with Escape', async () => {
@@ -94,14 +129,31 @@ describe('the binder shelf', () => {
     expect(document.activeElement).toBe(shelfList().getByRole('button', { name: 'New binder' }));
   });
 
-  it('opens a created binder at the end of the shelf with its name focused', async () => {
+  it('opens New binder with focus on the binder name', async () => {
     const user = openShelfWithTrades();
-    await user.click(shelfList().getByRole('button', { name: 'New binder' }));
-    const dialog = within(screen.getByRole('dialog', { name: 'New binder' }));
-    await user.type(dialog.getByRole('textbox', { name: 'Binder name' }), 'Decks');
 
-    await user.click(dialog.getByRole('button', { name: 'Create binder' }));
+    await user.click(shelfList().getByRole('button', { name: 'New binder' }));
+
+    expect(document.activeElement).toBe(screen.getByRole('textbox', { name: 'Binder name' }));
+  });
+
+  it('opens a created binder with its name focused', async () => {
+    const user = openShelfWithTrades();
+
+    await createBinder(user, 'Decks');
 
     expect(document.activeElement).toBe(screen.getByRole('heading', { level: 2, name: 'Decks' }));
+  });
+
+  it('puts a created binder at the end of the shelf', async () => {
+    const user = openShelfWithTrades();
+    await createBinder(user, 'Decks');
+
+    await user.click(screen.getByRole('button', { name: 'Back to shelf' }));
+
+    const names = shelfList()
+      .getAllByRole('button')
+      .map((button) => button.textContent);
+    expect(names).toEqual(['Binder 1', 'Trades', 'Decks', 'New binder']);
   });
 });

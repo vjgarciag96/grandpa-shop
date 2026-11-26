@@ -1,4 +1,4 @@
-import { useId, useLayoutEffect, useRef, useState, type Ref } from 'react';
+import { useId, useLayoutEffect, useRef, useState } from 'react';
 import { AppTitle } from './AppTitle';
 import type { BinderCapacity } from './binder';
 import { NewBinderDialog } from './NewBinderDialog';
@@ -8,19 +8,26 @@ import { text } from './strings';
 type Props = {
   binders: Shelf['binders'];
   lastOpened: number | null;
-  lastOpenedSpine: Ref<HTMLButtonElement>;
+  /** Whether the shelf is shown because its last opened binder was just put back. */
+  focusLastOpened: boolean;
   onOpen: (index: number) => void;
   onCreate: (name: string, capacity: BinderCapacity) => NameProblem | undefined;
 };
 
 /** The binders standing on the shelf's boards, in the order they were added, then a spot for a new one. */
-export function ShelfView({ binders, lastOpened, lastOpenedSpine, onOpen, onCreate }: Props) {
+export function ShelfView({ binders, lastOpened, focusLastOpened, onOpen, onCreate }: Props) {
   const [creating, setCreating] = useState(false);
+  const lastOpenedSpine = useRef<HTMLButtonElement>(null);
   const newBinderButton = useRef<HTMLButtonElement>(null);
   const returnFocus = useRef(false);
   const heading = useId();
   const mark = useId();
   const words = text.shelf;
+
+  // Focusing without preventScroll brings a spine far down the shelf into view.
+  useLayoutEffect(() => {
+    if (focusLastOpened) lastOpenedSpine.current?.focus();
+  }, [focusLastOpened]);
 
   useLayoutEffect(() => {
     if (creating || !returnFocus.current) return;
@@ -34,9 +41,9 @@ export function ShelfView({ binders, lastOpened, lastOpenedSpine, onOpen, onCrea
   };
 
   return (
-    <main className="desk shelf">
-      <div className="desk__main" inert={creating}>
-        <header className="desk__head">
+    <main className="shelf">
+      <div inert={creating}>
+        <header className="app-head">
           <AppTitle />
         </header>
         <section className="shelf__case" aria-labelledby={heading}>
@@ -46,23 +53,23 @@ export function ShelfView({ binders, lastOpened, lastOpenedSpine, onOpen, onCrea
           <p className="shelf__storage">{words.storage}</p>
           <ul className="shelf__boards" aria-labelledby={heading}>
             {binders.map(({ name }, index) => {
-              const last = index === lastOpened;
+              const isLastOpened = index === lastOpened;
               return (
                 <li
                   key={name}
-                  className={last ? 'shelf__slot shelf__slot--last-opened' : 'shelf__slot'}
+                  className={isLastOpened ? 'shelf__slot shelf__slot--last-opened' : 'shelf__slot'}
                 >
                   <button
-                    ref={last ? lastOpenedSpine : undefined}
+                    ref={isLastOpened ? lastOpenedSpine : undefined}
                     type="button"
                     className="spine"
                     title={name}
-                    aria-describedby={last ? mark : undefined}
+                    aria-describedby={isLastOpened ? mark : undefined}
                     onClick={() => onOpen(index)}
                   >
                     <span className="spine__name">{name}</span>
                   </button>
-                  {last && (
+                  {isLastOpened && (
                     <span className="spine__mark" id={mark}>
                       {words.lastOpened}
                     </span>
@@ -79,7 +86,7 @@ export function ShelfView({ binders, lastOpened, lastOpenedSpine, onOpen, onCrea
                 onClick={startCreating}
               >
                 <span className="shelf__plus" aria-hidden="true" />
-                <span className="spine__name">{words.newBinder}</span>
+                <span className="shelf__new-label">{words.newBinder}</span>
               </button>
             </li>
           </ul>

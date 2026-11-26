@@ -56,6 +56,11 @@ export function openedBinder(shelf: Shelf): ShelfBinder | undefined {
   return shelf.showing.kind === 'binder' ? shelf.binders[shelf.showing.index] : undefined;
 }
 
+/** The shelf position marked as opened last, while the shelf itself is shown. */
+export function lastOpenedBinder(shelf: Shelf): number | null {
+  return shelf.showing.kind === 'shelf' ? shelf.showing.lastOpened : null;
+}
+
 export function replaceOpenBinder(shelf: Shelf, binder: Binder): Shelf {
   const { showing } = shelf;
   if (showing.kind !== 'binder' || shelf.binders[showing.index].binder === binder) return shelf;

@@ -98,8 +98,10 @@ export function removedPrinting(setCode: string, from: SlotAddress): string {
 }
 
 export const text = {
-  binder: {
+  app: {
     title: 'Grandpa Shop',
+  },
+  binder: {
     addCards: 'Add cards',
     turns: 'Turn the binder',
     previousSpread: 'Previous spread',

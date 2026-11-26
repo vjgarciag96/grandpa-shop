@@ -1,7 +1,22 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
 import { emptyBinder, pageSlots } from './binder';
-import { addBinder, closeBinder, initialShelf, openBinder, replaceOpenBinder } from './shelf';
+import {
+  addBinder,
+  closeBinder,
+  initialShelf,
+  lastOpenedBinder,
+  openBinder,
+  replaceOpenBinder,
+  type Shelf,
+} from './shelf';
+
+/** Binder 1 then Trades, a 2×2 binder of one page, with Trades open. */
+function addedShelf(): Shelf {
+  const added = addBinder(initialShelf(), 'Trades', { grid: 2, pages: 1 });
+  if (added.kind !== 'added') throw new Error('Expected the Trades binder to open');
+  return added.shelf;
+}
 
 describe('a binder shelf', () => {
   it('shows the shelf with no binder marked as last opened on a first visit', () => {
@@ -38,11 +53,11 @@ describe('a binder shelf', () => {
   });
 
   it('opens the binder at the chosen shelf position', () => {
-    const shelf = initialShelf();
+    const shelf = closeBinder(addedShelf());
 
-    const opened = openBinder(shelf, 0);
+    const opened = openBinder(shelf, 1);
 
-    expect(opened.showing).toEqual({ kind: 'binder', index: 0 });
+    expect(opened.showing).toEqual({ kind: 'binder', index: 1 });
   });
 
   it('leaves the shelf unchanged when the requested shelf position is absent', () => {
@@ -54,10 +69,9 @@ describe('a binder shelf', () => {
   });
 
   it('marks a closed binder as the one opened last', () => {
-    const added = addBinder(initialShelf(), 'Trades');
-    if (added.kind !== 'added') throw new Error('Expected the Trades binder to open');
+    const shelf = addedShelf();
 
-    const closed = closeBinder(added.shelf);
+    const closed = closeBinder(shelf);
 
     expect(closed.showing).toEqual({ kind: 'shelf', lastOpened: 1 });
   });
@@ -70,11 +84,28 @@ describe('a binder shelf', () => {
     expect(replaced).toBe(shelf);
   });
 
-  it('replaces the contents of the open binder', () => {
-    const next = emptyBinder({ grid: 2, pages: 1 });
+  it('replaces the contents of the open binder and leaves the others', () => {
+    const shelf = addedShelf();
+    const next = emptyBinder({ grid: 4, pages: 1 });
 
-    const replaced = replaceOpenBinder(openBinder(initialShelf(), 0), next);
+    const replaced = replaceOpenBinder(shelf, next);
 
-    expect(replaced.binders[0].binder).toBe(next);
+    expect(replaced.binders.map(({ binder }) => binder)).toEqual([shelf.binders[0].binder, next]);
+  });
+
+  it('marks the binder put back as last opened while the shelf is shown', () => {
+    const shelf = closeBinder(addedShelf());
+
+    const lastOpened = lastOpenedBinder(shelf);
+
+    expect(lastOpened).toBe(1);
+  });
+
+  it('marks no binder as last opened while a binder is open', () => {
+    const shelf = addedShelf();
+
+    const lastOpened = lastOpenedBinder(shelf);
+
+    expect(lastOpened).toBeNull();
   });
 });
