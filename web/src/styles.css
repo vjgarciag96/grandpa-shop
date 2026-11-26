@@ -1243,7 +1243,12 @@ html:has(.dialog-backdrop) {
 }
 
 .catalogue__rarity-filter .catalogue__result-count:empty {
-  display: none;
+  /* Stays in the accessibility tree so the first count is announced. */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
 }
 
 .catalogue__card--set {

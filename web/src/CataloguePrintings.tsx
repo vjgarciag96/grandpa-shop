@@ -123,7 +123,6 @@ export function SetPrintingList({
             message={text.catalogue.setFailed}
             onRetry={() => {
               backButton.current?.focus();
-              setSelected(NO_RARITIES);
               retry();
             }}
           />

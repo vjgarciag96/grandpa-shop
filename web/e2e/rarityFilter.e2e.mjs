@@ -46,6 +46,16 @@ for (const viewport of [
     });
   });
 
+  test(`keeps the rarity count where screen readers hear it before any rarity is chosen at ${viewport.width} px`, async () => {
+    await withBuiltApp(viewport, serveLostMillennium, async (page) => {
+      const panel = await openLostMillennium(page);
+
+      const status = panel.getByRole('group', { name: 'Rarity' }).getByRole('status');
+
+      assert.equal(await status.count(), 1, 'the empty count is a live region already');
+    });
+  });
+
   test(`shows all 85 printings of The Lost Millennium again after Clear at ${viewport.width} px`, async () => {
     await withBuiltApp(viewport, serveLostMillennium, async (page) => {
       const panel = await openLostMillennium(page);

@@ -1,6 +1,12 @@
 import { text } from './strings';
 import { useId, useRef } from 'react';
-import { NO_RARITIES, toggleRarity, type RarityOption, type RaritySelection } from './rarityFilter';
+import {
+  isFiltering,
+  NO_RARITIES,
+  toggleRarity,
+  type RarityOption,
+  type RaritySelection,
+} from './rarityFilter';
 
 /** Toggles that narrow a list of printings to one or more rarities, with Clear and a count of what is left. */
 export function RarityFilter({
@@ -26,7 +32,7 @@ export function RarityFilter({
         <span id={labelId} className="catalogue__group">
           {text.catalogue.rarity}
         </span>
-        {selected.size > 0 && (
+        {isFiltering(selected) && (
           <button
             type="button"
             className="control control--text"
@@ -59,7 +65,7 @@ export function RarityFilter({
         })}
       </div>
       <p className="catalogue__result-count" role="status">
-        {selected.size > 0 ? text.catalogue.filteredCount(shown, total) : ''}
+        {isFiltering(selected) ? text.catalogue.filteredCount(shown, total) : ''}
       </p>
     </div>
   );

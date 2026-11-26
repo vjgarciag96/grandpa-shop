@@ -35,13 +35,18 @@ export function rarityOptions<T>(
     );
 }
 
+/** Whether [selected] narrows the list at all. */
+export function isFiltering(selected: RaritySelection): boolean {
+  return selected.size > 0;
+}
+
 /** The entries whose rarity is selected, in their original order; every entry when nothing is selected. */
 export function keepRarities<T>(
   entries: readonly T[],
   selected: RaritySelection,
   rarityOf: (entry: T) => string,
 ): readonly T[] {
-  if (selected.size === 0) return entries;
+  if (!isFiltering(selected)) return entries;
   return entries.filter((entry) => selected.has(rarityOf(entry)));
 }
 
