@@ -4,7 +4,13 @@ import { isHeld, type Aim } from './aim';
 import type { Card, CardSet, Catalogue, Printing, SetPrinting } from './catalogue';
 import { RetryMessage } from './CatalogueStatus';
 import { FilterCount, FilterGroup } from './CatalogueFilterGroup';
-import { filterSetPrintings, isFiltering, NO_FILTERS, type SetFilterSelection } from './setFilters';
+import {
+  filterSetPrintings,
+  isFiltering,
+  isSameListing,
+  NO_FILTERS,
+  type SetFilterSelection,
+} from './setFilters';
 import { useCatalogueRequest } from './useCatalogueRequest';
 
 type ChooseProps = {
@@ -105,12 +111,13 @@ export function SetPrintingList({
     rarities,
     printRuns,
   } = useMemo(() => filterSetPrintings(printings ?? [], selection), [printings, selection]);
-  // The list last placed, so a second press files nothing until another set or filter selection lists new printings.
+  // The list last placed, so a second press files nothing until another set or filter selection lists other printings,
+  // even when the filters were changed and cleared in between.
   // The ref refuses a press that arrives before the re-render; the state shows the button as unavailable.
   const placedList = useRef<readonly SetPrinting[] | null>(null);
   const [placed, setPlaced] = useState<readonly SetPrinting[] | null>(null);
   const placeAll = () => {
-    if (placedList.current === visible || !onPlaceAll(visible)) return;
+    if (isSameListing(placedList.current, visible) || !onPlaceAll(visible)) return;
     placedList.current = visible;
     setPlaced(visible);
   };
@@ -170,7 +177,7 @@ export function SetPrintingList({
               <button
                 type="button"
                 className="control control--tonal"
-                aria-disabled={placed === visible}
+                aria-disabled={isSameListing(placed, visible)}
                 onClick={placeAll}
               >
                 {text.catalogue.placeAll(visible.length)}

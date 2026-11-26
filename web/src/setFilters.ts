@@ -67,6 +67,14 @@ export function isFiltering(selection: SetFilterSelection): boolean {
   return selection.rarities.size > 0 || selection.printRuns.size > 0;
 }
 
+/** Whether [a] and [b] list the same printings in the same order, however the lists were narrowed to get there. */
+export function isSameListing(
+  a: readonly SetPrinting[] | null,
+  b: readonly SetPrinting[],
+): boolean {
+  return a !== null && a.length === b.length && a.every((entry, index) => entry === b[index]);
+}
+
 /** The group's selection with [value] added, or removed if it was there. */
 export function toggle(selected: Selection, value: string): Selection {
   const next = new Set(selected);

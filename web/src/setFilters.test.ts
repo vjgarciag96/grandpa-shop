@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { SetPrinting } from './catalogue';
-import { filterSetPrintings, isFiltering, NO_FILTERS, toggle } from './setFilters';
+import { filterSetPrintings, isFiltering, isSameListing, NO_FILTERS, toggle } from './setFilters';
 import { darkMagician } from './test/fakeCatalogue';
 
 /** A printing of [setName] with [setCode] and [rarity]. */
@@ -249,6 +249,37 @@ describe('filtering', () => {
     const selection = { ...NO_FILTERS, rarities: new Set(['Rare']) };
 
     expect(isFiltering(selection)).toBe(true);
+  });
+});
+
+describe('same listing', () => {
+  it('is the same listing when the same printings come back in a new list', () => {
+    const printings = lostMillennium();
+    const before = filterSetPrintings(printings, NO_FILTERS).listed;
+
+    const after = filterSetPrintings(printings, NO_FILTERS).listed;
+
+    expect(isSameListing(before, after)).toBe(true);
+  });
+
+  it('is another listing when a printing is added at the end', () => {
+    const printings = lostMillennium();
+
+    const narrowed = printings.slice(0, 84);
+
+    expect(isSameListing(narrowed, printings)).toBe(false);
+  });
+
+  it('is another listing when the same printings come in another order', () => {
+    const printings = [tlm(1, 'Common'), tlm(2, 'Rare')];
+
+    const reversed = [...printings].reverse();
+
+    expect(isSameListing(printings, reversed)).toBe(false);
+  });
+
+  it('is another listing when nothing was listed before', () => {
+    expect(isSameListing(null, [])).toBe(false);
   });
 });
 

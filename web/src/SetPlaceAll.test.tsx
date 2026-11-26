@@ -1,6 +1,12 @@
 import { fireEvent, screen, within } from '@testing-library/react';
 import { expect, it } from 'vitest';
-import { chooseSuperAndUltra, openApp, openCatalogueResult, openLostMillennium } from './test/app';
+import {
+  chooseSuperAndUltra,
+  openApp,
+  openCatalogueResult,
+  openLostMillennium,
+  rarityToggle,
+} from './test/app';
 import { detailOf, saveBinderWith, savedPotOfGreed } from './test/binder';
 
 const panel = () => screen.getByRole('complementary', { name: 'Catalogue' });
@@ -146,6 +152,27 @@ it('shows Place all as unavailable once the listed printings are placed', async 
   await user.click(placeAll(5));
 
   expect(placeAll(5).getAttribute('aria-disabled')).toBe('true');
+});
+
+it('keeps Place all unavailable after choosing a rarity and clearing it again', async () => {
+  const user = await openLostMillennium();
+  await user.click(placeAll(5));
+  await user.click(rarityToggle('Common 2'));
+
+  await user.click(rarityToggle('Clear'));
+
+  expect(placeAll(5).getAttribute('aria-disabled')).toBe('true');
+});
+
+it('files the five printings once when pressed again after choosing a rarity and clearing it', async () => {
+  const user = await openLostMillennium();
+  await user.click(placeAll(5));
+  await user.click(rarityToggle('Common 2'));
+  await user.click(rarityToggle('Clear'));
+
+  fireEvent.click(placeAll(5));
+
+  expect(pocket('Page 1, slot 6, empty')).toBeTruthy();
 });
 
 it('places again after the rarity selection changes', async () => {
