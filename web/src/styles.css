@@ -1216,34 +1216,39 @@ html:has(.dialog-backdrop) {
   font-weight: 600;
 }
 
-.catalogue__rarity-filter {
+.catalogue__filters {
   display: grid;
   gap: var(--space-slot);
   margin-bottom: var(--space-slot);
 }
 
-.catalogue__rarity-head {
+.catalogue__filter-group {
+  display: grid;
+  gap: var(--space-slot);
+}
+
+.catalogue__filter-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
   min-height: var(--target-size);
 }
 
-.catalogue__rarity-head .catalogue__group {
+.catalogue__filter-head .catalogue__group {
   margin: 0;
 }
 
-.catalogue__rarities {
+.catalogue__filter-options {
   display: flex;
   flex-wrap: wrap;
   gap: calc(var(--space-slot) * 0.5);
 }
 
-.catalogue__rarity-filter .catalogue__result-count {
+.catalogue__filters .catalogue__result-count {
   margin: 0;
 }
 
-.catalogue__rarity-filter .catalogue__result-count:empty {
+.catalogue__filters .catalogue__result-count:empty {
   /* Stays in the accessibility tree so the first count is announced. */
   position: absolute;
   width: 1px;

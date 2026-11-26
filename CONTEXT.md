@@ -50,6 +50,10 @@ A Yu-Gi-Oh product a printing comes from: a core set, a structure deck, a tin, o
 
 A set is known by its exact name. Most of its printings' set codes start with the same letters before the hyphen, such as TLM in TLM-EN001; a code with no hyphen is its own prefix. The most common of these is the set's prefix, the first in set-code order on a tie. It is not unique: a core set, its sneak peek, and its special edition can share one, and a few sets mix prefixes.
 
+## Print run
+
+The part of a printing's set code before its number, such as LOB-EN in LOB-EN001. A code with no hyphen or no trailing number is its own print run. In early core sets each print run is a separate release, such as LOB-, LOB-E, and LOB-EN for Legend of Blue Eyes White Dragon. In some boxes, such as Speed Duel, it marks a deck in the box.
+
 ## Rarity
 
 How scarce a printing is marked: Common, Rare, Super Rare, Ultra Rare, Secret Rare, and the other printed rarities. The full list is not closed here. The slice that stores a rarity names the ones it accepts.

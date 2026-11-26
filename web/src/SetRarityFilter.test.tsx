@@ -2,6 +2,7 @@ import { screen, within } from '@testing-library/react';
 import { expect, it } from 'vitest';
 import {
   chooseSuperAndUltra,
+  filterCount,
   openLostMillennium,
   openSet,
   rarityToggle as toggle,
@@ -50,13 +51,13 @@ it('announces how many printings the chosen rarities leave', async () => {
 
   await chooseSuperAndUltra(user);
 
-  expect(within(rarityGroup()).getByRole('status').textContent).toBe('2 of 5 printings');
+  expect(filterCount()).toBe('2 of 5 printings');
 });
 
 it('says nothing about the count while no rarity is chosen', async () => {
   await openLostMillennium();
 
-  expect(within(rarityGroup()).getByRole('status').textContent).toBe('');
+  expect(filterCount()).toBe('');
 });
 
 it('shows every printing again after clearing the chosen rarities', async () => {
@@ -137,4 +138,10 @@ it('offers no rarity group over a set with a single rarity', async () => {
   await openSet('starter deck', /Starter Deck: Yugi/);
 
   expect(screen.queryByRole('group', { name: 'Rarity' })).toBe(null);
+});
+
+it('offers no filters and no count over a set with a single rarity and a single print run', async () => {
+  await openSet('starter deck', /Starter Deck: Yugi/);
+
+  expect(screen.queryByRole('group', { name: 'Filters' })).toBe(null);
 });
