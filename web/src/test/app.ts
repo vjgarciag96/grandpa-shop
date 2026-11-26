@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { createElement } from 'react';
 import App from '../App';
 import { saveBinderWith, savedPlayedSdyDarkMagician } from './binder';
-import { fakeCatalogue } from './fakeCatalogue';
+import { darkMagician, fakeCatalogue, lostMillennium, potOfGreed } from './fakeCatalogue';
 import { viewportWidth } from './media';
 
 /** Renders the app on the fake catalogue with Binder 1 open, in a viewport `width` pixels wide when given. */
@@ -28,6 +28,34 @@ export async function openCatalogueResult(
   await user.click(screen.getByRole('button', { name: 'Add cards' }));
   await user.type(screen.getByRole('searchbox', { name: 'Search cards and sets' }), query);
   await user.click(await screen.findByRole('button', { name: result }));
+}
+
+type User = ReturnType<typeof userEvent.setup>;
+
+const addCards = (user: User) => user.click(screen.getByRole('button', { name: 'Add cards' }));
+
+/**
+ * Renders the app on a catalogue with Dark Magician, Pot of Greed, and the five-printing The Lost Millennium, opens
+ * Binder 1 and the catalogue with `openPanel` ("Add cards" unless given), searches for `query`, and opens the set
+ * result named `set`.
+ */
+export async function openSet(
+  query: string,
+  set: RegExp,
+  openPanel: (user: User) => Promise<void> = addCards,
+) {
+  render(
+    createElement(App, {
+      catalogue: fakeCatalogue([darkMagician, potOfGreed, ...lostMillennium]).catalogue,
+    }),
+  );
+  openFirstBinder();
+  const user = userEvent.setup();
+  await openPanel(user);
+  await user.type(screen.getByRole('searchbox', { name: 'Search cards and sets' }), query);
+  await user.click(await screen.findByRole('button', { name: set }));
+  await screen.findByRole('list', { name: 'Printings' });
+  return user;
 }
 
 /**

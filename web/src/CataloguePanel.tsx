@@ -2,7 +2,13 @@ import { catalogueHeading, text } from './strings';
 import { useId, useLayoutEffect, useRef, useState, type PointerEvent } from 'react';
 import type { Aim } from './aim';
 import type { Copy } from './binder';
-import { MIN_QUERY_LENGTH, type Card, type Catalogue, type Printing } from './catalogue';
+import {
+  MIN_QUERY_LENGTH,
+  type Card,
+  type Catalogue,
+  type Printing,
+  type SetPrinting,
+} from './catalogue';
 import type { Announcement } from './announcement';
 import { LiveRegion } from './LiveRegion';
 import { CatalogueResults, type Opened } from './CatalogueResults';
@@ -23,6 +29,8 @@ type Props = {
   /** Tracks a printing press when dragging is available. */
   onPrintingPress?: (card: Card, printing: Printing, event: PointerEvent) => void;
   onChoose: (card: Card, printing: Printing) => void;
+  /** Files every printing an opened set lists, in the listed order. */
+  onPlaceAll: (entries: readonly SetPrinting[]) => void;
   onClose: () => void;
 };
 
@@ -37,6 +45,7 @@ export function CataloguePanel({
   focusRequest,
   onPrintingPress,
   onChoose,
+  onPlaceAll,
   onClose,
 }: Props) {
   const [query, setQuery] = useState('');
@@ -119,6 +128,7 @@ export function CataloguePanel({
           onBack={() => setOpened(null)}
           onPrintingPress={onPrintingPress}
           onChoose={onChoose}
+          onPlaceAll={onPlaceAll}
         />
       )}
       {!opened && (

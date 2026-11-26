@@ -1251,6 +1251,11 @@ html:has(.dialog-backdrop) {
   clip-path: inset(50%);
 }
 
+.catalogue__place-all {
+  display: flex;
+  margin-bottom: var(--space-slot);
+}
+
 .catalogue__card--set {
   grid-template-columns: minmax(0, 1fr) auto;
   min-height: var(--target-size);

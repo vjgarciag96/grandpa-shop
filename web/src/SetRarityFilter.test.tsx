@@ -1,9 +1,7 @@
-import { render, screen, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { screen, within } from '@testing-library/react';
+import type userEvent from '@testing-library/user-event';
 import { expect, it } from 'vitest';
-import App from './App';
-import { openFirstBinder } from './test/app';
-import { darkMagician, fakeCatalogue, lostMillennium, potOfGreed } from './test/fakeCatalogue';
+import { openSet } from './test/app';
 
 type User = ReturnType<typeof userEvent.setup>;
 
@@ -12,20 +10,6 @@ const toggle = (name: string) => within(rarityGroup()).getByRole('button', { nam
 const printingRows = () =>
   within(screen.getByRole('list', { name: 'Printings' })).getAllByRole('button');
 const shownSetCodes = () => printingRows().map((row) => row.querySelector('strong')?.textContent);
-
-/** Opens the catalogue from "Add cards", searches for `query`, and opens the set result named `set`. */
-async function openSet(query: string, set: RegExp) {
-  render(
-    <App catalogue={fakeCatalogue([darkMagician, potOfGreed, ...lostMillennium]).catalogue} />,
-  );
-  openFirstBinder();
-  const user = userEvent.setup();
-  await user.click(screen.getByRole('button', { name: 'Add cards' }));
-  await user.type(screen.getByRole('searchbox', { name: 'Search cards and sets' }), query);
-  await user.click(await screen.findByRole('button', { name: set }));
-  await screen.findByRole('list', { name: 'Printings' });
-  return user;
-}
 
 const openLostMillennium = () => openSet('lost', /The Lost Millennium/);
 

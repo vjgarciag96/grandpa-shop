@@ -87,7 +87,13 @@ export function SetPrintingList({
   onBack,
   onPrintingPress,
   onChoose,
-}: { set: CardSet; catalogue: Catalogue } & ChooseProps) {
+  onPlaceAll,
+}: {
+  set: CardSet;
+  catalogue: Catalogue;
+  /** Files every listed printing, in the listed order. */
+  onPlaceAll: (entries: readonly SetPrinting[]) => void;
+} & ChooseProps) {
   const { result, retry } = useCatalogueRequest<CardSet, SetResult>(
     catalogue,
     set,
@@ -136,6 +142,15 @@ export function SetPrintingList({
               total={printings.length}
               onChange={setSelected}
             />
+            <div className="catalogue__place-all">
+              <button
+                type="button"
+                className="control control--tonal"
+                onClick={() => onPlaceAll(visible)}
+              >
+                {text.catalogue.placeAll(visible.length)}
+              </button>
+            </div>
             <ul className="catalogue__printings" aria-label={text.catalogue.printings}>
               {visible.map((entry) => (
                 <PrintingRow
