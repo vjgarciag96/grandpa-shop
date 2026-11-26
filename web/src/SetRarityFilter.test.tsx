@@ -2,6 +2,7 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect, it } from 'vitest';
 import App from './App';
+import { openFirstBinder } from './test/app';
 import { darkMagician, fakeCatalogue, lostMillennium, potOfGreed } from './test/fakeCatalogue';
 
 type User = ReturnType<typeof userEvent.setup>;
@@ -17,6 +18,7 @@ async function openSet(query: string, set: RegExp) {
   render(
     <App catalogue={fakeCatalogue([darkMagician, potOfGreed, ...lostMillennium]).catalogue} />,
   );
+  openFirstBinder();
   const user = userEvent.setup();
   await user.click(screen.getByRole('button', { name: 'Add cards' }));
   await user.type(screen.getByRole('searchbox', { name: 'Search cards and sets' }), query);
