@@ -116,6 +116,8 @@ export function SetPrintingList({
   // The ref refuses a press that arrives before the re-render; the state shows the button as unavailable.
   const placedList = useRef<readonly SetPrinting[] | null>(null);
   const [placed, setPlaced] = useState<readonly SetPrinting[] | null>(null);
+  // An empty list files nothing, as placing a run of none is refused further down.
+  const nothingToPlace = visible.length === 0 || isSameListing(placed, visible);
   const placeAll = () => {
     if (isSameListing(placedList.current, visible) || !onPlaceAll(visible)) return;
     placedList.current = visible;
@@ -177,7 +179,7 @@ export function SetPrintingList({
               <button
                 type="button"
                 className="control control--tonal"
-                aria-disabled={isSameListing(placed, visible)}
+                aria-disabled={nothingToPlace}
                 onClick={placeAll}
               >
                 {text.catalogue.placeAll(visible.length)}

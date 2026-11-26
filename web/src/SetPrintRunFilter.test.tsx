@@ -88,6 +88,17 @@ it('files only the chosen print run, leaving page 1, slot 4 empty', async () => 
   expect(pocket('Page 1, slot 4, empty')).toBeTruthy();
 });
 
+it('shows Place all as unavailable when the chosen print run and rarity leave nothing', async () => {
+  const user = await openLegendOfBlueEyes();
+  await user.click(printRunToggle('LOB-E 2'));
+
+  await user.click(rarityToggle('Rare 0'));
+
+  expect(
+    within(panel()).getByRole('button', { name: 'Place all 0' }).getAttribute('aria-disabled'),
+  ).toBe('true');
+});
+
 it('counts the rarities within the chosen print run', async () => {
   const user = await openLegendOfBlueEyes();
 
