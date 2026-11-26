@@ -10,7 +10,7 @@ Blue-Eyes-inspired sapphire and ice blue mark primary actions and selections, wi
 | --- | --- |
 | `primary`, `onPrimary` | A filled action and its label. |
 | `primaryContainer`, `onPrimaryContainer` | A held printing, the pocket a drag would drop into, and their contents. |
-| `secondaryContainer`, `onSecondaryContainer` | Tonal controls and their labels. |
+| `secondaryContainer`, `onSecondaryContainer` | Tonal controls, selected filter toggles, and their labels. |
 | `surface`, `surfaceContainer*` | The desk, dialogs, and the distinct layers within them. |
 | `onSurface`, `onSurfaceVariant` | Main and supporting content on surfaces. |
 | `outline`, `outlineVariant` | Visible control boundaries and quiet dividers, respectively. |
@@ -78,6 +78,7 @@ Cards are added from a catalogue panel, not from a dialog per pocket. The panel 
   - while holding: "Holding TLM-EN001", with the hint "Choose an empty slot".
 - Search sits under the head, and results scroll beneath it. Matching sets come first, under a "Sets" label, then matching cards under "Cards".
 - A set row shows the set name above its prefix and printing count, such as "TLM · 85 printings". Opening it shows the set's printings in set-code order under a head with a back action, the set name, and the count.
+- An opened set with two or more rarities shows a "Rarity" group of toggle buttons above its printings, one per rarity with its count, Common, Rare, Super Rare, Ultra Rare, and Secret Rare first, then the rest alphabetically. A selected toggle is `secondaryContainer` with a leading check; `primaryContainer` stays for a held printing. While any is selected, a text "Clear" action sits beside the label and "11 of 85 printings" shows above the list.
 - A card row opens to that card's printings inside the panel, under a head with a back action and the card's name.
 - A printing row shows the card's thumbnail, the set code above the rarity, and the card name in a set, or the set name in a card.
 

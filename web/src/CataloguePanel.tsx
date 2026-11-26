@@ -111,6 +111,7 @@ export function CataloguePanel({
       )}
       {opened?.kind === 'set' && (
         <SetPrintingList
+          key={opened.set.name}
           set={opened.set}
           catalogue={catalogue}
           aim={aim}
