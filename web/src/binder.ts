@@ -70,10 +70,9 @@ export function resizeBinder(binder: Binder, capacity: BinderCapacity): BinderRe
   }
 
   const slots = emptySlots(capacity);
-  const oldWidth = slotsPerPage(binder.capacity);
   for (const [index, copy] of binder.slots.entries()) {
     if (copy === null) continue;
-    const address = { page: Math.floor(index / oldWidth) + 1, position: index % oldWidth };
+    const address = addressAt(binder.capacity, index);
     if (!hasSlot(capacity, address)) return { kind: 'occupied', address };
     slots[indexOf(capacity, address)] = copy;
   }
@@ -84,6 +83,32 @@ export function place(binder: Binder, address: SlotAddress, copy: Copy): Binder 
   const slots = [...binder.slots];
   slots[indexOf(binder.capacity, address)] = copy;
   return { ...binder, slots };
+}
+
+/** What filing copies in order from a slot did: all of them placed, or none because too few empty slots follow. */
+export type RunPlacement =
+  | { readonly kind: 'placed'; readonly binder: Binder; readonly filled: readonly SlotAddress[] }
+  | { readonly kind: 'refused'; readonly emptySlots: number };
+
+/** Files `copies` in order into the empty slots from `start` to the end of the binder. Filled slots are skipped, never replaced. */
+export function placeRun(
+  binder: Binder,
+  start: SlotAddress,
+  copies: readonly Copy[],
+): RunPlacement {
+  const slots = [...binder.slots];
+  const filled: SlotAddress[] = [];
+  for (
+    let index = indexOf(binder.capacity, start);
+    index < slots.length && filled.length < copies.length;
+    index++
+  ) {
+    if (slots[index] !== null) continue;
+    slots[index] = copies[filled.length];
+    filled.push(addressAt(binder.capacity, index));
+  }
+  if (filled.length < copies.length) return { kind: 'refused', emptySlots: filled.length };
+  return { kind: 'placed', binder: { ...binder, slots }, filled };
 }
 
 export function remove(binder: Binder, address: SlotAddress): Binder {
@@ -163,6 +188,13 @@ export function spreadPages(
   };
 }
 
+/** The first page an open spread shows: page 1 on the first spread, the left page on every other. */
+export function firstSpreadPage(capacity: BinderCapacity, spread: number): number {
+  const { left, right } = spreadPages(capacity, spread);
+  // Every spread shows at least one page, because a binder has at least one.
+  return (left ?? right) as number;
+}
+
 function emptySlots(capacity: BinderCapacity): Array<Copy | null> {
   if (!isBinderCapacity(capacity)) throw new RangeError('Invalid binder capacity');
   return Array<Copy | null>(capacity.pages * slotsPerPage(capacity)).fill(null);
@@ -184,4 +216,9 @@ function indexOf(capacity: BinderCapacity, address: SlotAddress): number {
   if (!hasSlot(capacity, address))
     throw new RangeError(`No slot at page ${page}, position ${position}`);
   return (page - 1) * slotsPerPage(capacity) + position;
+}
+
+function addressAt(capacity: BinderCapacity, index: number): SlotAddress {
+  const width = slotsPerPage(capacity);
+  return { page: Math.floor(index / width) + 1, position: index % width };
 }

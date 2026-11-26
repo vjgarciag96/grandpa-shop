@@ -1,5 +1,5 @@
 import { text } from './strings';
-import { useMemo, useState, type PointerEvent, type RefObject } from 'react';
+import { useMemo, useRef, useState, type PointerEvent, type RefObject } from 'react';
 import { isHeld, type Aim } from './aim';
 import type { Card, CardSet, Catalogue, Printing, SetPrinting } from './catalogue';
 import { RetryMessage } from './CatalogueStatus';
@@ -87,7 +87,13 @@ export function SetPrintingList({
   onBack,
   onPrintingPress,
   onChoose,
-}: { set: CardSet; catalogue: Catalogue } & ChooseProps) {
+  onPlaceAll,
+}: {
+  set: CardSet;
+  catalogue: Catalogue;
+  /** Files every listed printing, in the listed order, and tells whether it placed them. */
+  onPlaceAll: (entries: readonly SetPrinting[]) => boolean;
+} & ChooseProps) {
   const { result, retry } = useCatalogueRequest<CardSet, SetResult>(
     catalogue,
     set,
@@ -97,7 +103,19 @@ export function SetPrintingList({
   const [selected, setSelected] = useState<RaritySelection>(NO_RARITIES);
   const printings = Array.isArray(result) ? result : null;
   const options = useMemo(() => (printings ? rarityOptions(printings, rarityOf) : []), [printings]);
-  const visible = printings ? keepRarities(printings, selected, rarityOf) : [];
+  const visible = useMemo(
+    () => (printings ? keepRarities(printings, selected, rarityOf) : []),
+    [printings, selected],
+  );
+  // The list last placed, so a second press files nothing until another set or rarity selection lists new printings.
+  // The ref refuses a press that arrives before the re-render; the state shows the button as unavailable.
+  const placedList = useRef<readonly SetPrinting[] | null>(null);
+  const [placed, setPlaced] = useState<readonly SetPrinting[] | null>(null);
+  const placeAll = () => {
+    if (placedList.current === visible || !onPlaceAll(visible)) return;
+    placedList.current = visible;
+    setPlaced(visible);
+  };
 
   return (
     <>
@@ -136,6 +154,16 @@ export function SetPrintingList({
               total={printings.length}
               onChange={setSelected}
             />
+            <div className="catalogue__place-all">
+              <button
+                type="button"
+                className="control control--tonal"
+                aria-disabled={placed === visible}
+                onClick={placeAll}
+              >
+                {text.catalogue.placeAll(visible.length)}
+              </button>
+            </div>
             <ul className="catalogue__printings" aria-label={text.catalogue.printings}>
               {visible.map((entry) => (
                 <PrintingRow

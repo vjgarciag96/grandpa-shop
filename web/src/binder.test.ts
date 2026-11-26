@@ -4,10 +4,12 @@ import {
   changeCondition,
   DEFAULT_BINDER_CAPACITY,
   emptyBinder,
+  firstSpreadPage,
   isBinderCapacity,
   moveCopy,
   pageSlots,
   place,
+  placeRun,
   remove,
   removeCopy,
   resizeBinder,
@@ -18,7 +20,7 @@ import {
   type BinderCapacity,
   type Copy,
 } from './binder';
-import { darkMagician, potOfGreed } from './test/fakeCatalogue';
+import { darkMagician, lostMillennium, potOfGreed } from './test/fakeCatalogue';
 
 const darkMagicianCopy: Copy = {
   card: darkMagician,
@@ -43,6 +45,20 @@ describe('spreadPages', () => {
     const pages = spreadPages(DEFAULT_BINDER_CAPACITY, 20);
 
     expect(pages).toEqual({ left: 40, right: null });
+  });
+});
+
+describe('firstSpreadPage', () => {
+  it('starts the first spread at page 1', () => {
+    expect(firstSpreadPage(DEFAULT_BINDER_CAPACITY, 0)).toBe(1);
+  });
+
+  it('starts the second spread at its left page 2', () => {
+    expect(firstSpreadPage(DEFAULT_BINDER_CAPACITY, 1)).toBe(2);
+  });
+
+  it('starts the last spread of a four-page binder at its lone page 4', () => {
+    expect(firstSpreadPage({ grid: 3, pages: 4 }, 2)).toBe(4);
   });
 });
 
@@ -305,5 +321,89 @@ describe('removeCopy', () => {
     const removal = removeCopy(emptyBinder(), { page: 2, position: 4 }, darkMagicianCopy);
 
     expect(removal).toEqual({ kind: 'refused' });
+  });
+});
+
+describe('placeRun', () => {
+  const [sphinx, sentinel, knight, idol, guardian] = lostMillennium.map((card): Copy => ({
+    card,
+    printing: card.printings[0],
+    condition: 'Near Mint',
+  }));
+
+  it('fills page 1 slots 1 and 2 in the given order from page 1, slot 1', () => {
+    const run = placeRun(emptyBinder(), { page: 1, position: 0 }, [sentinel, idol]);
+
+    if (run.kind !== 'placed') throw new Error('Expected both copies to be placed');
+    expect(run.filled).toEqual([
+      { page: 1, position: 0 },
+      { page: 1, position: 1 },
+    ]);
+    expect(pageSlots(run.binder, 1).slice(0, 3)).toEqual([sentinel, idol, null]);
+  });
+
+  it('skips a filled slot 6 when starting from slot 5 and keeps its copy', () => {
+    const before = place(emptyBinder(), { page: 1, position: 5 }, darkMagicianCopy);
+
+    const run = placeRun(before, { page: 1, position: 4 }, [sentinel, idol]);
+
+    if (run.kind !== 'placed') throw new Error('Expected both copies to be placed');
+    expect(run.filled).toEqual([
+      { page: 1, position: 4 },
+      { page: 1, position: 6 },
+    ]);
+    expect(pageSlots(run.binder, 1).slice(4, 7)).toEqual([sentinel, darkMagicianCopy, idol]);
+  });
+
+  it('continues onto page 2 slot 1 after page 1 slot 9', () => {
+    const run = placeRun(emptyBinder(), { page: 1, position: 7 }, [sentinel, knight, idol]);
+
+    if (run.kind !== 'placed') throw new Error('Expected all three copies to be placed');
+    expect(run.filled).toEqual([
+      { page: 1, position: 7 },
+      { page: 1, position: 8 },
+      { page: 2, position: 0 },
+    ]);
+    expect(slotAt(run.binder, { page: 2, position: 0 })).toBe(idol);
+  });
+
+  it('never writes a slot before the start', () => {
+    const run = placeRun(emptyBinder(), { page: 2, position: 3 }, [sentinel]);
+
+    if (run.kind !== 'placed') throw new Error('Expected the copy to be placed');
+    expect(run.binder.slots.slice(0, 12)).toEqual(Array(12).fill(null));
+  });
+
+  it('refuses five copies in a one-page 2×2 binder and reports its 4 empty slots', () => {
+    const before = emptyBinder({ grid: 2, pages: 1 });
+
+    const run = placeRun(before, { page: 1, position: 0 }, [
+      sphinx,
+      sentinel,
+      knight,
+      idol,
+      guardian,
+    ]);
+
+    expect(run).toEqual({ kind: 'refused', emptySlots: 4 });
+    expect(before.slots).toEqual([null, null, null, null]);
+  });
+
+  it('counts only the empty slots from the start when refusing', () => {
+    const before = place(emptyBinder({ grid: 2, pages: 1 }), { page: 1, position: 2 }, sphinx);
+
+    const run = placeRun(before, { page: 1, position: 1 }, [sentinel, knight, idol]);
+
+    expect(run).toEqual({ kind: 'refused', emptySlots: 2 });
+  });
+
+  it('skips a filled start slot and never replaces its copy', () => {
+    const before = place(emptyBinder(), { page: 1, position: 4 }, darkMagicianCopy);
+
+    const run = placeRun(before, { page: 1, position: 4 }, [sentinel]);
+
+    if (run.kind !== 'placed') throw new Error('Expected the copy to be placed');
+    expect(run.filled).toEqual([{ page: 1, position: 5 }]);
+    expect(slotAt(run.binder, { page: 1, position: 4 })).toBe(darkMagicianCopy);
   });
 });

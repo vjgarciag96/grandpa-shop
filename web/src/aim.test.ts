@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { chooseSlot, choosePrinting, type Aim } from './aim';
+import { chooseSlot, choosePrinting, runStart, type Aim } from './aim';
 import { darkMagician } from './test/fakeCatalogue';
 
 const [lob, sdy] = darkMagician.printings;
@@ -57,5 +57,19 @@ describe('choosing a printing', () => {
       kind: 'aim',
       aim: { kind: 'holding', card: darkMagician, printing: starfoil },
     });
+  });
+});
+
+describe('where a run of placements starts', () => {
+  it('starts at the target slot', () => {
+    expect(runStart(targetSlot3, 4)).toEqual({ page: 1, position: 2 });
+  });
+
+  it('starts at slot 1 of the given page when nothing is aimed', () => {
+    expect(runStart(null, 4)).toEqual({ page: 4, position: 0 });
+  });
+
+  it('starts at slot 1 of the given page while holding a printing', () => {
+    expect(runStart(holdingLob, 4)).toEqual({ page: 4, position: 0 });
   });
 });

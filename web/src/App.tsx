@@ -9,7 +9,7 @@ import {
   type CSSProperties,
   type Ref,
 } from 'react';
-import { chooseSlot, choosePrinting, type Aim } from './aim';
+import { chooseSlot, choosePrinting, runStart, type Aim } from './aim';
 import { BinderSpread } from './BinderSpread';
 import { CataloguePanel } from './CataloguePanel';
 import { CopyDetail } from './CopyDetail';
@@ -28,6 +28,7 @@ import { AppTitle } from './AppTitle';
 import { BinderSettingsDialog } from './BinderSettingsDialog';
 import {
   changeCondition,
+  firstSpreadPage,
   remove,
   resizeBinder,
   slotAt,
@@ -37,7 +38,7 @@ import {
   type BinderCapacity,
   type SlotAddress,
 } from './binder';
-import type { Card, Catalogue, Printing } from './catalogue';
+import type { Card, Catalogue, Printing, SetPrinting } from './catalogue';
 import { announced, silenced } from './announcement';
 import { LiveRegion } from './LiveRegion';
 import { panelBesideFrom, STACK_BELOW_PX } from './tokens';
@@ -50,6 +51,7 @@ import {
   binderInteraction,
   moveAt,
   placeAt,
+  placeRunAt,
   removeAt,
   type BinderInteraction,
   type BinderState,
@@ -361,6 +363,14 @@ function BinderWorkspace({
     else setAim(choice.aim);
   };
 
+  const placeListed = (entries: readonly SetPrinting[]) => {
+    if (workspaceInert) return false;
+    const start = runStart(aim, firstSpreadPage(binder.capacity, spread));
+    const next = placeRunAt({ binder, aim, moveAnnouncement, announcement }, start, entries);
+    setBinderState(() => next);
+    return next.binder !== binder;
+  };
+
   const copy = detail && slotAt(binder, detail);
   const deskLayout = panelOpen ? (beside ? ' desk--beside' : ' desk--sheet') : '';
 
@@ -457,6 +467,7 @@ function BinderWorkspace({
               : undefined
           }
           onChoose={onPrinting}
+          onPlaceAll={placeListed}
           onClose={closePanel}
         />
       )}

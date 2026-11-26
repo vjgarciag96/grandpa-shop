@@ -81,6 +81,21 @@ export function placedPrinting(setCode: string, to: SlotAddress, replaced?: stri
   return replaced !== undefined ? `${placed}, replacing ${replaced}.` : `${placed}.`;
 }
 
+/** "Placed 11 printings from page 1, slot 1 to page 2, slot 2." One slot falls back to placedPrinting. */
+export function placedRun(firstSetCode: string, filled: readonly SlotAddress[]): string {
+  const [from] = filled;
+  const to = filled[filled.length - 1];
+  if (filled.length === 1) return placedPrinting(firstSetCode, from);
+  return `Placed ${countOf(filled.length, 'printing')} from ${slotNameInSentence(from)} to ${slotNameInSentence(to)}.`;
+}
+
+/** "Only 4 empty slots from page 1, slot 1 to the end of the binder; 11 printings are listed." */
+export function refusedRun(emptySlots: number, from: SlotAddress, listed: number): string {
+  const room = emptySlots === 0 ? 'No empty slots' : `Only ${countOf(emptySlots, 'empty slot')}`;
+  const verb = listed === 1 ? 'is' : 'are';
+  return `${room} from ${slotNameInSentence(from)} to the end of the binder; ${countOf(listed, 'printing')} ${verb} listed.`;
+}
+
 export function movedPrinting(
   setCode: string,
   to: SlotAddress,
@@ -166,6 +181,7 @@ export const text = {
     rarity: 'Rarity',
     clearRarities: 'Clear',
     filteredCount: (shown: number, total: number) => `${shown} of ${countOf(total, 'printing')}`,
+    placeAll: (count: number) => `Place all ${count}`,
   },
   detail: {
     printing: 'Printing',

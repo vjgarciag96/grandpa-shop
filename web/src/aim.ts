@@ -42,6 +42,11 @@ export function choosePrinting(aim: Aim | null, card: Card, printing: Printing):
   return { kind: 'aim', aim: { kind: 'holding', card, printing } };
 }
 
+/** Where a run of placements starts: the target slot, or slot 1 of `page` when nothing is targeted. */
+export function runStart(aim: Aim | null, page: number): SlotAddress {
+  return aim?.kind === 'target' ? aim.address : { page, position: 0 };
+}
+
 export function isHeld(aim: Aim | null, card: Card, printing: Printing) {
   return (
     aim?.kind === 'holding' &&
