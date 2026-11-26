@@ -3,7 +3,14 @@ import userEvent from '@testing-library/user-event';
 import { createElement } from 'react';
 import App from '../App';
 import { saveBinderWith, savedPlayedSdyDarkMagician } from './binder';
-import { darkMagician, fakeCatalogue, lostMillennium, potOfGreed } from './fakeCatalogue';
+import type { Card } from '../catalogue';
+import {
+  darkMagician,
+  fakeCatalogue,
+  legendOfBlueEyes,
+  lostMillennium,
+  potOfGreed,
+} from './fakeCatalogue';
 import { viewportWidth } from './media';
 
 /** Renders the app on the fake catalogue with Binder 1 open, in a viewport `width` pixels wide when given. */
@@ -39,20 +46,17 @@ export async function openCatalogueResult(
 }
 
 /**
- * Renders the app on a catalogue with Dark Magician, Pot of Greed, and the five-printing The Lost Millennium, opens
- * Binder 1 and the catalogue with `openPanel` ("Add cards" unless given), searches for `query`, and opens the set
- * result named `set`.
+ * Renders the app on a catalogue of `cards` (Dark Magician, Pot of Greed, and the five-printing The Lost Millennium
+ * unless given), opens Binder 1 and the catalogue with `openPanel` ("Add cards" unless given), searches for `query`,
+ * and opens the set result named `set`.
  */
 export async function openSet(
   query: string,
   set: RegExp,
   openPanel: (user: User) => Promise<void> = addCards,
+  cards: Card[] = [darkMagician, potOfGreed, ...lostMillennium],
 ) {
-  render(
-    createElement(App, {
-      catalogue: fakeCatalogue([darkMagician, potOfGreed, ...lostMillennium]).catalogue,
-    }),
-  );
+  render(createElement(App, { catalogue: fakeCatalogue(cards).catalogue }));
   openFirstBinder();
   const user = userEvent.setup();
   await openCatalogueResult(user, query, set, openPanel);
@@ -64,9 +68,23 @@ export async function openSet(
 export const openLostMillennium = (openPanel?: (user: User) => Promise<void>) =>
   openSet('lost', /The Lost Millennium/, openPanel);
 
+/** Opens the eight-printing Legend of Blue Eyes White Dragon, alone in the catalogue, from a "legend" search. */
+export const openLegendOfBlueEyes = () =>
+  openSet('legend', /Legend of Blue Eyes White Dragon/, addCards, legendOfBlueEyes);
+
+/** How many printings the chosen filters leave, as announced over an opened set's printings. */
+export const filterCount = () =>
+  screen
+    .getByRole('complementary', { name: 'Catalogue' })
+    .querySelector('.catalogue__filters [role="status"]')?.textContent;
+
 /** The rarity toggle named `name` in the opened set's Rarity group. */
 export const rarityToggle = (name: string) =>
   within(screen.getByRole('group', { name: 'Rarity' })).getByRole('button', { name });
+
+/** The print run toggle named `name` in the opened set's Print run group. */
+export const printRunToggle = (name: string) =>
+  within(screen.getByRole('group', { name: 'Print run' })).getByRole('button', { name });
 
 /** Chooses Super Rare and Ultra Rare in The Lost Millennium, which leaves TLM-EN002 and TLM-EN004 listed. */
 export async function chooseSuperAndUltra(user: User) {

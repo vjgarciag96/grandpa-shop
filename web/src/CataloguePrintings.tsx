@@ -3,8 +3,8 @@ import { useMemo, useRef, useState, type PointerEvent, type RefObject } from 're
 import { isHeld, type Aim } from './aim';
 import type { Card, CardSet, Catalogue, Printing, SetPrinting } from './catalogue';
 import { RetryMessage } from './CatalogueStatus';
-import { RarityFilter } from './CatalogueRarityFilter';
-import { filterSetPrintings, NO_FILTERS, type SetFilterSelection } from './setFilters';
+import { FilterCount, FilterGroup } from './CatalogueFilterGroup';
+import { filterSetPrintings, isFiltering, NO_FILTERS, type SetFilterSelection } from './setFilters';
 import { useCatalogueRequest } from './useCatalogueRequest';
 
 type ChooseProps = {
@@ -100,11 +100,12 @@ export function SetPrintingList({
   );
   const [selection, setSelection] = useState<SetFilterSelection>(NO_FILTERS);
   const printings = Array.isArray(result) ? result : null;
-  const { listed: visible, rarities } = useMemo(
-    () => filterSetPrintings(printings ?? [], selection),
-    [printings, selection],
-  );
-  // The list last placed, so a second press files nothing until another set or rarity selection lists new printings.
+  const {
+    listed: visible,
+    rarities,
+    printRuns,
+  } = useMemo(() => filterSetPrintings(printings ?? [], selection), [printings, selection]);
+  // The list last placed, so a second press files nothing until another set or filter selection lists new printings.
   // The ref refuses a press that arrives before the re-render; the state shows the button as unavailable.
   const placedList = useRef<readonly SetPrinting[] | null>(null);
   const [placed, setPlaced] = useState<readonly SetPrinting[] | null>(null);
@@ -144,13 +145,27 @@ export function SetPrintingList({
         )}
         {printings && (
           <>
-            <RarityFilter
-              options={rarities}
-              selected={selection.rarities}
-              shown={visible.length}
-              total={printings.length}
-              onChange={(next) => setSelection({ ...selection, rarities: next })}
-            />
+            {(rarities.length > 0 || printRuns.length > 0) && (
+              <div className="catalogue__filters">
+                <FilterGroup
+                  label={text.catalogue.rarity}
+                  options={rarities}
+                  selected={selection.rarities}
+                  onChange={(next) => setSelection({ ...selection, rarities: next })}
+                />
+                <FilterGroup
+                  label={text.catalogue.printRun}
+                  options={printRuns}
+                  selected={selection.printRuns}
+                  onChange={(next) => setSelection({ ...selection, printRuns: next })}
+                />
+                <FilterCount
+                  shown={visible.length}
+                  total={printings.length}
+                  filtering={isFiltering(selection)}
+                />
+              </div>
+            )}
             <div className="catalogue__place-all">
               <button
                 type="button"
