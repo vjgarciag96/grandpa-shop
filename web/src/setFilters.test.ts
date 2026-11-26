@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import type { SetPrinting } from './catalogue';
-import { filterSetPrintings, isFiltering, isSameListing, NO_FILTERS, toggle } from './setFilters';
+import {
+  filterSetPrintings,
+  isFiltering,
+  isSameListing,
+  NO_FILTERS,
+  withChosen,
+} from './setFilters';
 import { darkMagician } from './test/fakeCatalogue';
 
 /** A printing of [setName] with [setCode] and [rarity]. */
@@ -133,13 +139,42 @@ describe('rarity options', () => {
 });
 
 describe('print run options', () => {
-  it('counts each print run in set-code order of its first printing', () => {
+  it('counts each print run of an opened set', () => {
     const { printRuns } = filterSetPrintings(legendOfBlueEyes(), NO_FILTERS);
 
     expect(printRuns).toEqual([
       { value: 'LOB-', count: 3 },
       { value: 'LOB-E', count: 2 },
       { value: 'LOB-EN', count: 4 },
+    ]);
+  });
+
+  it('orders the print runs as their first printings are listed', () => {
+    const entries = [
+      lob('LOB-EN001', 'Ultra Rare'),
+      lob('LOB-E001', 'Ultra Rare'),
+      lob('LOB-EN002', 'Common'),
+      lob('LOB-001', 'Ultra Rare'),
+    ];
+
+    const { printRuns } = filterSetPrintings(entries, NO_FILTERS);
+
+    expect(printRuns.map(({ value }) => value)).toEqual(['LOB-EN', 'LOB-E', 'LOB-']);
+  });
+
+  it('offers the print runs of a set with a single rarity', () => {
+    const entries = [
+      lob('LOB-002', 'Common'),
+      lob('LOB-E002', 'Common'),
+      lob('LOB-EN002', 'Common'),
+    ];
+
+    const { printRuns } = filterSetPrintings(entries, NO_FILTERS);
+
+    expect(printRuns).toEqual([
+      { value: 'LOB-', count: 1 },
+      { value: 'LOB-E', count: 1 },
+      { value: 'LOB-EN', count: 1 },
     ]);
   });
 
@@ -252,6 +287,16 @@ describe('filtering', () => {
   });
 });
 
+describe('choosing in one group', () => {
+  it("replaces that group's choice and keeps the other group's", () => {
+    const selection = { rarities: new Set(['Rare']), printRuns: new Set(['LOB-E']) };
+
+    const next = withChosen(selection, 'printRuns', new Set(['LOB-EN']));
+
+    expect(next).toEqual({ rarities: new Set(['Rare']), printRuns: new Set(['LOB-EN']) });
+  });
+});
+
 describe('same listing', () => {
   it('is the same listing when the same printings come back in a new list', () => {
     const printings = lostMillennium();
@@ -280,19 +325,5 @@ describe('same listing', () => {
 
   it('is another listing when nothing was listed before', () => {
     expect(isSameListing(null, [])).toBe(false);
-  });
-});
-
-describe('toggling a value', () => {
-  it('adds a value that is not selected', () => {
-    const next = toggle(new Set(['Platinum Secret Rare']), 'PLatinum Secret Rare');
-
-    expect([...next]).toEqual(['Platinum Secret Rare', 'PLatinum Secret Rare']);
-  });
-
-  it('removes a value that is selected', () => {
-    const next = toggle(new Set(['Super Rare', 'Ultra Rare']), 'Super Rare');
-
-    expect([...next]).toEqual(['Ultra Rare']);
   });
 });

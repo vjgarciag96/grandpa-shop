@@ -1,11 +1,52 @@
 import { text } from './strings';
 import { useId, useRef } from 'react';
-import { toggle, type FilterOption, type Selection } from './setFilters';
+import { NOTHING_CHOSEN, toggle, type FilterOption, type Selection } from './filterGroup';
+import { isFiltering, withChosen, type SetFilterSelection } from './setFilters';
 
-const NOTHING_CHOSEN: Selection = new Set();
+/**
+ * The Rarity and Print run groups over an opened set's printings, with how many of the [total] printings the chosen
+ * filters leave, [shown]. Nothing when neither group has options.
+ */
+export function SetFilters({
+  rarities,
+  printRuns,
+  selection,
+  shown,
+  total,
+  onChange,
+}: {
+  rarities: readonly FilterOption[];
+  printRuns: readonly FilterOption[];
+  selection: SetFilterSelection;
+  shown: number;
+  total: number;
+  onChange: (next: SetFilterSelection) => void;
+}) {
+  if (rarities.length === 0 && printRuns.length === 0) return null;
+
+  return (
+    <div className="catalogue__filters" role="group" aria-label={text.catalogue.filters}>
+      <FilterGroup
+        label={text.catalogue.rarity}
+        options={rarities}
+        selected={selection.rarities}
+        onChange={(chosen) => onChange(withChosen(selection, 'rarities', chosen))}
+      />
+      <FilterGroup
+        label={text.catalogue.printRun}
+        options={printRuns}
+        selected={selection.printRuns}
+        onChange={(chosen) => onChange(withChosen(selection, 'printRuns', chosen))}
+      />
+      <p className="catalogue__result-count" role="status">
+        {isFiltering(selection) ? text.catalogue.filteredCount(shown, total) : ''}
+      </p>
+    </div>
+  );
+}
 
 /** Toggles named [label] that narrow a list of printings to one or more values, with Clear while any is chosen. */
-export function FilterGroup({
+function FilterGroup({
   label,
   options,
   selected,
@@ -59,22 +100,5 @@ export function FilterGroup({
         })}
       </div>
     </div>
-  );
-}
-
-/** How many of the [total] printings the chosen filters leave, announced as it changes; empty while not [filtering]. */
-export function FilterCount({
-  shown,
-  total,
-  filtering,
-}: {
-  shown: number;
-  total: number;
-  filtering: boolean;
-}) {
-  return (
-    <p className="catalogue__result-count" role="status">
-      {filtering ? text.catalogue.filteredCount(shown, total) : ''}
-    </p>
   );
 }

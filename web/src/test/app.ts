@@ -53,8 +53,10 @@ export async function openCatalogueResult(
 export async function openSet(
   query: string,
   set: RegExp,
-  openPanel: (user: User) => Promise<void> = addCards,
-  cards: Card[] = [darkMagician, potOfGreed, ...lostMillennium],
+  {
+    openPanel = addCards,
+    cards = [darkMagician, potOfGreed, ...lostMillennium],
+  }: { openPanel?: (user: User) => Promise<void>; cards?: Card[] } = {},
 ) {
   render(createElement(App, { catalogue: fakeCatalogue(cards).catalogue }));
   openFirstBinder();
@@ -66,17 +68,15 @@ export async function openSet(
 
 /** Opens The Lost Millennium from a "lost" search, opening the catalogue with `openPanel` when given. */
 export const openLostMillennium = (openPanel?: (user: User) => Promise<void>) =>
-  openSet('lost', /The Lost Millennium/, openPanel);
+  openSet('lost', /The Lost Millennium/, { openPanel });
 
 /** Opens the eight-printing Legend of Blue Eyes White Dragon, alone in the catalogue, from a "legend" search. */
 export const openLegendOfBlueEyes = () =>
-  openSet('legend', /Legend of Blue Eyes White Dragon/, addCards, legendOfBlueEyes);
+  openSet('legend', /Legend of Blue Eyes White Dragon/, { cards: legendOfBlueEyes });
 
 /** How many printings the chosen filters leave, as announced over an opened set's printings. */
 export const filterCount = () =>
-  screen
-    .getByRole('complementary', { name: 'Catalogue' })
-    .querySelector('.catalogue__filters [role="status"]')?.textContent;
+  within(screen.getByRole('group', { name: 'Filters' })).getByRole('status').textContent;
 
 /** The rarity toggle named `name` in the opened set's Rarity group. */
 export const rarityToggle = (name: string) =>

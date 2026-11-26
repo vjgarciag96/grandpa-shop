@@ -178,6 +178,7 @@ export const text = {
     setCount: (count: number) => countOf(count, 'set'),
     cardCount: (count: number) => countOf(count, 'card'),
     printingCount: (count: number) => countOf(count, 'printing'),
+    filters: 'Filters',
     rarity: 'Rarity',
     printRun: 'Print run',
     clearFilter: 'Clear',

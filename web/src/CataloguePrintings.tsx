@@ -3,10 +3,9 @@ import { useMemo, useRef, useState, type PointerEvent, type RefObject } from 're
 import { isHeld, type Aim } from './aim';
 import type { Card, CardSet, Catalogue, Printing, SetPrinting } from './catalogue';
 import { RetryMessage } from './CatalogueStatus';
-import { FilterCount, FilterGroup } from './CatalogueFilterGroup';
+import { SetFilters } from './CatalogueSetFilters';
 import {
   filterSetPrintings,
-  isFiltering,
   isSameListing,
   NO_FILTERS,
   type SetFilterSelection,
@@ -106,22 +105,21 @@ export function SetPrintingList({
   );
   const [selection, setSelection] = useState<SetFilterSelection>(NO_FILTERS);
   const printings = Array.isArray(result) ? result : null;
-  const {
-    listed: visible,
-    rarities,
-    printRuns,
-  } = useMemo(() => filterSetPrintings(printings ?? [], selection), [printings, selection]);
+  const { listed, rarities, printRuns } = useMemo(
+    () => filterSetPrintings(printings ?? [], selection),
+    [printings, selection],
+  );
   // The list last placed, so a second press files nothing until another set or filter selection lists other printings,
   // even when the filters were changed and cleared in between.
   // The ref refuses a press that arrives before the re-render; the state shows the button as unavailable.
   const placedList = useRef<readonly SetPrinting[] | null>(null);
   const [placed, setPlaced] = useState<readonly SetPrinting[] | null>(null);
   // An empty list files nothing, as placing a run of none is refused further down.
-  const nothingToPlace = visible.length === 0 || isSameListing(placed, visible);
+  const nothingToPlace = listed.length === 0 || isSameListing(placed, listed);
   const placeAll = () => {
-    if (isSameListing(placedList.current, visible) || !onPlaceAll(visible)) return;
-    placedList.current = visible;
-    setPlaced(visible);
+    if (isSameListing(placedList.current, listed) || !onPlaceAll(listed)) return;
+    placedList.current = listed;
+    setPlaced(listed);
   };
 
   return (
@@ -154,27 +152,14 @@ export function SetPrintingList({
         )}
         {printings && (
           <>
-            {(rarities.length > 0 || printRuns.length > 0) && (
-              <div className="catalogue__filters">
-                <FilterGroup
-                  label={text.catalogue.rarity}
-                  options={rarities}
-                  selected={selection.rarities}
-                  onChange={(next) => setSelection({ ...selection, rarities: next })}
-                />
-                <FilterGroup
-                  label={text.catalogue.printRun}
-                  options={printRuns}
-                  selected={selection.printRuns}
-                  onChange={(next) => setSelection({ ...selection, printRuns: next })}
-                />
-                <FilterCount
-                  shown={visible.length}
-                  total={printings.length}
-                  filtering={isFiltering(selection)}
-                />
-              </div>
-            )}
+            <SetFilters
+              rarities={rarities}
+              printRuns={printRuns}
+              selection={selection}
+              shown={listed.length}
+              total={printings.length}
+              onChange={setSelection}
+            />
             <div className="catalogue__place-all">
               <button
                 type="button"
@@ -182,11 +167,11 @@ export function SetPrintingList({
                 aria-disabled={nothingToPlace}
                 onClick={placeAll}
               >
-                {text.catalogue.placeAll(visible.length)}
+                {text.catalogue.placeAll(listed.length)}
               </button>
             </div>
             <ul className="catalogue__printings" aria-label={text.catalogue.printings}>
-              {visible.map((entry) => (
+              {listed.map((entry) => (
                 <PrintingRow
                   key={`${entry.card.passcode} ${entry.printing.setCode} ${entry.printing.rarity}`}
                   entry={entry}

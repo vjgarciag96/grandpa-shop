@@ -140,8 +140,8 @@ it('offers no rarity group over a set with a single rarity', async () => {
   expect(screen.queryByRole('group', { name: 'Rarity' })).toBe(null);
 });
 
-it('announces no count over a set with a single rarity and a single print run', async () => {
+it('offers no filters and no count over a set with a single rarity and a single print run', async () => {
   await openSet('starter deck', /Starter Deck: Yugi/);
 
-  expect(filterCount()).toBe(undefined);
+  expect(screen.queryByRole('group', { name: 'Filters' })).toBe(null);
 });

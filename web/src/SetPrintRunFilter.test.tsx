@@ -1,4 +1,5 @@
 import { screen, within } from '@testing-library/react';
+import { legendOfBlueEyes } from './test/fakeCatalogue';
 import { expect, it } from 'vitest';
 import {
   filterCount,
@@ -6,6 +7,7 @@ import {
   openCatalogueResult,
   openLegendOfBlueEyes,
   openLostMillennium,
+  openSet,
   printRunToggle,
   rarityToggle,
   type User,
@@ -22,6 +24,9 @@ const printingRows = () =>
 const shownSetCodes = () => printingRows().map((row) => row.querySelector('strong')?.textContent);
 const pocket = (name: string) => screen.getByRole('button', { name });
 
+/** Mystical Elf, Common at LOB-002, LOB-E002, and LOB-EN002. */
+const mysticalElf = legendOfBlueEyes[1];
+
 /** Chooses LOB-EN in Legend of Blue Eyes White Dragon, which leaves LOB-EN001 to LOB-EN003 listed. */
 const chooseLobEn = (user: User) => user.click(printRunToggle('LOB-EN 3'));
 
@@ -37,6 +42,13 @@ it('offers no print run group over a set with a single print run', async () => {
   await openLostMillennium();
 
   expect(screen.queryByRole('group', { name: 'Print run' })).toBe(null);
+});
+
+it('offers a print run group and no rarity group over a set with a single rarity', async () => {
+  await openSet('legend', /Legend of Blue Eyes White Dragon/, { cards: [mysticalElf] });
+
+  expect(toggleNames(printRunGroup())).toEqual(['LOB- 1', 'LOB-E 1', 'LOB-EN 1']);
+  expect(screen.queryByRole('group', { name: 'Rarity' })).toBe(null);
 });
 
 it("offers no print run group over a card's printings from a name search", async () => {
