@@ -14,8 +14,16 @@ import { BinderSpread } from './BinderSpread';
 import { CataloguePanel } from './CataloguePanel';
 import { CopyDetail } from './CopyDetail';
 import { loadShelf } from './savedShelf';
-import { addBinder, openBinder, replaceOpenBinder, type Shelf } from './shelf';
-import { ShelfDialog } from './ShelfDialog';
+import {
+  addBinder,
+  closeBinder,
+  openBinder,
+  openedBinder,
+  replaceOpenBinder,
+  type Shelf,
+} from './shelf';
+import { ShelfView } from './ShelfView';
+import { AppTitle } from './AppTitle';
 import { BinderSettingsDialog } from './BinderSettingsDialog';
 import {
   changeCondition,
@@ -23,6 +31,7 @@ import {
   resizeBinder,
   slotAt,
   spreadPages,
+  type Binder,
   type Copy,
   type BinderCapacity,
   type SlotAddress,
@@ -33,7 +42,7 @@ import { LiveRegion } from './LiveRegion';
 import { panelBesideFrom, STACK_BELOW_PX } from './tokens';
 import { useMediaQuery, useMinimumViewportWidth } from './useMediaQuery';
 import { useDragToPocket } from './useDragToPocket';
-import { useShelfPersistence, type BinderSelection } from './useShelfPersistence';
+import { useShelfPersistence } from './useShelfPersistence';
 import { useSpreadTurns } from './useSpreadTurns';
 
 import {
@@ -45,13 +54,15 @@ import {
   type BinderState,
 } from './binderState';
 
-type DeskDialog = 'shelf' | 'settings';
+type DeskDialog = 'settings';
+
+/** Where focus goes once the desk or the shelf has rendered. */
+type FocusTarget = DeskDialog | 'binder-name' | 'spine';
 
 type DeskState = {
   shelf: Shelf;
   interaction: BinderInteraction;
   workspaceVersion: number;
-  selection: BinderSelection | null;
 };
 
 function reopenWorkspace(current: DeskState, shelf: Shelf): DeskState {
@@ -63,45 +74,39 @@ function reopenWorkspace(current: DeskState, shelf: Shelf): DeskState {
   };
 }
 
-function chooseWorkspace(current: DeskState, shelf: Shelf): DeskState {
-  return {
-    ...reopenWorkspace(current, shelf),
-    selection: { name: shelf.binders[shelf.activeIndex].name },
-  };
-}
-
 export default function App({ catalogue }: { catalogue: Catalogue }) {
-  const [{ shelf, interaction, workspaceVersion, selection }, setState] = useState<DeskState>(
-    () => ({
-      shelf: loadShelf(),
-      interaction: binderInteraction(),
-      workspaceVersion: 0,
-      selection: null,
-    }),
-  );
+  const [{ shelf, interaction, workspaceVersion }, setState] = useState<DeskState>(() => ({
+    shelf: loadShelf(),
+    interaction: binderInteraction(),
+    workspaceVersion: 0,
+  }));
   const [dialog, setDialog] = useState<DeskDialog | null>(null);
-  const shelfButton = useRef<HTMLButtonElement>(null);
+  const nameHeading = useRef<HTMLHeadingElement>(null);
   const settingsButton = useRef<HTMLButtonElement>(null);
-  const returnFocus = useRef<DeskDialog | null>(null);
-  const { activeIndex, binders } = shelf;
-  const { name, binder } = binders[activeIndex];
-  useShelfPersistence(binders, selection);
+  const lastOpenedSpine = useRef<HTMLButtonElement>(null);
+  const returnFocus = useRef<FocusTarget | null>(null);
+  const { binders, showing } = shelf;
+  const open = openedBinder(shelf);
+  useShelfPersistence(binders, open?.name ?? null);
 
   useLayoutEffect(() => {
     if (dialog !== null || returnFocus.current === null) return;
-    const opener = returnFocus.current === 'shelf' ? shelfButton : settingsButton;
-    opener.current?.focus({ preventScroll: true });
+    const targets = {
+      settings: settingsButton,
+      'binder-name': nameHeading,
+      spine: lastOpenedSpine,
+    };
+    targets[returnFocus.current].current?.focus({ preventScroll: true });
     returnFocus.current = null;
-  }, [dialog]);
+  }, [dialog, showing]);
 
   const updateBinder = useCallback(
     (update: (state: BinderState) => BinderState) => {
       setState((current) => {
         if (current.workspaceVersion !== workspaceVersion) return current;
-        const before = {
-          ...current.interaction,
-          binder: current.shelf.binders[current.shelf.activeIndex].binder,
-        };
+        const opened = openedBinder(current.shelf);
+        if (!opened) return current;
+        const before = { ...current.interaction, binder: opened.binder };
         const next = update(before);
         if (next === before) return current;
         const { binder, ...interaction } = next;
@@ -117,7 +122,7 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
   };
   const closeDialog = () => setDialog(null);
 
-  const saveCapacity = (capacity: BinderCapacity) => {
+  const saveCapacity = (binder: Binder, capacity: BinderCapacity) => {
     const resized = resizeBinder(binder, capacity);
     if (resized.kind === 'occupied') {
       return text.binderSettings.blockedResize(resized.address);
@@ -126,7 +131,7 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
       setState((current) => {
         if (
           current.workspaceVersion !== workspaceVersion ||
-          current.shelf.binders[current.shelf.activeIndex].binder !== binder
+          openedBinder(current.shelf)?.binder !== binder
         ) {
           return current;
         }
@@ -136,22 +141,40 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
     closeDialog();
   };
 
-  const selectBinder = (index: number) => {
+  const chooseBinder = (index: number) => {
     if (!binders[index]) return;
-    setState((current) => chooseWorkspace(current, openBinder(current.shelf, index)));
-    closeDialog();
+    returnFocus.current = 'binder-name';
+    setState((current) => reopenWorkspace(current, openBinder(current.shelf, index)));
   };
 
   const createBinder = (name: string, capacity: BinderCapacity) => {
     const addition = addBinder(shelf, name, capacity);
     if (addition.kind !== 'added') return addition.kind;
+    returnFocus.current = 'binder-name';
     setState((current) => {
       const added = current.shelf === shelf ? addition : addBinder(current.shelf, name, capacity);
-      return added.kind === 'added' ? chooseWorkspace(current, added.shelf) : current;
+      return added.kind === 'added' ? reopenWorkspace(current, added.shelf) : current;
     });
-    closeDialog();
   };
 
+  const leaveBinder = () => {
+    returnFocus.current = 'spine';
+    setState((current) => reopenWorkspace(current, closeBinder(current.shelf)));
+  };
+
+  if (showing.kind === 'shelf') {
+    return (
+      <ShelfView
+        binders={binders}
+        lastOpened={showing.lastOpened}
+        lastOpenedSpine={lastOpenedSpine}
+        onOpen={chooseBinder}
+        onCreate={createBinder}
+      />
+    );
+  }
+
+  const { name, binder } = binders[showing.index];
   return (
     <>
       <BinderWorkspace
@@ -161,23 +184,16 @@ export default function App({ catalogue }: { catalogue: Catalogue }) {
         setBinderState={updateBinder}
         catalogue={catalogue}
         modalOpen={dialog !== null}
-        shelfButton={shelfButton}
+        nameHeading={nameHeading}
         settingsButton={settingsButton}
+        onBack={leaveBinder}
         onDialog={showDialog}
       />
-      {dialog === 'shelf' && (
-        <ShelfDialog
-          shelf={shelf}
-          onOpen={selectBinder}
-          onCreate={createBinder}
-          onClose={closeDialog}
-        />
-      )}
       {dialog === 'settings' && (
         <BinderSettingsDialog
           name={name}
           capacity={binder.capacity}
-          onSave={saveCapacity}
+          onSave={(capacity) => saveCapacity(binder, capacity)}
           onClose={closeDialog}
         />
       )}
@@ -191,8 +207,9 @@ type WorkspaceProps = {
   setBinderState: (update: (state: BinderState) => BinderState) => void;
   catalogue: Catalogue;
   modalOpen: boolean;
-  shelfButton: Ref<HTMLButtonElement>;
+  nameHeading: Ref<HTMLHeadingElement>;
   settingsButton: Ref<HTMLButtonElement>;
+  onBack: () => void;
   onDialog: (dialog: DeskDialog) => void;
 };
 
@@ -202,8 +219,9 @@ function BinderWorkspace({
   setBinderState,
   catalogue,
   modalOpen,
-  shelfButton,
+  nameHeading,
   settingsButton,
+  onBack,
   onDialog,
 }: WorkspaceProps) {
   const [detail, setDetail] = useState<SlotAddress | null>(null);
@@ -351,22 +369,15 @@ function BinderWorkspace({
     <main className={`desk${deskLayout}`}>
       <div className="desk__main" inert={workspaceInert}>
         <header className="desk__head">
-          <div className="desk__identity">
-            <span className="desk__mark" aria-hidden="true" />
-            <div>
-              <h1>{text.binder.title}</h1>
-              <p className="desk__binder-name">{name}</p>
-            </div>
-          </div>
+          <AppTitle>
+            <h2 ref={nameHeading} className="desk__binder-name" tabIndex={-1}>
+              {name}
+            </h2>
+          </AppTitle>
           <div className="desk__actions">
-            <button
-              ref={shelfButton}
-              type="button"
-              className="control control--tonal"
-              aria-haspopup="dialog"
-              onClick={() => onDialog('shelf')}
-            >
-              {text.shelf.title}
+            <button type="button" className="control control--text" onClick={onBack}>
+              <span className="chevron chevron--back" aria-hidden="true" />
+              {text.shelf.back}
             </button>
             <button
               ref={settingsButton}

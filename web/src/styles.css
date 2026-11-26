@@ -173,14 +173,17 @@ body {
   line-height: 1.2;
 }
 
-.desk__head p {
+.desk__binder-name {
   margin: calc(var(--space-slot) * 0.5) 0 0;
   color: var(--color-on-surface-variant);
   font-size: var(--type-body-small);
+  font-weight: 400;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
-.desk__binder-name {
-  overflow-wrap: anywhere;
+.desk__binder-name:focus {
+  outline: none;
 }
 
 .desk__actions {
@@ -188,6 +191,142 @@ body {
   flex-wrap: wrap;
   align-items: center;
   gap: calc(var(--space-slot) * 1.5);
+}
+
+/* Each wrapped row of the list is one board: the board is painted at the foot of every row. */
+.shelf__case {
+  display: grid;
+  gap: calc(var(--space-slot) * 2);
+}
+
+.shelf__title {
+  margin: 0;
+  font-size: var(--type-title);
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.shelf__storage {
+  margin: 0;
+  color: var(--color-on-surface-variant);
+  font-size: var(--type-body-small);
+}
+
+.shelf__boards {
+  --shelf-board: calc(var(--space-slot) * 2);
+  --shelf-row: calc(var(--shelf-spine-height) + var(--space-slot) * 3 + var(--shelf-board));
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 0 var(--space-slot);
+  margin: 0;
+  padding: 0 calc(var(--space-slot) * 2);
+  list-style: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0 calc(var(--shelf-row) - var(--shelf-board)),
+    var(--color-shelf-board) calc(var(--shelf-row) - var(--shelf-board)) var(--shelf-row)
+  );
+}
+
+.shelf__slot {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  height: var(--shelf-row);
+  padding-bottom: var(--shelf-board);
+}
+
+.spine,
+.shelf__new {
+  width: var(--shelf-spine-width);
+  height: var(--shelf-spine-height);
+  padding: calc(var(--space-slot) * 2) 0;
+  border-radius: calc(var(--radius-card) / 2) calc(var(--radius-card) / 2) 0 0;
+  font-size: var(--type-body-small);
+  font-weight: 600;
+  line-height: 1.25;
+  cursor: pointer;
+}
+
+.spine {
+  --control-bg: var(--color-binder-board);
+  --control-fg: var(--color-binder-page);
+  display: flex;
+  justify-content: center;
+  border: 0;
+  background-color: var(--control-bg);
+  color: var(--control-fg);
+}
+
+.spine:hover {
+  background-color: color-mix(in srgb, var(--control-bg), var(--control-fg) 8%);
+}
+
+.spine:active {
+  background-color: color-mix(in srgb, var(--control-bg), var(--control-fg) 12%);
+}
+
+/* The name reads top to bottom, like the spine of an English book, and is cut off at the foot. */
+.spine__name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  writing-mode: vertical-rl;
+}
+
+/* Room at the foot of the spine for the Last opened mark, so the name stops above it. */
+.shelf__slot--last-opened .spine {
+  padding-bottom: calc(var(--space-slot) * 11);
+}
+
+.spine__mark {
+  position: absolute;
+  bottom: calc(var(--shelf-board) + var(--space-slot));
+  left: calc(var(--shelf-spine-width) / 2);
+  padding: calc(var(--space-slot) * 0.75) calc(var(--space-slot) * 0.25);
+  border-radius: calc(var(--radius-card) / 2);
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+  font-size: var(--type-label-small);
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  writing-mode: vertical-rl;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+.shelf__new {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-slot);
+  border: var(--empty-slot-stroke) dashed var(--color-outline);
+  border-bottom: 0;
+  background: var(--color-surface-container-low);
+  color: var(--color-on-secondary-container);
+}
+
+.shelf__new:hover {
+  background: var(--color-surface-container);
+}
+
+.shelf__plus::before {
+  display: inline-grid;
+  place-items: center;
+  width: calc(var(--space-slot) * 4.5);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--color-secondary-container);
+  content: '+';
+  font-size: var(--type-title-large);
+  line-height: 1;
+}
+
+.shelf__new:hover .shelf__plus::before {
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
 }
 
 .binder__turns {
@@ -465,31 +604,10 @@ html:has(.dialog-backdrop) {
   padding: 0 var(--dialog-inset) var(--dialog-inset);
 }
 
-.shelf-dialog__storage,
 .binder-dialog__hint {
   margin: 0;
   color: var(--color-on-surface-variant);
   font-size: var(--type-body-small);
-}
-
-.shelf-dialog__binders {
-  display: grid;
-  gap: var(--space-slot);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.shelf-dialog__binders .control {
-  justify-content: space-between;
-  width: 100%;
-  text-align: start;
-  overflow-wrap: anywhere;
-}
-
-.shelf-dialog__binders .control[aria-current='true'] {
-  --control-bg: var(--color-primary-container);
-  --control-fg: var(--color-on-primary-container);
 }
 
 .binder-dialog__form,

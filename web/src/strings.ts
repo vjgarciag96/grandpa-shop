@@ -100,7 +100,6 @@ export function removedPrinting(setCode: string, from: SlotAddress): string {
 export const text = {
   binder: {
     title: 'Grandpa Shop',
-    storage: 'Cards you place are kept in this browser for now.',
     addCards: 'Add cards',
     turns: 'Turn the binder',
     previousSpread: 'Previous spread',
@@ -110,8 +109,11 @@ export const text = {
   },
   shelf: {
     title: 'Binder shelf',
+    storage: 'Cards you place are kept in this browser for now.',
+    back: 'Back to shelf',
+    newBinder: 'New binder',
+    lastOpened: 'Last opened',
     defaultName: 'Binder 1',
-    open: 'Open',
     name: 'Binder name',
     create: 'Create binder',
     blankName: 'Enter a binder name.',

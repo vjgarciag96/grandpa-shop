@@ -21,8 +21,8 @@ export function loadShelf(): Shelf {
     const binders = readBinders(shelf);
     if (!binders) return initialShelf(readLegacyBinder(shelf));
     const openName = local?.getItem(OPEN_BINDER_KEY);
-    const activeIndex = binders.findIndex(({ name }) => name === openName);
-    return { binders, activeIndex: Math.max(activeIndex, 0) };
+    const lastOpened = binders.findIndex(({ name }) => name === openName);
+    return { binders, showing: { kind: 'shelf', lastOpened: lastOpened < 0 ? null : lastOpened } };
   } catch {
     return initialShelf();
   }

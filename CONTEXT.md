@@ -22,7 +22,7 @@ Every copy Víctor owns. There is one collection.
 
 ## Shelf
 
-The named binders in the collection, with one binder open at a time.
+The named binders in the collection, in the order they were added. At most one binder is open at a time; while none is open, the shelf itself is shown.
 
 ## Binder
 

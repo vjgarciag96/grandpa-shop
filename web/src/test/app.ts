@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createElement } from 'react';
 import App from '../App';
@@ -6,11 +6,17 @@ import { saveBinderWith, savedPlayedSdyDarkMagician } from './binder';
 import { fakeCatalogue } from './fakeCatalogue';
 import { viewportWidth } from './media';
 
-/** Renders the app on the fake catalogue, in a viewport `width` pixels wide when given. */
+/** Renders the app on the fake catalogue with Binder 1 open, in a viewport `width` pixels wide when given. */
 export function openApp(width?: number) {
   if (width !== undefined) viewportWidth(width);
   const view = render(createElement(App, { catalogue: fakeCatalogue().catalogue }));
+  openFirstBinder();
   return { user: userEvent.setup(), close: view.unmount };
+}
+
+/** Opens Binder 1 from the shelf the app starts on. */
+export function openFirstBinder() {
+  fireEvent.click(screen.getByRole('button', { name: 'Binder 1' }));
 }
 
 /** Opens the catalogue from "Add cards", searches for `query`, and opens the result named `result`. */

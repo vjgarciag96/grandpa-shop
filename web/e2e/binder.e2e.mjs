@@ -24,43 +24,90 @@ const darkMagician = {
   ],
 };
 
-test('keeps the filed copy in the first pocket after reloading the built binder', async () => {
+test('lands on the shelf after a reload and keeps the filed copy in the first pocket', async () => {
   await withBinder(async (page) => {
     await fileDarkMagician(page, 1, 1, 'LOB-EN005');
 
     await page.reload();
 
+    assert.deepEqual(await shelfButtons(page), ['Binder 1', 'New binder']);
+    assert.deepEqual(
+      await descriptionOf(shelfList(page).getByRole('button', { name: 'Binder 1' })),
+      { text: 'Last opened', visible: true },
+      'the shelf marks Binder 1 as last opened',
+    );
+    assert.equal(await page.getByRole('region', { name: /^Page \d+$/ }).count(), 0);
+    await openFromShelf(page, 'Binder 1');
     await pocket(page, 1, 1, 'Dark Magician').waitFor();
     const empty = page.getByRole('button', { name: /^Page 1, slot \d+, empty$/ });
     assert.equal(await empty.count(), 8, 'the first page has eight empty pockets');
   });
 });
 
-test('saves two binders independently and reopens the selected binder', async () => {
+test('saves two binders independently and marks the last opened on the shelf', async () => {
   await withBinder(async (page) => {
     await fileDarkMagician(page, 1, 1, 'LOB-EN005');
     await pocket(page, 1, 3).click();
 
     await makeBinder(page, 'Trades');
 
-    await page.getByText('Trades', { exact: true }).waitFor();
+    await page.getByRole('heading', { name: 'Trades', exact: true }).waitFor();
     await pocket(page, 1, 1).waitFor();
+    const empty = page.getByRole('button', { name: /^Page 1, slot \d+, empty$/ });
+    assert.equal(await empty.count(), 9, 'the new binder has nine empty pockets on page 1');
     assert.equal(await catalogue(page).count(), 0, 'the new binder has no catalogue target');
     await fileDarkMagician(page, 1, 1, 'SDY-006');
     await page.reload();
 
-    await page.getByText('Trades', { exact: true }).waitFor();
-    await showPrinting(page, 1, 1, 'SDY-006');
-    const shelf = await openShelf(page);
-    assert.equal(
-      await shelf.getByRole('button', { name: 'Trades' }).getAttribute('aria-current'),
-      'true',
-      'the shelf marks the open binder',
+    assert.deepEqual(await shelfButtons(page), ['Binder 1', 'Trades', 'New binder']);
+    assert.deepEqual(
+      await descriptionOf(shelfList(page).getByRole('button', { name: 'Trades' })),
+      { text: 'Last opened', visible: true },
+      'the shelf marks the last opened binder',
     );
-    await shelf.getByRole('button', { name: 'Binder 1' }).click();
+    await openFromShelf(page, 'Trades');
+    await page.getByRole('heading', { name: 'Trades', exact: true }).waitFor();
+    await showPrinting(page, 1, 1, 'SDY-006');
+    await backToShelf(page);
+    await openFromShelf(page, 'Binder 1');
     await showPrinting(page, 1, 1, 'LOB-EN005');
     await pocket(page, 1, 3).waitFor();
   });
+});
+
+test('refuses a blank or taken name for a new binder and closes with the keyboard', async () => {
+  await withBinder(
+    async (page) => {
+      await page.getByRole('button', { name: 'New binder' }).click();
+      const dialog = page.getByRole('dialog', { name: 'New binder' });
+      const name = dialog.getByRole('textbox', { name: 'Binder name' });
+      const create = dialog.getByRole('button', { name: 'Create binder' });
+
+      await name.fill('  ');
+      await create.click();
+      assert.equal(await dialog.getByRole('alert').textContent(), 'Enter a binder name.');
+      assert.deepEqual(await shelfButtons(page), ['Binder 1', 'New binder']);
+
+      await name.fill('Binder 1');
+      await create.click();
+      assert.equal(
+        await dialog.getByRole('alert').textContent(),
+        'A binder already uses this name.',
+      );
+      assert.deepEqual(await shelfButtons(page), ['Binder 1', 'New binder']);
+
+      await page.keyboard.press('Escape');
+      assert.equal(await dialog.count(), 0, 'Escape closes New binder');
+      assert.equal(
+        await page
+          .getByRole('button', { name: 'New binder' })
+          .evaluate((button) => button === document.activeElement),
+        true,
+        'focus returns to New binder',
+      );
+    },
+    { onShelf: true },
+  );
 });
 
 test('keeps a migrated copy in its original pocket with its original condition', async () => {
@@ -79,7 +126,7 @@ test('keeps a migrated copy in its original pocket with its original condition',
 
       await page.reload();
 
-      await (await openShelf(page)).getByRole('button', { name: 'Binder 1' }).click();
+      await openFromShelf(page, 'Binder 1');
       await page.getByRole('region', { name: 'Page 1', exact: true }).waitFor();
       await page.getByRole('button', { name: 'Next spread' }).click();
       await showPrinting(page, 3, 5, 'SDY-006', 'Lightly Played');
@@ -102,45 +149,66 @@ test('creates a binder without duplicating a large legacy binder in storage', as
       await makeBinder(page, 'Trades');
 
       await page.reload();
+      await openFromShelf(page, 'Trades');
       await page.getByText('Trades', { exact: true }).waitFor();
       await pocket(page, 1, 9).waitFor();
-      await (await openShelf(page)).getByRole('button', { name: 'Binder 1' }).click();
+      await backToShelf(page);
+      await openFromShelf(page, 'Binder 1');
       await pocket(page, 1, 9, 'Dark Magician').waitFor();
     },
     { legacySlots: Array(360).fill(copy) },
   );
 });
 
-test('closes the shelf with the keyboard and restores focus without turning', async () => {
-  await withBinder(async (page) => {
-    const shelf = await openShelf(page);
-    await shelf.getByRole('button', { name: 'Close' }).focus();
-
-    await page.keyboard.press('ArrowRight');
-    await page.keyboard.press('Escape');
-
-    await page.getByRole('region', { name: 'Page 1', exact: true }).waitFor();
-    assert.equal(await shelf.count(), 0, 'Escape closes the shelf');
-    assert.equal(
-      await page
-        .getByRole('button', { name: 'Binder shelf' })
-        .evaluate((button) => button === document.activeElement),
-      true,
-      'focus returns to the shelf button',
-    );
-  });
-});
-
-test('reopens the current binder on page 1 when selected from the shelf', async () => {
+test("returns to the shelf and focuses the binder's spine", async () => {
   await withBinder(async (page) => {
     await page.getByRole('button', { name: 'Next spread' }).click();
     await page.getByRole('region', { name: 'Page 2', exact: true }).waitFor();
-    const shelf = await openShelf(page);
 
-    await shelf.getByRole('button', { name: 'Binder 1' }).click();
+    const shelf = await backToShelf(page);
 
+    assert.equal(
+      await shelf
+        .getByRole('button', { name: 'Binder 1' })
+        .evaluate((button) => button === document.activeElement),
+      true,
+      'focus is on the Binder 1 spine',
+    );
+    await page.keyboard.press('ArrowRight');
+    assert.equal(
+      await page.getByRole('region', { name: /^Page \d+$/ }).count(),
+      0,
+      'an arrow key on the shelf opens nothing',
+    );
+    await openFromShelf(page, 'Binder 1');
     await page.getByRole('region', { name: 'Page 1', exact: true }).waitFor();
   });
+});
+
+test('shows ten binders on one board when wide and on more boards when narrow', async (t) => {
+  const savedBinders = Array.from({ length: 10 }, (_, index) => ({
+    name: `Binder ${index + 1}`,
+    binder: { capacity: { grid: 3, pages: 40 }, slots: Array(360).fill(null) },
+  }));
+
+  await withBinder(
+    async (page) => {
+      assert.equal((await shelfButtons(page)).length, 11, 'ten spines and New binder');
+      const wideRows = await spineRows(page);
+      assert.equal(wideRows, 1, 'all ten spines stand on one board at 1440px');
+      assert.equal(await page.getByRole('button', { name: 'New binder' }).isVisible(), true);
+
+      await page.setViewportSize({ width: 390, height: 844 });
+
+      const narrowRows = await spineRows(page);
+      assert.ok(narrowRows >= 2, `the spines wrap onto ${narrowRows} boards at 390px`);
+      const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+      assert.ok(scrollWidth <= 390, `no horizontal scroll at 390px, observed ${scrollWidth}px`);
+      assert.equal(await page.getByRole('button', { name: 'New binder' }).isVisible(), true);
+      t.diagnostic(`Spine boards: ${wideRows} at 1440px, ${narrowRows} at 390px`);
+    },
+    { savedBinders, onShelf: true },
+  );
 });
 
 test('keeps a binder created in one tab when another tab only switches binders', async () => {
@@ -152,14 +220,14 @@ test('keeps a binder created in one tab when another tab only switches binders',
     await otherTab.getByText('Trades', { exact: true }).waitFor();
     await makeBinder(page, 'Decks');
 
-    await (await openShelf(otherTab)).getByRole('button', { name: 'Binder 1' }).click();
+    await openFromShelf(otherTab, 'Binder 1');
 
     await page.reload();
-    const shelf = await openShelf(page);
+    const shelf = shelfList(page);
     await shelf.getByRole('button', { name: 'Decks' }).waitFor();
-    assert.equal(
-      await shelf.getByRole('button', { name: 'Binder 1' }).getAttribute('aria-current'),
-      'true',
+    assert.deepEqual(
+      await descriptionOf(shelf.getByRole('button', { name: 'Binder 1' })),
+      { text: 'Last opened', visible: true },
       'the switch is saved without replacing the shelf contents',
     );
   });
@@ -184,6 +252,7 @@ test('creates one-, three-, and four-page binders with the chosen pocket grids',
     await makeBinder(page, 'Showcase', { grid: '4', pages: '4' });
     await page.reload();
 
+    await openFromShelf(page, 'Showcase');
     await expectPocketCount(page, 1, 16);
     await expectPocketColumns(page, 1, 4);
     await nextSpread(page).click();
@@ -195,7 +264,8 @@ test('creates one-, three-, and four-page binders with the chosen pocket grids',
     const spread = await page.getByTestId('spread').boundingBox();
     assert.ok(lastPage.x + lastPage.width < spread.x + spread.width / 2, 'page 4 is on the left');
 
-    await (await openShelf(page)).getByRole('button', { name: 'Trades' }).click();
+    await backToShelf(page);
+    await openFromShelf(page, 'Trades');
     await expectPocketCount(page, 1, 4);
     assert.equal(await nextSpread(page).isDisabled(), true, 'Trades still has one page');
   });
@@ -261,12 +331,14 @@ test('refuses to remove an occupied pocket and keeps its other copies by page an
     await gridField(unlocked).selectOption('2');
     await saveSettings(unlocked);
     await page.reload();
+    await openFromShelf(page, 'Trades');
     await expectPocketCount(page, 1, 4);
     await nextSpread(page).click();
     await expectPocketCount(page, 3, 4);
     await showPrinting(page, 3, 2, 'SDY-006', 'Lightly Played');
 
-    await (await openShelf(page)).getByRole('button', { name: 'Binder 1' }).click();
+    await backToShelf(page);
+    await openFromShelf(page, 'Binder 1');
     await expectPocketCount(page, 1, 9);
   });
 });
@@ -441,20 +513,57 @@ async function showPrinting(page, pageNumber, slot, printing, condition = 'Near 
   await detail.getByRole('button', { name: 'Close' }).click();
 }
 
-async function openShelf(page) {
-  await page.getByRole('button', { name: 'Binder shelf' }).click();
-  return page.getByRole('dialog', { name: 'Binder shelf' });
+// The New binder dialog makes the shelf behind it inert, so its list is read with hidden elements included.
+const shelfList = (page) =>
+  page.getByRole('list', { name: 'Binder shelf', exact: true, includeHidden: true });
+
+/** The names of the buttons on the shelf, in order. */
+function shelfButtons(page) {
+  return shelfList(page)
+    .getByRole('button', { includeHidden: true })
+    .evaluateAll((buttons) => buttons.map((button) => button.textContent));
+}
+
+/** The text of the element describing `button`, and whether it is visible. */
+function descriptionOf(button) {
+  return button.evaluate((element) => {
+    const description = document.getElementById(element.getAttribute('aria-describedby'));
+    return description && { text: description.textContent, visible: description.checkVisibility() };
+  });
+}
+
+/** How many boards the spines stand on, counted by their distinct top positions. */
+async function spineRows(page) {
+  const tops = await shelfList(page)
+    .getByRole('button')
+    .evaluateAll((buttons) =>
+      buttons.slice(0, -1).map((button) => button.getBoundingClientRect().top),
+    );
+  return new Set(tops).size;
+}
+
+const openFromShelf = (page, name) =>
+  shelfList(page).getByRole('button', { name, exact: true }).click();
+
+async function backToShelf(page) {
+  await page.getByRole('button', { name: 'Back to shelf' }).click();
+  return shelfList(page);
 }
 
 async function makeBinder(page, name, { grid = '3', pages = '40' } = {}) {
-  const shelf = await openShelf(page);
-  await shelf.getByRole('textbox', { name: 'Binder name' }).fill(name);
-  await gridField(shelf).selectOption(grid);
-  await pagesField(shelf).fill(pages);
-  await shelf.getByRole('button', { name: 'Create binder' }).click();
+  await backToShelf(page);
+  await page.getByRole('button', { name: 'New binder' }).click();
+  const dialog = page.getByRole('dialog', { name: 'New binder' });
+  await dialog.getByRole('textbox', { name: 'Binder name' }).fill(name);
+  await gridField(dialog).selectOption(grid);
+  await pagesField(dialog).fill(pages);
+  await dialog.getByRole('button', { name: 'Create binder' }).click();
 }
 
-async function withBinder(run, { legacySlots, classicScrollbars = false } = {}) {
+async function withBinder(
+  run,
+  { legacySlots, savedBinders, classicScrollbars = false, onShelf = false } = {},
+) {
   const site = await preview({ configFile: false, preview: { port: 0 } });
 
   try {
@@ -483,7 +592,15 @@ async function withBinder(run, { legacySlots, classicScrollbars = false } = {}) 
             localStorage.setItem(key, JSON.stringify({ slots }));
         }, legacySlots);
       }
+      if (savedBinders) {
+        await page.addInitScript((binders) => {
+          const key = 'grandpa-shop.dev-binder.v1';
+          if (localStorage.getItem(key) === null)
+            localStorage.setItem(key, JSON.stringify({ binders }));
+        }, savedBinders);
+      }
       await page.goto(origin.href);
+      if (!onShelf) await openFromShelf(page, 'Binder 1');
 
       await run(page);
     } finally {

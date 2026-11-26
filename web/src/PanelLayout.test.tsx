@@ -4,10 +4,12 @@ import { describe, expect, it } from 'vitest';
 import App from './App';
 import { fakeCatalogue } from './test/fakeCatalogue';
 import { viewportWidth } from './test/media';
+import { openFirstBinder } from './test/app';
 
 async function openPanelAt(width: number) {
   viewportWidth(width);
   render(<App catalogue={fakeCatalogue().catalogue} />);
+  openFirstBinder();
   await userEvent.setup().click(screen.getByRole('button', { name: 'Add cards' }));
   return screen.getByRole('complementary', { name: 'Catalogue' });
 }
