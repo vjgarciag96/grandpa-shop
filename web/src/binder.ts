@@ -86,6 +86,33 @@ export function place(binder: Binder, address: SlotAddress, copy: Copy): Binder 
   return { ...binder, slots };
 }
 
+/** What filing copies in order from a slot did: all of them placed, or none because too few empty slots follow. */
+export type RunPlacement =
+  | { readonly kind: 'placed'; readonly binder: Binder; readonly filled: readonly SlotAddress[] }
+  | { readonly kind: 'refused'; readonly emptySlots: number };
+
+/** Files `copies` in order into the empty slots from `start` to the end of the binder. Filled slots are skipped, never replaced. */
+export function placeRun(
+  binder: Binder,
+  start: SlotAddress,
+  copies: readonly Copy[],
+): RunPlacement {
+  const width = slotsPerPage(binder.capacity);
+  const slots = [...binder.slots];
+  const filled: SlotAddress[] = [];
+  for (
+    let index = indexOf(binder.capacity, start);
+    index < slots.length && filled.length < copies.length;
+    index++
+  ) {
+    if (slots[index] !== null) continue;
+    slots[index] = copies[filled.length];
+    filled.push({ page: Math.floor(index / width) + 1, position: index % width });
+  }
+  if (filled.length < copies.length) return { kind: 'refused', emptySlots: filled.length };
+  return { kind: 'placed', binder: { ...binder, slots }, filled };
+}
+
 export function remove(binder: Binder, address: SlotAddress): Binder {
   const slots = [...binder.slots];
   slots[indexOf(binder.capacity, address)] = null;
@@ -161,6 +188,13 @@ export function spreadPages(
     left: left >= 1 && left <= pages ? left : null,
     right: right <= pages ? right : null,
   };
+}
+
+/** The first page an open spread shows: page 1 on the first spread, the left page on every other. */
+export function firstSpreadPage(capacity: BinderCapacity, spread: number): number {
+  const { left, right } = spreadPages(capacity, spread);
+  // Every spread shows at least one page, because a binder has at least one.
+  return (left ?? right) as number;
 }
 
 function emptySlots(capacity: BinderCapacity): Array<Copy | null> {

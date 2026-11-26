@@ -1,8 +1,9 @@
-import { movedPrinting, placedPrinting, removedPrinting } from './strings';
+import { movedPrinting, placedPrinting, placedRun, refusedRun, removedPrinting } from './strings';
 import { isTarget, type Aim } from './aim';
 import {
   moveCopy,
   place,
+  placeRun,
   removeCopy,
   slotAt,
   type Binder,
@@ -10,7 +11,7 @@ import {
   type SlotAddress,
 } from './binder';
 import { announced, silence, type Announcement } from './announcement';
-import type { Card, Printing } from './catalogue';
+import type { Card, Printing, SetPrinting } from './catalogue';
 
 export type BinderInteraction = {
   aim: Aim | null;
@@ -48,6 +49,41 @@ export function placeAt(
     announcement: announced(
       current.announcement,
       placedPrinting(printing.setCode, address, replaced?.printing.setCode),
+    ),
+  };
+}
+
+/** Files a Near Mint copy of each entry from `start` and announces the run; on too little room changes nothing but the announcement. */
+export function placeRunAt(
+  current: BinderState,
+  start: SlotAddress,
+  entries: readonly SetPrinting[],
+): BinderState {
+  if (entries.length === 0) return current;
+  const run = placeRun(
+    current.binder,
+    start,
+    entries.map(({ card, printing }) => ({ card, printing, condition: 'Near Mint' })),
+  );
+  if (run.kind === 'refused') {
+    return {
+      ...current,
+      announcement: announced(
+        current.announcement,
+        refusedRun(run.emptySlots, start, entries.length),
+      ),
+    };
+  }
+  return {
+    ...current,
+    binder: run.binder,
+    aim: null,
+    announcement: announced(
+      current.announcement,
+      placedRun(
+        entries.map(({ printing }) => printing.setCode),
+        run.filled,
+      ),
     ),
   };
 }

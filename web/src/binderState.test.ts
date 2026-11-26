@@ -1,8 +1,9 @@
 // @vitest-environment node
 import { expect, it } from 'vitest';
 import { emptyBinder, place, slotAt, type Binder, type Copy } from './binder';
-import { binderInteraction, moveAt, placeAt, removeAt } from './binderState';
-import { darkMagician, potOfGreed } from './test/fakeCatalogue';
+import { binderInteraction, moveAt, placeAt, placeRunAt, removeAt } from './binderState';
+import type { SetPrinting } from './catalogue';
+import { darkMagician, lostMillennium, potOfGreed } from './test/fakeCatalogue';
 
 const binderState = (binder: Binder) => ({ binder, ...binderInteraction() });
 
@@ -53,4 +54,85 @@ it('keeps a catalogue target when the copy is dragged out of its pocket', () => 
   expect(slotAt(after.binder, first)).toBeNull();
   expect(after.aim).toEqual(aim);
   expect(after.moveAnnouncement.text).toBe('Removed SDY-006 from page 1, slot 1.');
+});
+
+const [sphinx, sentinel, knight, idol, guardian] = lostMillennium.map((card): SetPrinting => ({
+  card,
+  printing: card.printings[0],
+}));
+
+it('files a Near Mint copy of each listed printing, clears the target, and announces the run', () => {
+  const before = {
+    ...binderState(emptyBinder()),
+    aim: { kind: 'target' as const, address: first },
+  };
+
+  const after = placeRunAt(before, first, [sentinel, idol]);
+
+  expect([slotAt(after.binder, first), slotAt(after.binder, second)]).toEqual([
+    { ...sentinel, condition: 'Near Mint' },
+    { ...idol, condition: 'Near Mint' },
+  ]);
+  expect(after.aim).toBeNull();
+  expect(after.announcement.text).toBe('Placed 2 printings from page 1, slot 1 to page 1, slot 2.');
+});
+
+it('lets go of a held printing after a run', () => {
+  const before = {
+    ...binderState(emptyBinder()),
+    aim: { kind: 'holding' as const, ...knight },
+  };
+
+  const after = placeRunAt(before, first, [sentinel, idol]);
+
+  expect(after.aim).toBeNull();
+});
+
+it('announces a run of one printing as a single placement', () => {
+  const after = placeRunAt(binderState(emptyBinder()), first, [sentinel]);
+
+  expect(after.announcement.text).toBe('Placed TLM-EN002 in page 1, slot 1.');
+});
+
+it('keeps the binder and the held printing when too few slots follow, and says so', () => {
+  const small = emptyBinder({ grid: 2, pages: 1 });
+  const aim = { kind: 'holding' as const, ...knight };
+  const before = { ...binderState(small), aim };
+
+  const after = placeRunAt(before, first, [sphinx, sentinel, knight, idol, guardian]);
+
+  expect(after.binder).toBe(small);
+  expect(after.aim).toBe(aim);
+  expect(after.announcement.text).toBe(
+    'Only 4 empty slots from page 1, slot 1 to the end of the binder; 5 printings are listed.',
+  );
+});
+
+it('names a single empty slot when refusing a run', () => {
+  const small = emptyBinder({ grid: 2, pages: 1 });
+  const before = binderState(small);
+
+  const after = placeRunAt(before, { page: 1, position: 3 }, [sentinel, idol]);
+
+  expect(after.announcement.text).toBe(
+    'Only 1 empty slot from page 1, slot 4 to the end of the binder; 2 printings are listed.',
+  );
+});
+
+it('says there are no empty slots when refusing a run of one printing', () => {
+  const full = place(emptyBinder({ grid: 2, pages: 1 }), { page: 1, position: 3 }, pot);
+
+  const after = placeRunAt(binderState(full), { page: 1, position: 3 }, [sentinel]);
+
+  expect(after.announcement.text).toBe(
+    'No empty slots from page 1, slot 4 to the end of the binder; 1 printing is listed.',
+  );
+});
+
+it('changes nothing for a run of no printings', () => {
+  const before = binderState(emptyBinder());
+
+  const after = placeRunAt(before, first, []);
+
+  expect(after).toBe(before);
 });
