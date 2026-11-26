@@ -1,12 +1,6 @@
 import { text } from './strings';
 import { useId, useRef } from 'react';
-import {
-  isFiltering,
-  NO_RARITIES,
-  toggleRarity,
-  type RarityOption,
-  type RaritySelection,
-} from './rarityFilter';
+import { toggle, type FilterOption, type Selection } from './setFilters';
 
 /** Toggles that narrow a list of printings to one or more rarities, with Clear and a count of what is left. */
 export function RarityFilter({
@@ -16,11 +10,11 @@ export function RarityFilter({
   total,
   onChange,
 }: {
-  options: readonly RarityOption[];
-  selected: RaritySelection;
+  options: readonly FilterOption[];
+  selected: Selection;
   shown: number;
   total: number;
-  onChange: (next: RaritySelection) => void;
+  onChange: (next: Selection) => void;
 }) {
   const labelId = useId();
   const firstToggle = useRef<HTMLButtonElement>(null);
@@ -32,12 +26,12 @@ export function RarityFilter({
         <span id={labelId} className="catalogue__group">
           {text.catalogue.rarity}
         </span>
-        {isFiltering(selected) && (
+        {selected.size > 0 && (
           <button
             type="button"
             className="control control--text"
             onClick={() => {
-              onChange(NO_RARITIES);
+              onChange(new Set());
               // Clear goes away once nothing is chosen, which would otherwise drop focus to the page.
               firstToggle.current?.focus();
             }}
@@ -47,7 +41,7 @@ export function RarityFilter({
         )}
       </div>
       <div className="catalogue__rarities">
-        {options.map(({ rarity, count }, index) => {
+        {options.map(({ value: rarity, count }, index) => {
           const pressed = selected.has(rarity);
           return (
             <button
@@ -56,7 +50,7 @@ export function RarityFilter({
               type="button"
               className="control control--filter"
               aria-pressed={pressed}
-              onClick={() => onChange(toggleRarity(selected, rarity))}
+              onClick={() => onChange(toggle(selected, rarity))}
             >
               {pressed && <span className="check-icon" aria-hidden="true" />}
               {rarity} <span className="control__count">{count}</span>
@@ -65,7 +59,7 @@ export function RarityFilter({
         })}
       </div>
       <p className="catalogue__result-count" role="status">
-        {isFiltering(selected) ? text.catalogue.filteredCount(shown, total) : ''}
+        {selected.size > 0 ? text.catalogue.filteredCount(shown, total) : ''}
       </p>
     </div>
   );

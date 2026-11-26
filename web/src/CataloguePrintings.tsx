@@ -4,7 +4,7 @@ import { isHeld, type Aim } from './aim';
 import type { Card, CardSet, Catalogue, Printing, SetPrinting } from './catalogue';
 import { RetryMessage } from './CatalogueStatus';
 import { RarityFilter } from './CatalogueRarityFilter';
-import { keepRarities, NO_RARITIES, rarityOptions, type RaritySelection } from './rarityFilter';
+import { filterSetPrintings, NO_FILTERS, type SetFilterSelection } from './setFilters';
 import { useCatalogueRequest } from './useCatalogueRequest';
 
 type ChooseProps = {
@@ -65,8 +65,6 @@ export function PrintingList({
 
 type SetResult = SetPrinting[] | 'failed' | null;
 
-const rarityOf = (entry: SetPrinting) => entry.printing.rarity;
-
 function loadSetPrintings(
   catalogue: Catalogue,
   set: CardSet,
@@ -100,12 +98,11 @@ export function SetPrintingList({
     loadSetPrintings,
     null,
   );
-  const [selected, setSelected] = useState<RaritySelection>(NO_RARITIES);
+  const [selection, setSelection] = useState<SetFilterSelection>(NO_FILTERS);
   const printings = Array.isArray(result) ? result : null;
-  const options = useMemo(() => (printings ? rarityOptions(printings, rarityOf) : []), [printings]);
-  const visible = useMemo(
-    () => (printings ? keepRarities(printings, selected, rarityOf) : []),
-    [printings, selected],
+  const { listed: visible, rarities } = useMemo(
+    () => filterSetPrintings(printings ?? [], selection),
+    [printings, selection],
   );
   // The list last placed, so a second press files nothing until another set or rarity selection lists new printings.
   // The ref refuses a press that arrives before the re-render; the state shows the button as unavailable.
@@ -148,11 +145,11 @@ export function SetPrintingList({
         {printings && (
           <>
             <RarityFilter
-              options={options}
-              selected={selected}
+              options={rarities}
+              selected={selection.rarities}
               shown={visible.length}
               total={printings.length}
-              onChange={setSelected}
+              onChange={(next) => setSelection({ ...selection, rarities: next })}
             />
             <div className="catalogue__place-all">
               <button
