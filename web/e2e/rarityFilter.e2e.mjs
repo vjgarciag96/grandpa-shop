@@ -46,6 +46,78 @@ for (const viewport of [
     });
   });
 
+  test(`places the 11 Super and Ultra Rares from page 1, slot 1 in set-code order at ${viewport.width} px`, async () => {
+    await withBuiltApp(viewport, serveLostMillennium, async (page) => {
+      const panel = await openLostMillennium(page);
+      await chooseSuperAndUltra(panel);
+
+      await panel.getByRole('button', { name: 'Place all 11', exact: true }).click();
+
+      await pocketNamed(page, 1, 9, 'Card TLM-EN058').waitFor();
+      assert.deepEqual(await pocketNames(page, 1), [
+        'Page 1, slot 1: Card TLM-EN050',
+        'Page 1, slot 2: Card TLM-EN051',
+        'Page 1, slot 3: Card TLM-EN052',
+        'Page 1, slot 4: Card TLM-EN053',
+        'Page 1, slot 5: Card TLM-EN054',
+        'Page 1, slot 6: Card TLM-EN055',
+        'Page 1, slot 7: Card TLM-EN056',
+        'Page 1, slot 8: Card TLM-EN057',
+        'Page 1, slot 9: Card TLM-EN058',
+      ]);
+      assert.equal(
+        (
+          await panel
+            .getByRole('status')
+            .filter({ hasText: /^Placed / })
+            .textContent()
+        ).trim(),
+        'Placed 11 printings from page 1, slot 1 to page 2, slot 2.',
+      );
+      await turnToPages2And3(page);
+      assert.deepEqual((await pocketNames(page, 2)).slice(0, 2), [
+        'Page 2, slot 1: Card TLM-EN059',
+        'Page 2, slot 2: Card TLM-EN060',
+      ]);
+      assert.equal(
+        await page.getByRole('button', { name: /^Page [23], slot \d+, empty$/ }).count(),
+        16,
+        'page 2 slots 3–9 and all of page 3 stay empty',
+      );
+    });
+  });
+
+  test(`keeps the 11 placed Super and Ultra Rares in their pockets after a reload at ${viewport.width} px`, async () => {
+    await withBuiltApp(viewport, serveLostMillennium, async (page) => {
+      const panel = await openLostMillennium(page);
+      await chooseSuperAndUltra(panel);
+      await panel.getByRole('button', { name: 'Place all 11', exact: true }).click();
+      await pocketNamed(page, 1, 9, 'Card TLM-EN058').waitFor();
+
+      await page.reload();
+
+      await page.getByRole('button', { name: 'Binder 1', exact: true }).click();
+      await pocketNamed(page, 1, 9, 'Card TLM-EN058').waitFor();
+      assert.deepEqual(await pocketNames(page, 1), [
+        'Page 1, slot 1: Card TLM-EN050',
+        'Page 1, slot 2: Card TLM-EN051',
+        'Page 1, slot 3: Card TLM-EN052',
+        'Page 1, slot 4: Card TLM-EN053',
+        'Page 1, slot 5: Card TLM-EN054',
+        'Page 1, slot 6: Card TLM-EN055',
+        'Page 1, slot 7: Card TLM-EN056',
+        'Page 1, slot 8: Card TLM-EN057',
+        'Page 1, slot 9: Card TLM-EN058',
+      ]);
+      await turnToPages2And3(page);
+      assert.deepEqual((await pocketNames(page, 2)).slice(0, 3), [
+        'Page 2, slot 1: Card TLM-EN059',
+        'Page 2, slot 2: Card TLM-EN060',
+        'Page 2, slot 3, empty',
+      ]);
+    });
+  });
+
   test(`keeps the rarity count where screen readers hear it before any rarity is chosen at ${viewport.width} px`, async () => {
     await withBuiltApp(viewport, serveLostMillennium, async (page) => {
       const panel = await openLostMillennium(page);
@@ -74,7 +146,42 @@ for (const viewport of [
   });
 }
 
+test('keeps the catalogue open as a bottom sheet after placing the 11 Super and Ultra Rares at 390 px', async () => {
+  await withBuiltApp({ width: 390, height: 844 }, serveLostMillennium, async (page) => {
+    const panel = await openLostMillennium(page);
+    await chooseSuperAndUltra(panel);
+
+    await panel.getByRole('button', { name: 'Place all 11', exact: true }).click();
+
+    await pocketNamed(page, 1, 9, 'Card TLM-EN058').waitFor();
+    assert.equal(await page.locator('.catalogue--sheet').isVisible(), true, 'the sheet is open');
+    assert.equal(await printingRows(panel).count(), 11, 'the sheet still lists the 11 printings');
+  });
+});
+
 const printingRows = (panel) => panel.getByRole('list', { name: 'Printings' }).getByRole('button');
+
+async function chooseSuperAndUltra(panel) {
+  const rarity = panel.getByRole('group', { name: 'Rarity' });
+  await rarity.getByRole('button', { name: 'Super Rare 7', exact: true }).click();
+  await rarity.getByRole('button', { name: 'Ultra Rare 4', exact: true }).click();
+  await rarity.getByRole('status').filter({ hasText: '11 of 85 printings' }).waitFor();
+}
+
+const pocketNamed = (page, number, slot, card) =>
+  page.getByRole('button', { name: `Page ${number}, slot ${slot}: ${card}`, exact: true });
+
+/** The names of the pockets on page `number`, in slot order. */
+const pocketNames = (page, number) =>
+  page
+    .getByRole('region', { name: `Page ${number}`, exact: true })
+    .getByRole('button')
+    .evaluateAll((pockets) => pockets.map((pocket) => pocket.getAttribute('aria-label')));
+
+async function turnToPages2And3(page) {
+  await page.getByRole('button', { name: 'Next spread', exact: true }).click();
+  await page.getByRole('region', { name: 'Page 3', exact: true }).waitFor();
+}
 
 async function openLostMillennium(page) {
   await page.getByRole('button', { name: 'Binder 1', exact: true }).click();
