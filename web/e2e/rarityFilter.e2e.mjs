@@ -169,8 +169,9 @@ test('keeps the catalogue open as a bottom sheet after placing the 11 Super and 
   });
 });
 
-/** The count of printings the chosen filters leave, under the filter groups. */
-const filterCount = (panel) => panel.locator('.catalogue__filters').getByRole('status');
+/** The count of printings the chosen filters leave, in the Filters group. */
+const filterCount = (panel) =>
+  panel.getByRole('group', { name: 'Filters', exact: true }).getByRole('status');
 
 const printingRows = (panel) => panel.getByRole('list', { name: 'Printings' }).getByRole('button');
 

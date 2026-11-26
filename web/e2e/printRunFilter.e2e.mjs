@@ -14,6 +14,9 @@ const RUNS = [
   { run: 'LOB-EN', size: 129 },
 ];
 
+/** Number 001's passcode; each later number's card follows on. */
+const FIRST_PASSCODE = 30000001;
+
 /** Numbers 001, 005, 010, 020, and 105 are Ultra Rare, 002 and 003 Rare, the rest Common; LOB-E stops before 105. */
 function rarityOf(number) {
   if ([1, 5, 10, 20, 105].includes(number)) return 'Ultra Rare';
@@ -26,17 +29,17 @@ const printings = RUNS.flatMap(({ run, size }) =>
   Array.from({ length: size }, (_, index) => ({
     setCode: `${run}${String(index + 1).padStart(3, '0')}`,
     rarity: rarityOf(index + 1),
-    passcode: 30000001 + index,
+    passcode: FIRST_PASSCODE + index,
   })),
 );
 const cards = Array.from({ length: 129 }, (_, index) => ({
-  passcode: 30000001 + index,
+  passcode: FIRST_PASSCODE + index,
   name: index === 0 ? 'Blue-Eyes White Dragon' : `Card ${index + 1}`,
   kind: 'Monster',
   type: 'Normal Monster',
   text: 'A card from Legend of Blue Eyes White Dragon.',
   printings: printings
-    .filter(({ passcode }) => passcode === 30000001 + index)
+    .filter(({ passcode }) => passcode === FIRST_PASSCODE + index)
     .map(({ setCode, rarity }) => ({ setCode, setName: SET_NAME, rarity })),
 }));
 
@@ -129,8 +132,9 @@ test('places the 129 LOB-EN printings from page 1, slot 1 to page 15, slot 3', a
 
 const printingRows = (panel) => panel.getByRole('list', { name: 'Printings' }).getByRole('button');
 
-/** The count of printings the chosen filters leave, under the filter groups. */
-const filterCount = (panel) => panel.locator('.catalogue__filters').getByRole('status');
+/** The count of printings the chosen filters leave, in the Filters group. */
+const filterCount = (panel) =>
+  panel.getByRole('group', { name: 'Filters', exact: true }).getByRole('status');
 
 /** The toggles of the filter group named `label`, pressed or not, as their text reads. */
 const toggleNames = (panel, label) =>
