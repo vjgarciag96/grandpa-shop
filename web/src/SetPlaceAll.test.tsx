@@ -1,28 +1,15 @@
 import { fireEvent, screen, within } from '@testing-library/react';
-import type userEvent from '@testing-library/user-event';
 import { expect, it } from 'vitest';
-import { openApp, openCatalogueResult, openSet } from './test/app';
+import { chooseSuperAndUltra, openApp, openCatalogueResult, openLostMillennium } from './test/app';
 import { detailOf, saveBinderWith, savedPotOfGreed } from './test/binder';
-
-type User = ReturnType<typeof userEvent.setup>;
 
 const panel = () => screen.getByRole('complementary', { name: 'Catalogue' });
 const panelTitle = () => within(panel()).getByRole('heading', { level: 2 }).textContent;
 const catalogueStatus = () =>
   panel().querySelector('.catalogue__announcement')?.textContent?.trim();
 const pocket = (name: string) => screen.getByRole('button', { name });
-const toggle = (name: string) =>
-  within(screen.getByRole('group', { name: 'Rarity' })).getByRole('button', { name });
 const placeAll = (count: number) =>
   within(panel()).getByRole('button', { name: `Place all ${count}` });
-
-const openLostMillennium = (openPanel?: (user: User) => Promise<void>) =>
-  openSet('lost', /The Lost Millennium/, openPanel);
-
-async function chooseSuperAndUltra(user: User) {
-  await user.click(toggle('Super Rare 1'));
-  await user.click(toggle('Ultra Rare 1'));
-}
 
 it('offers to place the two printings the Super and Ultra Rares leave', async () => {
   const user = await openLostMillennium();
@@ -89,11 +76,9 @@ it('starts at the targeted slot 5 and skips the filled slot 6, which keeps its c
 
   await user.click(placeAll(2));
 
-  expect([
-    pocket('Page 1, slot 5: Silver Sentinel'),
-    pocket('Page 1, slot 6: Pot of Greed'),
-    pocket('Page 1, slot 7: Golden Idol'),
-  ]).toHaveLength(3);
+  expect(pocket('Page 1, slot 5: Silver Sentinel')).toBeTruthy();
+  expect(pocket('Page 1, slot 6: Pot of Greed')).toBeTruthy();
+  expect(pocket('Page 1, slot 7: Golden Idol')).toBeTruthy();
 });
 
 it('clears the target after placing from it', async () => {

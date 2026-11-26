@@ -80,10 +80,7 @@ export function placeRunAt(
     aim: null,
     announcement: announced(
       current.announcement,
-      placedRun(
-        entries.map(({ printing }) => printing.setCode),
-        run.filled,
-      ),
+      placedRun(entries[0].printing.setCode, run.filled),
     ),
   };
 }

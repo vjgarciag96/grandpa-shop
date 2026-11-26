@@ -82,10 +82,10 @@ export function placedPrinting(setCode: string, to: SlotAddress, replaced?: stri
 }
 
 /** "Placed 11 printings from page 1, slot 1 to page 2, slot 2." One slot falls back to placedPrinting. */
-export function placedRun(setCodes: readonly string[], filled: readonly SlotAddress[]): string {
+export function placedRun(firstSetCode: string, filled: readonly SlotAddress[]): string {
   const [from] = filled;
   const to = filled[filled.length - 1];
-  if (filled.length === 1) return placedPrinting(setCodes[0], from);
+  if (filled.length === 1) return placedPrinting(firstSetCode, from);
   return `Placed ${countOf(filled.length, 'printing')} from ${slotNameInSentence(from)} to ${slotNameInSentence(to)}.`;
 }
 

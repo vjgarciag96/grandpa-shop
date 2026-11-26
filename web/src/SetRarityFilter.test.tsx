@@ -1,22 +1,16 @@
 import { screen, within } from '@testing-library/react';
-import type userEvent from '@testing-library/user-event';
 import { expect, it } from 'vitest';
-import { openSet } from './test/app';
-
-type User = ReturnType<typeof userEvent.setup>;
+import {
+  chooseSuperAndUltra,
+  openLostMillennium,
+  openSet,
+  rarityToggle as toggle,
+} from './test/app';
 
 const rarityGroup = () => screen.getByRole('group', { name: 'Rarity' });
-const toggle = (name: string) => within(rarityGroup()).getByRole('button', { name });
 const printingRows = () =>
   within(screen.getByRole('list', { name: 'Printings' })).getAllByRole('button');
 const shownSetCodes = () => printingRows().map((row) => row.querySelector('strong')?.textContent);
-
-const openLostMillennium = () => openSet('lost', /The Lost Millennium/);
-
-async function chooseSuperAndUltra(user: User) {
-  await user.click(toggle('Super Rare 1'));
-  await user.click(toggle('Ultra Rare 1'));
-}
 
 it('offers a rarity group over an opened set with several rarities', async () => {
   await openLostMillennium();

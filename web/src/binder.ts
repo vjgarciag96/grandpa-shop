@@ -70,10 +70,9 @@ export function resizeBinder(binder: Binder, capacity: BinderCapacity): BinderRe
   }
 
   const slots = emptySlots(capacity);
-  const oldWidth = slotsPerPage(binder.capacity);
   for (const [index, copy] of binder.slots.entries()) {
     if (copy === null) continue;
-    const address = { page: Math.floor(index / oldWidth) + 1, position: index % oldWidth };
+    const address = addressAt(binder.capacity, index);
     if (!hasSlot(capacity, address)) return { kind: 'occupied', address };
     slots[indexOf(capacity, address)] = copy;
   }
@@ -97,7 +96,6 @@ export function placeRun(
   start: SlotAddress,
   copies: readonly Copy[],
 ): RunPlacement {
-  const width = slotsPerPage(binder.capacity);
   const slots = [...binder.slots];
   const filled: SlotAddress[] = [];
   for (
@@ -107,7 +105,7 @@ export function placeRun(
   ) {
     if (slots[index] !== null) continue;
     slots[index] = copies[filled.length];
-    filled.push({ page: Math.floor(index / width) + 1, position: index % width });
+    filled.push(addressAt(binder.capacity, index));
   }
   if (filled.length < copies.length) return { kind: 'refused', emptySlots: filled.length };
   return { kind: 'placed', binder: { ...binder, slots }, filled };
@@ -218,4 +216,9 @@ function indexOf(capacity: BinderCapacity, address: SlotAddress): number {
   if (!hasSlot(capacity, address))
     throw new RangeError(`No slot at page ${page}, position ${position}`);
   return (page - 1) * slotsPerPage(capacity) + position;
+}
+
+function addressAt(capacity: BinderCapacity, index: number): SlotAddress {
+  const width = slotsPerPage(capacity);
+  return { page: Math.floor(index / width) + 1, position: index % width };
 }
