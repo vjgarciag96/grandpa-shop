@@ -41,7 +41,7 @@ for (const viewport of [
       await rarity.getByRole('button', { name: 'Super Rare 7', exact: true }).click();
       await rarity.getByRole('button', { name: 'Ultra Rare 4', exact: true }).click();
 
-      await rarity.getByRole('status').filter({ hasText: '11 of 85 printings' }).waitFor();
+      await filterCount(panel).filter({ hasText: '11 of 85 printings' }).waitFor();
       assert.equal(await printingRows(panel).count(), 11, 'the Super and Ultra Rares are listed');
     });
   });
@@ -118,13 +118,23 @@ for (const viewport of [
     });
   });
 
-  test(`keeps the rarity count where screen readers hear it before any rarity is chosen at ${viewport.width} px`, async () => {
+  test(`keeps the filter count where screen readers hear it before any rarity is chosen at ${viewport.width} px`, async () => {
     await withBuiltApp(viewport, serveLostMillennium, async (page) => {
       const panel = await openLostMillennium(page);
 
-      const status = panel.getByRole('group', { name: 'Rarity' }).getByRole('status');
+      const status = filterCount(panel);
 
       assert.equal(await status.count(), 1, 'the empty count is a live region already');
+    });
+  });
+
+  test(`offers no print run group over The Lost Millennium's single print run at ${viewport.width} px`, async () => {
+    await withBuiltApp(viewport, serveLostMillennium, async (page) => {
+      const panel = await openLostMillennium(page);
+
+      const printRun = panel.getByRole('group', { name: 'Print run' });
+
+      assert.equal(await printRun.count(), 0, 'every printing is in the TLM-EN print run');
     });
   });
 
@@ -134,7 +144,7 @@ for (const viewport of [
       const rarity = panel.getByRole('group', { name: 'Rarity' });
       await rarity.getByRole('button', { name: 'Super Rare 7', exact: true }).click();
       await rarity.getByRole('button', { name: 'Ultra Rare 4', exact: true }).click();
-      await rarity.getByRole('status').filter({ hasText: '11 of 85 printings' }).waitFor();
+      await filterCount(panel).filter({ hasText: '11 of 85 printings' }).waitFor();
 
       await rarity.getByRole('button', { name: 'Clear', exact: true }).click();
 
@@ -159,13 +169,16 @@ test('keeps the catalogue open as a bottom sheet after placing the 11 Super and 
   });
 });
 
+/** The count of printings the chosen filters leave, under the filter groups. */
+const filterCount = (panel) => panel.locator('.catalogue__filters').getByRole('status');
+
 const printingRows = (panel) => panel.getByRole('list', { name: 'Printings' }).getByRole('button');
 
 async function chooseSuperAndUltra(panel) {
   const rarity = panel.getByRole('group', { name: 'Rarity' });
   await rarity.getByRole('button', { name: 'Super Rare 7', exact: true }).click();
   await rarity.getByRole('button', { name: 'Ultra Rare 4', exact: true }).click();
-  await rarity.getByRole('status').filter({ hasText: '11 of 85 printings' }).waitFor();
+  await filterCount(panel).filter({ hasText: '11 of 85 printings' }).waitFor();
 }
 
 const pocketNamed = (page, number, slot, card) =>
