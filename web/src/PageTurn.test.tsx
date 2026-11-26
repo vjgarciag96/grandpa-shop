@@ -4,9 +4,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
 import { fakeCatalogue } from './test/fakeCatalogue';
 import { prefersReducedMotion } from './test/media';
+import { openFirstBinder } from './test/app';
 
 function renderApp() {
   render(<App catalogue={fakeCatalogue().catalogue} />);
+  openFirstBinder();
   return userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
 }
 

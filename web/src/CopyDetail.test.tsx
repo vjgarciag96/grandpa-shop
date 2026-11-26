@@ -13,9 +13,11 @@ import {
   relinquished,
   relinquishedPrice,
 } from './test/fakeCatalogue';
+import { openFirstBinder } from './test/app';
 
 async function appWithFirstSlotFilled(query: string, cardName: RegExp, setCode: RegExp) {
   render(<App catalogue={fakeCatalogue().catalogue} />);
+  openFirstBinder();
   const user = userEvent.setup();
   await user.click(screen.getByRole('button', { name: 'Page 1, slot 1, empty' }));
   await user.type(screen.getByRole('searchbox', { name: 'Search cards and sets' }), query);
@@ -155,6 +157,7 @@ describe("a copy's price", () => {
       },
     });
     render(<App catalogue={catalogue} />);
+    openFirstBinder();
     const user = userEvent.setup();
     await user.click(screen.getByRole('button', { name: 'Page 1, slot 1: Relinquished' }));
     return within(screen.getByRole('dialog', { name: 'Page 1, slot 1' }));

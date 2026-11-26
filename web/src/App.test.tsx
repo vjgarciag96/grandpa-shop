@@ -3,11 +3,13 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import App from './App';
 import { darkMagician, failingCatalogue, fakeCatalogue } from './test/fakeCatalogue';
+import { openFirstBinder } from './test/app';
 
 type User = ReturnType<typeof userEvent.setup>;
 
 function renderApp(catalogue = fakeCatalogue().catalogue) {
   render(<App catalogue={catalogue} />);
+  openFirstBinder();
   return userEvent.setup();
 }
 

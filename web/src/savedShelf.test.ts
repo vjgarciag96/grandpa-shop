@@ -21,9 +21,7 @@ describe('loading a saved shelf', () => {
       ],
     });
     const shelf = loadShelf();
-    expect(slotAt(shelf.binders[shelf.activeIndex].binder, { page: 1, position: 0 })).toEqual(
-      savedDarkMagician,
-    );
+    expect(slotAt(shelf.binders[0].binder, { page: 1, position: 0 })).toEqual(savedDarkMagician);
   });
 
   it('preserves the original binder when the replacement exceeds the storage quota', () => {
@@ -39,24 +37,28 @@ describe('loading a saved shelf', () => {
     expect(localStorage.getItem(SAVED_BINDER_KEY)).toBe(original);
   });
 
-  it('opens the first saved binder when the selected name is missing from the shelf', () => {
-    localStorage.setItem(
-      SAVED_BINDER_KEY,
-      JSON.stringify({
-        binders: [
-          { name: 'Main', binder: { slots: [savedDarkMagician, ...emptyBinder().slots.slice(1)] } },
-          { name: 'Trades', binder: emptyBinder() },
-        ],
-      }),
-    );
+  it('marks no binder as last opened when the saved name is missing', () => {
+    saveBinders([
+      { name: 'Main', binder: emptyBinder() },
+      { name: 'Trades', binder: emptyBinder() },
+    ]);
     localStorage.setItem(OPEN_BINDER_KEY, 'Missing');
 
     const shelf = loadShelf();
 
-    expect(shelf.binders[shelf.activeIndex]).toMatchObject({
-      name: 'Main',
-      binder: { slots: expect.arrayContaining([savedDarkMagician]) },
-    });
+    expect(shelf.showing).toEqual({ kind: 'shelf', lastOpened: null });
+  });
+
+  it('marks the saved binder as last opened without opening it', () => {
+    saveBinders([
+      { name: 'Main', binder: emptyBinder() },
+      { name: 'Trades', binder: emptyBinder() },
+    ]);
+    localStorage.setItem(OPEN_BINDER_KEY, 'Trades');
+
+    const shelf = loadShelf();
+
+    expect(shelf.showing).toEqual({ kind: 'shelf', lastOpened: 1 });
   });
 
   it('keeps the saved binders when a stale tab tries to initialize the shelf', () => {
@@ -83,7 +85,7 @@ describe('loading a saved shelf', () => {
 
       const shelf = loadShelf();
 
-      expect(shelf.binders[shelf.activeIndex].name).toBe('Binder 1');
+      expect(shelf.binders.map(({ name }) => name)).toEqual(['Binder 1']);
     },
   );
 
@@ -97,7 +99,7 @@ describe('loading a saved shelf', () => {
 
     const shelf = loadShelf();
 
-    const { name, binder } = shelf.binders[shelf.activeIndex];
+    const [{ name, binder }] = shelf.binders;
     expect(name).toBe('Main');
     expect(binder.capacity).toEqual({ grid: 3, pages: 40 });
     expect(slotAt(binder, { page: 40, position: 8 })).toEqual(savedDarkMagician);
@@ -114,7 +116,7 @@ describe('loading a saved shelf', () => {
 
       const shelf = loadShelf();
 
-      expect(shelf.binders[shelf.activeIndex].name).toBe('Binder 1');
+      expect(shelf.binders.map(({ name }) => name)).toEqual(['Binder 1']);
     },
   );
 
@@ -124,7 +126,7 @@ describe('loading a saved shelf', () => {
 
     const shelf = loadShelf();
 
-    expect(shelf.binders[shelf.activeIndex].name).toBe('Binder 1');
+    expect(shelf.binders.map(({ name }) => name)).toEqual(['Binder 1']);
   });
 
   it('opens a fresh binder when a saved binder is missing its pockets', () => {
@@ -135,6 +137,6 @@ describe('loading a saved shelf', () => {
 
     const shelf = loadShelf();
 
-    expect(shelf.binders[shelf.activeIndex].name).toBe('Binder 1');
+    expect(shelf.binders.map(({ name }) => name)).toEqual(['Binder 1']);
   });
 });

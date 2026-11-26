@@ -16,6 +16,7 @@ Blue-Eyes-inspired sapphire and ice blue mark primary actions and selections, wi
 | `outline`, `outlineVariant` | Visible control boundaries and quiet dividers, respectively. |
 | `error` | Destructive actions, error messages on light surfaces, and a filed copy about to leave the binder by drag. |
 | `binderBoard`, `binderPage` | The physical cover, spine, and sheet surfaces. |
+| `shelfBoard` | The boards of the shelf the binders stand on. It carries no text. |
 | `foil` | A decorative rarity mark beside its text label. |
 
 ## Typography
@@ -34,10 +35,19 @@ Below a viewport width of `layout.stackBelowPx`, the pages of a spread stack, le
 
 A filled slot shows the card's image in its pocket and nothing else. The rarity, set code, and condition belong to the copy's detail, which opens from the slot. An empty slot shows a dashed outline `layout.emptySlotStrokePx` wide and a plus in a tonal circle.
 
+## Shelf
+
+The app opens on the shelf (see Shelf in [CONTEXT.md](../CONTEXT.md)), never straight into a binder. Under the app title it shows the "Binder shelf" heading and the note that cards are kept in this browser.
+
+- **Boards.** The binders stand on boards in `shelfBoard`, `space.slot * 2` deep, each spanning the full width like a bookcase. When the binders do not fit on one board they wrap onto the next, so the page never scrolls sideways. Every board has the same height: a spine plus `space.slot * 3` of headroom.
+- **Spines.** Each binder is one spine, `layout.shelfSpineWidthPx` by `layout.shelfSpineHeightPx`, in `binderBoard` with its name in `binderPage`, in shelf order with `space.slot` between them. The name is the only content. It reads top to bottom along the spine in the body-small style at weight 600, and a name too long for the spine is cut off with an ellipsis. The spine's accessible name and tooltip are always the full name. The top corners use half of `radius.cardPx`. Choosing a spine opens that binder at page 1 with the catalogue closed and focus on the binder's name. Back to shelf, a text action with a back chevron at the start of the desk's actions, returns to the shelf with focus on that binder's spine.
+- **Last opened.** The binder opened last carries a small "Last opened" label over the foot of its spine, in `primaryContainer` and `onPrimaryContainer`, label-small, reading along the spine. The label describes the spine. It does not open the binder or take focus when the shelf loads.
+- **New binder.** After the last spine, on the same board, stands a spine-sized spot with the empty-pocket look: a dashed outline `layout.emptySlotStrokePx` wide, a plus in a tonal circle, and "New binder" along it. It opens the New binder dialog, which names the binder and sets its pockets per page and pages. A new binder goes to the end of the shelf and opens. Closing the dialog returns focus to New binder.
+
 ## Binder page-turn
 
 - A turn moves one spread. It starts from a previous or next control, the left or right arrow key, or a horizontal swipe on the spread of at least `motion.swipeThresholdPx`.
-- The arrow keys turn only while no dialog is open and focus is not in a text field, so typing in a search never turns the binder.
+- The arrow keys turn only while a binder is open, no dialog is open, and focus is not in a text field, so typing in a search never turns the binder and the shelf never turns one.
 - There is no turn before the first spread or after the last. The control for it is disabled.
 - The turn lasts `motion.pageFlipMs` on `motion.easing`. The page lifts from the gutter. The boards stay still.
 - When the pages are stacked there is no gutter to lift from: the turn cuts. Swipe still turns.

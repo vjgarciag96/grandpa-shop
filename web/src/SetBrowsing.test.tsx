@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { expect, it, vi } from 'vitest';
 import App from './App';
 import { fakeCatalogue } from './test/fakeCatalogue';
+import { openFirstBinder } from './test/app';
 
 const setResult = () =>
   screen.findByRole('button', {
@@ -11,6 +12,7 @@ const setResult = () =>
 
 async function searchForSet(catalogue = fakeCatalogue().catalogue, query = 'legend') {
   render(<App catalogue={catalogue} />);
+  openFirstBinder();
   const user = userEvent.setup();
   await user.click(screen.getByRole('button', { name: 'Add cards' }));
   await user.type(screen.getByRole('searchbox', { name: 'Search cards and sets' }), query);

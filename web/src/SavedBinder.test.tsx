@@ -130,7 +130,7 @@ describe('the binder across reloads', () => {
     first.close();
 
     const shelf = loadShelf();
-    const saved = shelf.binders[shelf.activeIndex].binder.slots;
+    const saved = shelf.binders[0].binder.slots;
     expect(saved).toHaveLength(360);
     expect(saved.slice(2)).toEqual(slots.slice(2));
   });
