@@ -163,6 +163,9 @@ export const text = {
     setCount: (count: number) => countOf(count, 'set'),
     cardCount: (count: number) => countOf(count, 'card'),
     printingCount: (count: number) => countOf(count, 'printing'),
+    rarity: 'Rarity',
+    clearRarities: 'Clear',
+    filteredCount: (shown: number, total: number) => `${shown} of ${countOf(total, 'printing')}`,
   },
   detail: {
     printing: 'Printing',

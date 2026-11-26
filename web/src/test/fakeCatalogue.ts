@@ -65,6 +65,27 @@ export const relinquishedPrice: Price = {
   guideDate: '2026-11-23',
 };
 
+/** A card with a single printing in The Lost Millennium. */
+function lostMillenniumCard(passcode: number, name: string, setCode: string, rarity: string): Card {
+  return {
+    passcode,
+    name,
+    kind: 'Monster',
+    type: 'Effect Monster',
+    text: 'A card from The Lost Millennium.',
+    printings: [{ setCode, setName: 'The Lost Millennium', rarity }],
+  };
+}
+
+/** Five cards whose printings make The Lost Millennium a set of four rarities: two Common, one each of the rest. */
+export const lostMillennium: Card[] = [
+  lostMillenniumCard(10000001, 'Ancient Sphinx', 'TLM-EN001', 'Common'),
+  lostMillenniumCard(10000002, 'Silver Sentinel', 'TLM-EN002', 'Super Rare'),
+  lostMillenniumCard(10000003, 'Mirror Knight', 'TLM-EN003', 'Rare'),
+  lostMillenniumCard(10000004, 'Golden Idol', 'TLM-EN004', 'Ultra Rare'),
+  lostMillenniumCard(10000005, 'Stone Guardian', 'TLM-EN005', 'Common'),
+];
+
 /**
  * A catalogue that answers from a fixed list and records every query it is asked.
  * `prices` is keyed `setCode|rarity`; a printing not in it has no price.

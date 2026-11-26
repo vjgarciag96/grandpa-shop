@@ -1,8 +1,10 @@
 import { text } from './strings';
-import type { PointerEvent, RefObject } from 'react';
+import { useMemo, useState, type PointerEvent, type RefObject } from 'react';
 import { isHeld, type Aim } from './aim';
 import type { Card, CardSet, Catalogue, Printing, SetPrinting } from './catalogue';
 import { RetryMessage } from './CatalogueStatus';
+import { RarityFilter } from './CatalogueRarityFilter';
+import { keepRarities, NO_RARITIES, rarityOptions, type RaritySelection } from './rarityFilter';
 import { useCatalogueRequest } from './useCatalogueRequest';
 
 type ChooseProps = {
@@ -63,6 +65,8 @@ export function PrintingList({
 
 type SetResult = SetPrinting[] | 'failed' | null;
 
+const rarityOf = (entry: SetPrinting) => entry.printing.rarity;
+
 function loadSetPrintings(
   catalogue: Catalogue,
   set: CardSet,
@@ -90,6 +94,10 @@ export function SetPrintingList({
     loadSetPrintings,
     null,
   );
+  const [selected, setSelected] = useState<RaritySelection>(NO_RARITIES);
+  const printings = Array.isArray(result) ? result : null;
+  const options = useMemo(() => (printings ? rarityOptions(printings, rarityOf) : []), [printings]);
+  const visible = printings ? keepRarities(printings, selected, rarityOf) : [];
 
   return (
     <>
@@ -115,24 +123,34 @@ export function SetPrintingList({
             message={text.catalogue.setFailed}
             onRetry={() => {
               backButton.current?.focus();
+              setSelected(NO_RARITIES);
               retry();
             }}
           />
         )}
-        {Array.isArray(result) && (
-          <ul className="catalogue__printings" aria-label={text.catalogue.printings}>
-            {result.map((entry) => (
-              <PrintingRow
-                key={`${entry.card.passcode} ${entry.printing.setCode} ${entry.printing.rarity}`}
-                entry={entry}
-                detail={entry.card.name}
-                catalogue={catalogue}
-                aim={aim}
-                onPrintingPress={onPrintingPress}
-                onChoose={onChoose}
-              />
-            ))}
-          </ul>
+        {printings && (
+          <>
+            <RarityFilter
+              options={options}
+              selected={selected}
+              shown={visible.length}
+              total={printings.length}
+              onChange={setSelected}
+            />
+            <ul className="catalogue__printings" aria-label={text.catalogue.printings}>
+              {visible.map((entry) => (
+                <PrintingRow
+                  key={`${entry.card.passcode} ${entry.printing.setCode} ${entry.printing.rarity}`}
+                  entry={entry}
+                  detail={entry.card.name}
+                  catalogue={catalogue}
+                  aim={aim}
+                  onPrintingPress={onPrintingPress}
+                  onChoose={onChoose}
+                />
+              ))}
+            </ul>
+          </>
         )}
       </div>
     </>
