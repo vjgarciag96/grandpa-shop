@@ -62,6 +62,20 @@ cd web && npm run dev
 
 It serves on `http://127.0.0.1:43123` and forwards `/api` to the server. It shows the binder, and a slot is filled by searching the catalogue. Copies stay in the current browser across reloads.
 
+## Images
+
+CI publishes two images to GitHub Container Registry on every push to `main`, tagged with the commit SHA. See [0015](docs/decisions/0015-server-and-web-ship-as-container-images.md). To build and run them locally:
+
+```sh
+docker build -f server/Dockerfile -t grandpa-shop-server .
+docker build -f web/Dockerfile -t grandpa-shop-web .
+docker network create grandpa-shop
+docker run -d --name server --network grandpa-shop -v grandpa_shop_cache:/cache grandpa-shop-server
+docker run -d --network grandpa-shop -e GRANDPA_SHOP_API=server:8080 -p 127.0.0.1:43123:8080 grandpa-shop-web
+```
+
+The server listens on 8080 and keeps its cache in `/cache`. The web image serves on 8080 and forwards `/api` to `GRANDPA_SHOP_API`.
+
 ## Local database
 
 Docker Compose can start PostgreSQL with the placeholders in `.env.example`:
