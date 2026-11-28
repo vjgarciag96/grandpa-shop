@@ -227,9 +227,6 @@ function PageSide({
           );
         })}
       </div>
-      <div className="page__number" aria-hidden="true">
-        {page}
-      </div>
     </section>
   );
 }

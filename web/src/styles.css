@@ -433,13 +433,6 @@ body {
   gap: var(--pocket-gap);
 }
 
-.page__number {
-  margin-top: var(--space-slot);
-  color: var(--color-on-surface-variant);
-  font-size: var(--type-body-small);
-  text-align: center;
-}
-
 .slot {
   aspect-ratio: var(--pocket-aspect);
   padding: 0;
@@ -807,8 +800,8 @@ html:has(.dialog-backdrop) {
 
 /*
  * Beside the panel the binder fills the height under the desk head, and its width follows from that
- * height so the whole spread stays in view. A page is its padding, pocket rows and their gaps,
- * and its number; the pockets' width over height is the pocket aspect.
+ * height so the whole spread stays in view. A page is its padding, pocket rows and their gaps; the
+ * pockets' width over height is the pocket aspect.
  */
 .desk--beside .desk__main {
   display: flex;
@@ -823,11 +816,9 @@ html:has(.dialog-backdrop) {
 }
 
 .desk--beside .binder {
-  --page-number-row: calc(var(--space-slot) + var(--type-body-small) * 1.5);
   --pocket-gaps: calc(var(--pocket-gap) * (var(--pocket-columns) - 1));
   --pocket-rows: calc(
-    100cqh - var(--board-padding) * 2 - var(--page-padding) * 2 - var(--pocket-gaps) -
-      var(--page-number-row)
+    100cqh - var(--board-padding) * 2 - var(--page-padding) * 2 - var(--pocket-gaps)
   );
   --page-width: calc(
     var(--pocket-rows) * (var(--pocket-aspect)) + var(--page-padding) * 2 + var(--pocket-gaps)
